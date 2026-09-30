@@ -1,0 +1,269 @@
+{
+  "sources": {
+    "swiss": {
+      "url": "https://data.geo.admin.ch/ch.swisstopo.swissnames3d/swissnames3d_2026/swissnames3d_2026_2056.shp.zip",
+      "file": "swissNAMES3D_PLY.shp",
+      "field": "NAME",
+      "classField": "OBJEKTART",
+      "classes": [
+        "Haupttal",
+        "Tal"
+      ],
+      "license": "swisstopo OGD, attribution required",
+      "name": "©swisstopo · swissNAMES3D 2026",
+      "country": "CH",
+      "definition": "Official named valley area from swissNAMES3D; original polygon retained."
+    },
+    "paca": {
+      "url": "https://www.data.gouv.fr/api/1/datasets/r/9ce364a0-c00c-448b-a563-8b63cc4c8645",
+      "file": "dataset/UP.shp",
+      "field": "code_up",
+      "license": "Licence Ouverte 2.0",
+      "name": "DREAL PACA · Unités paysagères",
+      "country": "FR",
+      "definition": "Named valley landscape unit supplied by DREAL PACA; original polygon retained."
+    },
+    "piedmont": {
+      "url": "https://www.datigeo-piem-download.it/direct/Geoportale/RegionePiemonte/PPR/ProgettiQGIS/PPR_TavolaP3.zip",
+      "file": "PPR_TavolaP3/ambiti_paesaggio_2012.shp",
+      "field": "AMBITO",
+      "license": "CC BY 4.0",
+      "name": "Regione Piemonte · PPR Tavola P3",
+      "country": "IT",
+      "definition": "Named valley landscape area in the regional landscape plan; original polygon retained."
+    },
+    "austria": {
+      "url": "https://e-gov.ooe.gv.at/at.gv.ooe.dorisdaten/DORIS_U/NALA_RAUMEINHEITEN.zip",
+      "file": "NALA_RAUMEINHEITEN.shp",
+      "field": "RAUMIDE",
+      "license": "CC BY 4.0",
+      "name": "Land Oberösterreich · NaLa Raumgliederung",
+      "country": "AT",
+      "definition": "Named NaLa landscape unit, specifically the Upper Austrian Ennstal; not the full cross-province Enns valley."
+    }
+  },
+  "candidates": [
+    {
+      "source": "swiss",
+      "key": "Mattertal",
+      "site": "enwiki",
+      "title": "Mattertal",
+      "tier": "easy",
+      "reason": "Internationally recognized Zermatt valley."
+    },
+    {
+      "source": "swiss",
+      "key": "Lötschental",
+      "site": "enwiki",
+      "title": "Lötschental",
+      "tier": "easy",
+      "reason": "Widely documented named Alpine valley."
+    },
+    {
+      "source": "swiss",
+      "key": "Saastal",
+      "site": "enwiki",
+      "title": "Saastal",
+      "tier": "easy",
+      "reason": "Recognizable Saas-Fee destination valley."
+    },
+    {
+      "source": "swiss",
+      "key": "Val d'Anniviers",
+      "site": "enwiki",
+      "title": "Val d'Anniviers",
+      "tier": "easy",
+      "reason": "Established internationally visited Alpine valley."
+    },
+    {
+      "source": "swiss",
+      "key": "Val de Bagnes",
+      "site": "enwiki",
+      "title": "Val de Bagnes",
+      "tier": "easy",
+      "reason": "Recognizable Verbier valley; use valley entity, not municipality."
+    },
+    {
+      "source": "swiss",
+      "key": "Val Verzasca",
+      "site": "enwiki",
+      "title": "Verzasca (valley)",
+      "tier": "easy",
+      "reason": "Well-known Ticino valley with distinctive landscape."
+    },
+    {
+      "source": "swiss",
+      "key": "Valle Maggia",
+      "site": "enwiki",
+      "title": "Valle Maggia",
+      "tier": "easy",
+      "reason": "Major named Ticino valley."
+    },
+    {
+      "source": "swiss",
+      "key": "Haslital",
+      "site": "dewiki",
+      "title": "Haslital",
+      "tier": "easy",
+      "reason": "Major Bernese Alpine valley."
+    },
+    {
+      "source": "swiss",
+      "key": "Safiental",
+      "site": "dewiki",
+      "title": "Safiental",
+      "tier": "medium",
+      "reason": "Regional valley recognition; disambiguated from municipality."
+    },
+    {
+      "source": "swiss",
+      "key": "Turtmanntal",
+      "site": "dewiki",
+      "title": "Turtmanntal",
+      "tier": "medium",
+      "reason": "Documented secondary Valais valley."
+    },
+    {
+      "source": "swiss",
+      "key": "Sernftal",
+      "site": "dewiki",
+      "title": "Sernftal",
+      "tier": "medium",
+      "reason": "Named Glarus valley with regional recognition."
+    },
+    {
+      "source": "swiss",
+      "key": "Val d'Illiez",
+      "site": "frwiki",
+      "title": "Val d'Illiez",
+      "tier": "medium",
+      "reason": "Named Chablais valley, not the commune."
+    },
+    {
+      "source": "piedmont",
+      "key": "52",
+      "site": "itwiki",
+      "title": "Valle Maira",
+      "tier": "medium",
+      "reason": "Established hiking valley with regional recognition."
+    },
+    {
+      "source": "piedmont",
+      "key": "51",
+      "site": "itwiki",
+      "title": "Valle Varaita",
+      "tier": "medium",
+      "reason": "Recognized Monviso-area valley."
+    },
+    {
+      "source": "piedmont",
+      "key": "54",
+      "site": "itwiki",
+      "title": "Valle Stura di Demonte",
+      "tier": "medium",
+      "reason": "Major named Piedmont valley."
+    },
+    {
+      "source": "piedmont",
+      "key": "49",
+      "site": "itwiki",
+      "title": "Val Pellice",
+      "tier": "medium",
+      "reason": "Documented major valley."
+    },
+    {
+      "source": "piedmont",
+      "key": "41",
+      "site": "itwiki",
+      "title": "Val Germanasca",
+      "tier": "hard",
+      "reason": "Smaller named valley with narrower recognition."
+    },
+    {
+      "source": "piedmont",
+      "key": "53",
+      "site": "itwiki",
+      "title": "Valle Grana",
+      "tier": "hard",
+      "reason": "Secondary Piedmont valley."
+    },
+    {
+      "source": "piedmont",
+      "key": "56",
+      "site": "itwiki",
+      "title": "Valle Vermenagna",
+      "tier": "hard",
+      "reason": "Regional valley requiring more local knowledge."
+    },
+    {
+      "source": "piedmont",
+      "key": "57",
+      "site": "itwiki",
+      "title": "Valle Pesio",
+      "tier": "hard",
+      "reason": "Secondary Piedmont valley."
+    },
+    {
+      "source": "piedmont",
+      "key": "32",
+      "site": "itwiki",
+      "title": "Val Soana",
+      "tier": "hard",
+      "reason": "Secondary Gran Paradiso valley."
+    },
+    {
+      "source": "piedmont",
+      "key": "7",
+      "site": "itwiki",
+      "title": "Valle Antrona",
+      "tier": "hard",
+      "reason": "Secondary Ossola valley."
+    },
+    {
+      "source": "piedmont",
+      "key": "6",
+      "site": "itwiki",
+      "title": "Val Bognanco",
+      "tier": "hard",
+      "reason": "Secondary Ossola valley."
+    },
+    {
+      "source": "paca",
+      "key": "93_05_2014_09",
+      "site": "frwiki",
+      "title": "Vallée de la Guisane",
+      "tier": "easy",
+      "reason": "Recognizable Serre Chevalier valley; source is a single named valley unit."
+    },
+    {
+      "source": "paca",
+      "key": "93_04_2003_23",
+      "site": "frwiki",
+      "title": "Vallée du Laverq",
+      "tier": "hard",
+      "reason": "Smaller individually delimited valley."
+    },
+    {
+      "source": "austria",
+      "key": "ra10",
+      "site": "dewiki",
+      "title": "Oberösterreichisches Ennstal",
+      "tier": "medium",
+      "reason": "Explicit Upper Austrian named Ennstal unit, distinct from the entire Enns valley."
+    }
+  ],
+  "excludedSourceGroups": [
+    {
+      "source": "paca",
+      "reason": "Combined Écrins, Guil, Drac, Clarée, Buëch and Serre-Ponçon multi-valley landscape units are not individual valley targets."
+    },
+    {
+      "source": "piedmont",
+      "reason": "Combined Val d'Ala/Val Grande and Valle Po/Monte Bracco units excluded; no hand-drawn splits."
+    },
+    {
+      "source": "austria",
+      "reason": "Combined Steyr/Teichl and Lower Enns/Steyr units excluded; lowland units outside the Alps excluded."
+    }
+  ]
+}

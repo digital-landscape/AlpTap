@@ -1,0 +1,7 @@
+{
+  "version": "identification-v3-recognition",
+  "weights": {"notoriety": 0.35, "prominence": 0.20, "isolation": 0.15, "density": 0.15, "similarDensity": 0.10, "elevation": 0.05},
+  "easy": {"widelyDocumentedEditions": 20, "minimumEditions": 8, "minimumProminenceM": 500, "minimumIsolationKm": 10, "maximumScore": 45},
+  "medium": {"minimumEditions": 1, "multipleEditions": 2, "minimumProminenceM": 300, "minimumIsolationKm": 5, "maximumScore": 65},
+  "notes": "Recognition proxies, not measured public familiarity. Strong Wikipedia language coverage can outweigh density for famous peaks. Missing prominence/isolation never count as evidence. Remaining documented Wikidata summits are Hard."
+}

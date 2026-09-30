@@ -1,0 +1,39 @@
+{
+  "name": "alptap",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "dev:web": "vite --host 0.0.0.0",
+    "dev:api": "tsx watch server/index.ts",
+    "build": "tsc --noEmit && vite build && esbuild server/index.ts --bundle --platform=node --format=esm --packages=external --outfile=dist-api/server.mjs",
+    "start:api": "node dist-api/server.mjs",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "vitest run",
+    "test:data": "uv run --cache-dir .cache/uv --project scripts python -m unittest discover -s scripts -p 'test_*.py'",
+    "test:e2e": "playwright test",
+    "data:peaks": "uv run --cache-dir .cache/uv --project scripts python scripts/wikidata_peaks.py",
+    "data:inspect": "node --import tsx scripts/inspect.ts",
+    "typecheck": "tsc --noEmit",
+    "data:peaks:legacy": "uv run --cache-dir .cache/uv --project scripts python scripts/prepare.py",
+    "data:modes": "uv run --cache-dir .cache/uv --project scripts python scripts/prepare_modes.py"
+  },
+  "dependencies": {
+    "maplibre-gl": "^6.11.2",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^26.6.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "esbuild": "^0.28.2",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.1",
+    "vitest": "^5.0.2"
+  }
+}

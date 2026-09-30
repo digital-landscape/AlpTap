@@ -1,0 +1,482 @@
+{
+  "version": "soiusa-area-names-v1",
+  "reviewedAt": "2026-09-29",
+  "records": {
+    "SZ.1": {
+      "original": "Alpi Liguri i.s.a. = Alpes ligures a.s.l.",
+      "names": {
+        "en": "Ligurian Alps, broader sense",
+        "de": "Ligurische Alpen im weiteren Sinne",
+        "fr": "Alpes ligures au sens large",
+        "it": "Alpi Liguri in senso ampio"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "sourceSection": "SZ.1",
+      "method": "SOIUSA multilingual nomenclature; display casing, accents and spelling normalized; broad-sense scope retained"
+    },
+    "SZ.2": {
+      "original": "Alpes Maritimes a.s.l. = Alpi Marittime i.s.a.",
+      "names": {
+        "en": "Maritime Alps and Nice Prealps",
+        "de": "Seealpen und Nizzaer Voralpen",
+        "fr": "Alpes maritimes et Préalpes de Nice",
+        "it": "Alpi Marittime e Prealpi di Nizza"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "sourceSection": "SZ.2",
+      "method": "SOIUSA multilingual nomenclature; display casing, accents and spelling normalized; broad-sense scope retained"
+    },
+    "SZ.3": {
+      "original": "Alpes et Préalpes de Provence",
+      "names": {
+        "en": "Provence Alps and Prealps",
+        "de": "Provenzalische Alpen und Voralpen",
+        "fr": "Alpes et Préalpes de Provence",
+        "it": "Alpi e Prealpi di Provenza"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "sourceSection": "SZ.3",
+      "method": "SOIUSA multilingual nomenclature; display casing, accents and spelling normalized; broad-sense scope retained"
+    },
+    "SZ.4": {
+      "original": "Alpi Cozie - Alpes Cottiennes",
+      "names": {
+        "en": "Cottian Alps",
+        "de": "Cottische Alpen",
+        "fr": "Alpes cottiennes",
+        "it": "Alpi Cozie"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "sourceSection": "SZ.4",
+      "method": "SOIUSA multilingual nomenclature; display casing, accents and spelling normalized; broad-sense scope retained"
+    },
+    "SZ.5": {
+      "original": "Alpes du Dauphiné",
+      "names": {
+        "en": "Dauphiné Alps",
+        "de": "Dauphiné-Alpen",
+        "fr": "Alpes du Dauphiné",
+        "it": "Alpi del Delfinato"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "sourceSection": "SZ.5",
+      "method": "SOIUSA multilingual nomenclature; display casing, accents and spelling normalized; broad-sense scope retained"
+    },
+    "SZ.6": {
+      "original": "Préalpes du Dauphiné",
+      "names": {
+        "en": "Dauphiné Prealps",
+        "de": "Dauphiné-Voralpen",
+        "fr": "Préalpes du Dauphiné",
+        "it": "Prealpi del Delfinato"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "sourceSection": "SZ.6",
+      "method": "SOIUSA multilingual nomenclature; display casing, accents and spelling normalized; broad-sense scope retained"
+    },
+    "SZ.7": {
+      "original": "Alpi Graie - Alpes Grées",
+      "names": {
+        "en": "Graian Alps",
+        "de": "Grajische Alpen",
+        "fr": "Alpes grées",
+        "it": "Alpi Graie"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "sourceSection": "SZ.7",
+      "method": "SOIUSA multilingual nomenclature; display casing, accents and spelling normalized; broad-sense scope retained"
+    },
+    "SZ.8": {
+      "original": "Préalpes de Savoie",
+      "names": {
+        "en": "Savoy Prealps",
+        "de": "Savoyer Voralpen",
+        "fr": "Préalpes de Savoie",
+        "it": "Prealpi di Savoia"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "sourceSection": "SZ.8",
+      "method": "SOIUSA multilingual nomenclature; display casing, accents and spelling normalized; broad-sense scope retained"
+    },
+    "SZ.9": {
+      "original": "Alpi Pennine - Walliser Alpen",
+      "names": {
+        "en": "Pennine Alps",
+        "de": "Penninische Alpen",
+        "fr": "Alpes pennines",
+        "it": "Alpi Pennine"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "sourceSection": "SZ.9",
+      "method": "SOIUSA multilingual nomenclature; display casing, accents and spelling normalized; broad-sense scope retained"
+    },
+    "SZ.10": {
+      "original": "Alpi Lepontine",
+      "names": {
+        "en": "Lepontine Alps",
+        "de": "Lepontinische Alpen",
+        "fr": "Alpes lépontines",
+        "it": "Alpi Lepontine"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "sourceSection": "SZ.10",
+      "method": "SOIUSA multilingual nomenclature; display casing, accents and spelling normalized; broad-sense scope retained"
+    },
+    "SZ.11": {
+      "original": "Prealpi Luganesi",
+      "names": {
+        "en": "Lugano Prealps",
+        "de": "Lugano-Voralpen",
+        "fr": "Préalpes luganoises",
+        "it": "Prealpi Luganesi"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "sourceSection": "SZ.11",
+      "method": "SOIUSA multilingual nomenclature; display casing, accents and spelling normalized; broad-sense scope retained"
+    },
+    "SZ.12": {
+      "original": "Berner Alpen i.w.S.",
+      "names": {
+        "en": "Bernese Alps, broader sense",
+        "de": "Berner Alpen im weiteren Sinne",
+        "fr": "Alpes bernoises au sens large",
+        "it": "Alpi Bernesi in senso ampio"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "sourceSection": "SZ.12",
+      "method": "SOIUSA multilingual nomenclature; display casing, accents and spelling normalized; broad-sense scope retained"
+    },
+    "SZ.13": {
+      "original": "Glarner Alpen i.w.S.",
+      "names": {
+        "en": "Glarus Alps, broader sense",
+        "de": "Glarner Alpen im weiteren Sinne",
+        "fr": "Alpes glaronnaises au sens large",
+        "it": "Alpi Glaronesi in senso ampio"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "sourceSection": "SZ.13",
+      "method": "SOIUSA multilingual nomenclature; display casing, accents and spelling normalized; broad-sense scope retained"
+    },
+    "SZ.14": {
+      "original": "Préalpes Suisses - Schweizerische Voralpen",
+      "names": {
+        "en": "Swiss Prealps",
+        "de": "Schweizerische Voralpen",
+        "fr": "Préalpes suisses",
+        "it": "Prealpi Svizzere"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "sourceSection": "SZ.14",
+      "method": "SOIUSA multilingual nomenclature; display casing, accents and spelling normalized; broad-sense scope retained"
+    },
+    "SZ.15": {
+      "original": "Alpi Retiche Occidentali - Westliche Rätische Alpen",
+      "names": {
+        "en": "Western Rhaetian Alps",
+        "de": "Westliche Rätische Alpen",
+        "fr": "Alpes rhétiques occidentales",
+        "it": "Alpi Retiche Occidentali"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "sourceSection": "SZ.15",
+      "method": "SOIUSA multilingual nomenclature; display casing, accents and spelling normalized; broad-sense scope retained"
+    },
+    "SZ.16": {
+      "original": "Alpi Retiche Orientali - Östliche Rätische Alpen",
+      "names": {
+        "en": "Eastern Rhaetian Alps",
+        "de": "Östliche Rätische Alpen",
+        "fr": "Alpes rhétiques orientales",
+        "it": "Alpi Retiche Orientali"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "sourceSection": "SZ.16",
+      "method": "SOIUSA multilingual nomenclature; display casing, accents and spelling normalized; broad-sense scope retained"
+    },
+    "SZ.17": {
+      "original": "Westliche Tauernalpen",
+      "names": {
+        "en": "Western Tauern Alps",
+        "de": "Westliche Tauernalpen",
+        "fr": "Alpes des Taures occidentales",
+        "it": "Alpi dei Tauri Occidentali"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "sourceSection": "SZ.17",
+      "method": "SOIUSA multilingual nomenclature; display casing, accents and spelling normalized; broad-sense scope retained"
+    },
+    "SZ.18": {
+      "original": "Östliche Tauern Alpen",
+      "names": {
+        "en": "Eastern Tauern Alps",
+        "de": "Östliche Tauernalpen",
+        "fr": "Alpes des Taures orientales",
+        "it": "Alpi dei Tauri Orientali"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "sourceSection": "SZ.18",
+      "method": "SOIUSA multilingual nomenclature; display casing, accents and spelling normalized; broad-sense scope retained"
+    },
+    "SZ.19": {
+      "original": "Steirische-Kärntnerishe Alpen",
+      "names": {
+        "en": "Carinthian-Styrian Alps",
+        "de": "Steirisch-Kärntnerische Alpen",
+        "fr": "Alpes de Styrie et de Carinthie",
+        "it": "Alpi di Stiria e Carinzia"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "sourceSection": "SZ.19",
+      "method": "SOIUSA multilingual nomenclature; display casing, accents and spelling normalized; broad-sense scope retained"
+    },
+    "SZ.20": {
+      "original": "Steirisches Randgebirge",
+      "names": {
+        "en": "Styrian Prealps",
+        "de": "Steirisches Randgebirge",
+        "fr": "Préalpes styriennes",
+        "it": "Prealpi di Stiria"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "sourceSection": "SZ.20",
+      "method": "SOIUSA multilingual nomenclature; display casing, accents and spelling normalized; broad-sense scope retained"
+    },
+    "SZ.21": {
+      "original": "Tiroler Kalkalpen",
+      "names": {
+        "en": "North Tyrol Limestone Alps",
+        "de": "Nordtiroler Kalkalpen",
+        "fr": "Alpes calcaires nord-tyroliennes",
+        "it": "Alpi Calcaree Nord-Tirolesi"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "sourceSection": "SZ.21",
+      "method": "SOIUSA multilingual nomenclature; display casing, accents and spelling normalized; broad-sense scope retained"
+    },
+    "SZ.22": {
+      "original": "Bayerische Alpen",
+      "names": {
+        "en": "Bavarian Alps",
+        "de": "Bayerische Alpen",
+        "fr": "Alpes bavaroises",
+        "it": "Alpi Bavaresi"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "sourceSection": "SZ.22",
+      "method": "SOIUSA multilingual nomenclature; display casing, accents and spelling normalized; broad-sense scope retained"
+    },
+    "SZ.23": {
+      "original": "Tiroler Schieferalpen",
+      "names": {
+        "en": "Tyrol Schistose Alps",
+        "de": "Tiroler Schieferalpen",
+        "fr": "Alpes schisteuses tyroliennes",
+        "it": "Alpi Scistose Tirolesi"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "sourceSection": "SZ.23",
+      "method": "SOIUSA multilingual nomenclature; display casing, accents and spelling normalized; broad-sense scope retained"
+    },
+    "SZ.24": {
+      "original": "Salzburger Nordalpen",
+      "names": {
+        "en": "Salzburg Alps",
+        "de": "Salzburger Nordalpen",
+        "fr": "Alpes salzbourgeoises",
+        "it": "Alpi Salisburghesi"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "sourceSection": "SZ.24",
+      "method": "SOIUSA multilingual nomenclature; display casing, accents and spelling normalized; broad-sense scope retained"
+    },
+    "SZ.25": {
+      "original": "Oberösterreichisch-Salzkammmerguter Alpen",
+      "names": {
+        "en": "Salzkammergut and Upper Austria Alps",
+        "de": "Oberösterreichisch-Salzkammerguter Alpen",
+        "fr": "Alpes du Salzkammergut et de la Haute-Autriche",
+        "it": "Alpi del Salzkammergut e dell'Alta Austria"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "sourceSection": "SZ.25",
+      "method": "SOIUSA multilingual nomenclature; display casing, accents and spelling normalized; broad-sense scope retained"
+    },
+    "SZ.26": {
+      "original": "Steirische Nordalpen",
+      "names": {
+        "en": "Northern Styrian Alps",
+        "de": "Steirische Nordalpen",
+        "fr": "Alpes septentrionales de Styrie",
+        "it": "Alpi Settentrionali di Stiria"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "sourceSection": "SZ.26",
+      "method": "SOIUSA multilingual nomenclature; display casing, accents and spelling normalized; broad-sense scope retained"
+    },
+    "SZ.27": {
+      "original": "Niederösterreichische Nordalpen",
+      "names": {
+        "en": "Lower Austria Alps",
+        "de": "Niederösterreichische Nordalpen",
+        "fr": "Alpes de la Basse-Autriche",
+        "it": "Alpi della Bassa Austria"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "sourceSection": "SZ.27",
+      "method": "SOIUSA multilingual nomenclature; display casing, accents and spelling normalized; broad-sense scope retained"
+    },
+    "SZ.28": {
+      "original": "Alpi Retiche Meridionali - Südliche Rätische Alpen",
+      "names": {
+        "en": "Southern Rhaetian Alps",
+        "de": "Südliche Rätische Alpen",
+        "fr": "Alpes rhétiques méridionales",
+        "it": "Alpi Retiche Meridionali"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "sourceSection": "SZ.28",
+      "method": "SOIUSA multilingual nomenclature; display casing, accents and spelling normalized; broad-sense scope retained"
+    },
+    "SZ.29": {
+      "original": "Alpi e Prealpi Bergamasche",
+      "names": {
+        "en": "Bergamasque Alps and Prealps",
+        "de": "Bergamasker Alpen und Voralpen",
+        "fr": "Alpes et Préalpes bergamasques",
+        "it": "Alpi e Prealpi Bergamasche"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "sourceSection": "SZ.29",
+      "method": "SOIUSA multilingual nomenclature; display casing, accents and spelling normalized; broad-sense scope retained"
+    },
+    "SZ.30": {
+      "original": "Prealpi Bresciane e Gardesane",
+      "names": {
+        "en": "Brescia and Garda Prealps",
+        "de": "Brescianer und Gardaseer Voralpen",
+        "fr": "Préalpes brescianes et gardésanes",
+        "it": "Prealpi Bresciane e Gardesane"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "sourceSection": "SZ.30",
+      "method": "SOIUSA multilingual nomenclature; display casing, accents and spelling normalized; broad-sense scope retained"
+    },
+    "SZ.31": {
+      "original": "Dolomiti - Dolomiten",
+      "names": {
+        "en": "Dolomites",
+        "de": "Dolomiten",
+        "fr": "Dolomites",
+        "it": "Dolomiti"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "sourceSection": "SZ.31",
+      "method": "SOIUSA multilingual nomenclature; display casing, accents and spelling normalized; broad-sense scope retained"
+    },
+    "SZ.32": {
+      "original": "Prealpi Venete",
+      "names": {
+        "en": "Venetian Prealps",
+        "de": "Venezianer Voralpen",
+        "fr": "Préalpes vénitiennes",
+        "it": "Prealpi Venete"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "sourceSection": "SZ.32",
+      "method": "SOIUSA multilingual nomenclature; display casing, accents and spelling normalized; broad-sense scope retained"
+    },
+    "SZ.33": {
+      "original": "Alpi Carniche i.s.a. = Karnische Alpen i.w.S.",
+      "names": {
+        "en": "Carnic and Gailtal Alps",
+        "de": "Karnische und Gailtaler Alpen",
+        "fr": "Alpes carniques et de la Gail",
+        "it": "Alpi Carniche e della Gail"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "sourceSection": "SZ.33",
+      "method": "SOIUSA multilingual nomenclature; display casing, accents and spelling normalized; broad-sense scope retained"
+    },
+    "SZ.34": {
+      "original": "Alpi Giulie i.s.a. = Juliske Alpe v š.s.",
+      "names": {
+        "en": "Julian Alps and Prealps",
+        "de": "Julische Alpen und Voralpen",
+        "fr": "Alpes et Préalpes juliennes",
+        "it": "Alpi e Prealpi Giulie"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "sourceSection": "SZ.34",
+      "method": "SOIUSA multilingual nomenclature; display casing, accents and spelling normalized; broad-sense scope retained"
+    },
+    "SZ.35": {
+      "original": "Karntnerische Slowenische Alpen",
+      "names": {
+        "en": "Carinthian-Slovenian Alps",
+        "de": "Kärntnerisch-Slowenische Alpen",
+        "fr": "Alpes de Carinthie et de Slovénie",
+        "it": "Alpi di Carinzia e Slovenia"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "sourceSection": "SZ.35",
+      "method": "SOIUSA multilingual nomenclature; display casing, accents and spelling normalized; broad-sense scope retained"
+    },
+    "SZ.36": {
+      "original": "Slovenske Predalpe",
+      "names": {
+        "en": "Slovenian Prealps",
+        "de": "Slowenische Voralpen",
+        "fr": "Préalpes slovènes",
+        "it": "Prealpi Slovene"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "sourceSection": "SZ.36",
+      "method": "SOIUSA multilingual nomenclature; display casing, accents and spelling normalized; broad-sense scope retained"
+    },
+    "alps": {
+      "original": "Alps",
+      "names": {
+        "en": "Alps",
+        "de": "Alpen",
+        "fr": "Alpes",
+        "it": "Alpi"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "method": "SOIUSA multilingual nomenclature"
+    },
+    "western-alps": {
+      "original": "Western Alps",
+      "names": {
+        "en": "Western Alps",
+        "de": "Westalpen",
+        "fr": "Alpes occidentales",
+        "it": "Alpi Occidentali"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "method": "SOIUSA multilingual nomenclature"
+    },
+    "eastern-alps": {
+      "original": "Eastern Alps",
+      "names": {
+        "en": "Eastern Alps",
+        "de": "Ostalpen",
+        "fr": "Alpes orientales",
+        "it": "Alpi Orientali"
+      },
+      "source": "https://www.homoalpinus.com/alpes/subdivisions/soiusa/tab_de/index.html",
+      "method": "SOIUSA multilingual nomenclature"
+    },
+    "aux:klagenfurt-basin": {
+      "original": "Klagenfurt Becken",
+      "names": {
+        "en": "Klagenfurt Basin",
+        "de": "Klagenfurter Becken",
+        "fr": "Bassin de Klagenfurt",
+        "it": "Bacino di Klagenfurt"
+      },
+      "source": "SIOUSA/SOIUSA 36 SECTIONS.kml",
+      "method": "Editorial translations of the supplied auxiliary basin name; not a SOIUSA section"
+    }
+  }
+}

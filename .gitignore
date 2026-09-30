@@ -1,0 +1,51 @@
+node_modules/
+dist/
+dist-api/
+.env
+.env.*
+!.env.example
+.DS_Store
+.cache/
+.venv/
+__pycache__/
+*.pyc
+playwright-report/
+test-results/
+coverage/
+output/playwright/
+.playwright-cli/
+
+# TypeScript incremental build metadata
+*.tsbuildinfo
+
+# Local research downloads and comparison reports
+.cache/geonames-audit/
+
+# Local development server logs
+*.log
+
+# Temporary editor files
+*.swp
+
+# Interrupted source downloads
+*.download
+
+# Local editor backups
+*~
+
+# One-off downloaded naming reference pages
+.cache/area-names/
+
+# Disposable classification review exports
+output/difficulty-review/
+
+# Local onboarding visual checks
+output/onboarding/
+# Practice-round browser captures
+output/practice/
+
+# Local map-control layout, camera, and pointer regression captures
+output/interaction/
+
+# Local game-mode browser captures
+output/modes/

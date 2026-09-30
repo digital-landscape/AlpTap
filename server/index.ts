@@ -1,0 +1,15 @@
+import { existsSync, readFileSync } from 'node:fs';
+import { createApi } from './app';
+import { generateChallenge } from '../src/core/challenge';
+import { REGIONS, CHALLENGE_MODES } from '../src/core/config';
+import { viennaDate } from '../src/core/date';
+import type { PeakIndex } from '../src/core/types';
+const index = JSON.parse(readFileSync(process.env.DATA_INDEX ?? 'data/processed/api-index.json', 'utf8')) as {version: string; peaks: PeakIndex[]};
+const curated = JSON.parse(readFileSync(process.env.CURATED_FILE ?? 'data/config/curated.json', 'utf8'));
+for (const region of REGIONS) for (const difficulty of CHALLENGE_MODES) generateChallenge(index.peaks, {date: viennaDate(), region, difficulty, datasetVersion: index.version}, curated);
+const origins = (process.env.CORS_ORIGINS ?? 'http://127.0.0.1:5173,http://localhost:5173,http://127.0.0.1:4173').split(',').map(s => s.trim()).filter(Boolean);
+const modesPath=process.env.MODE_INDEX??'data/processed/mode-index.json';
+const modes=existsSync(modesPath)?JSON.parse(readFileSync(modesPath,'utf8')):[];
+const server = createApi({ index, origins, curated, modes });
+server.listen(Number(process.env.PORT ?? 8787), process.env.HOST ?? '127.0.0.1', () => console.log(`AlpTap API ready on port ${process.env.PORT ?? 8787} · ${index.version}`));
+for (const signal of ['SIGINT','SIGTERM'] as const) process.on(signal, () => server.close(() => process.exit(0)));
