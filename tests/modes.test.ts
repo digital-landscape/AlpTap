@@ -2,7 +2,7 @@ import {describe,it,expect} from 'vitest';
 import {continuousPath,evaluateModeGuess,generateModeChallenge,polygonDistance,releaseReady,revealBounds,validV2,type ModeIndex,type Target} from '../src/core/modes';
 import {sectionCovers,type SectionFeature} from '../src/core/geography';
 const polygon:SectionFeature={type:'Feature',properties:{id:'wikidata:Q1',name:'Valley'},geometry:{type:'Polygon',coordinates:[[[0,0],[2,0],[2,2],[0,2],[0,0]],[[.8,.8],[1.2,.8],[1.2,1.2],[.8,1.2],[.8,.8]]]}};
-const valley:Target={id:'wikidata:Q1',kind:'valley',name:'Valley',names:{},position:{lon:.5,lat:.5},difficulty:'easy',countries:['FR'],wikipedia:{},regionIds:[],geometryRef:'valley.json',provenance:{source:'fixture',url:'https://example.org',license:'CC0',reviewed:true}};
+const valley:Target={id:'wikidata:Q1',kind:'valley',name:'Valley',names:{},position:{lon:.5,lat:.5},difficulty:'easy',countries:['FR'],wikipedia:{},regionIds:[],geometryRef:'valley.json',displayGeometryRef:'valley-display.json',provenance:{source:'fixture',url:'https://example.org',license:'CC0',reviewed:true}};
 const index:ModeIndex={version:'mode-123456abcdef',mode:'world-peaks',validated:true,targets:['easy','medium','hard'].flatMap((tier,i)=>Array.from({length:6},(_,j)=>({id:`wikidata:Q${i*10+j}`,difficulty:tier as 'easy'|'medium'|'hard',countries:['FR','AT','IT','CH']})))};
 describe('mode catalogues and challenges',()=>{
  it('enforces all tiers and all four valley countries',()=>{expect(releaseReady(index)).toBe(true);expect(releaseReady({...index,validated:false})).toBe(false);expect(releaseReady({...index,targets:index.targets.slice(1)})).toBe(false);expect(releaseReady({...index,mode:'alpine-valleys',targets:index.targets.map(t=>({...t,countries:['CH']}))})).toBe(false);});
@@ -24,3 +24,5 @@ it('recognizes an unsplit dateline region without awarding the opposite hemisphe
  expect(sectionCovers(region,{lon:179.5,lat:1})).toBe(true);
  expect(sectionCovers(region,{lon:0,lat:1})).toBe(false);
 });
+
+it('preserves explicitly world-spanning polygons',()=>{expect(sectionCovers({...polygon,geometry:{type:'Polygon',coordinates:[[[-180,-85],[180,-85],[180,85],[-180,85],[-180,-85]]]}},{lon:8,lat:46})).toBe(true);});

@@ -92,8 +92,8 @@ export function AlpineMap(props: MapProps) {
   useEffect(() => {
     if (!ready || !map.current) return;
     map.current.fitBounds(props.bounds, { padding:padding(), duration: reduced() ? 0 : 950, maxZoom: 8, pitch:props.world ? 0 : terrain ? 35 : 0 });
-  // Frame the selected region initially, but preserve the view between summits.
-  }, [ready, props.bounds[0], props.bounds[1], props.bounds[2], props.bounds[3]]);
+  // Worldwide rounds restart from the world overview; Alpine rounds retain exploration.
+  }, [ready, props.bounds[0], props.bounds[1], props.bounds[2], props.bounds[3], props.world ? props.roundKey : null]);
   useEffect(() => {
     if (!ready || !map.current) return;
     (map.current.getSource('summit-sections') as GeoJSONSource).setData({type:'FeatureCollection',features:props.sections});

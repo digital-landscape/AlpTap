@@ -96,6 +96,11 @@ def world(offline):
         # Keep the official 300 selection, including named island/highland units.
         ranges.append((row,g))
     config=json.loads((CONFIG/'world-candidates.json').read_text());records=entities(config['titles'],offline=offline)
+    records.update(entities(list(config.get('resolvedTitles',{}).values()),offline=offline))
+    resolved={e.get('sitelinks',{}).get('enwiki',{}).get('title') for e in records.values()}
+    for title in config['titles']:
+        canonical=config.get('resolvedTitles',{}).get(title,title)
+        if canonical not in resolved:excluded.append({'title':title,'reason':config.get('excludedTitles',{}).get(title,'Wikipedia title does not resolve to one Wikidata identity')})
     targets=[];used={}
     countries_map={'Q30':'US','Q16':'CA','Q142':'FR','Q38':'IT','Q39':'CH','Q40':'AT','Q183':'DE','Q148':'CN','Q837':'NP','Q668':'IN','Q843':'PK','Q414':'AR','Q298':'CL','Q419':'PE','Q736':'EC','Q96':'MX','Q1033':'NG','Q114':'KE','Q924':'TZ','Q334':'SG','Q833':'MY','Q252':'ID','Q928':'PH','Q664':'NZ','Q408':'AU','Q29':'ES','Q45':'PT','Q159':'RU','Q43':'TR','Q794':'IR','Q230':'GE','Q215':'SI','Q145':'GB','Q27':'IE','Q20':'NO','Q34':'SE','Q36':'PL','Q214':'SK','Q219':'BG','Q41':'GR','Q79':'EG'}
     for qid,e in records.items():
@@ -145,6 +150,7 @@ def valleys(offline):
     targets=[];geometries={};seen=set()
     by_site={site:entities([c['title'] for c in candidates if c['site']==site],site,offline) for site in sorted({c['site'] for c in candidates})}
     for c in candidates:
+        if c.get('excludeReason'):excluded.append({**c,'reason':c['excludeReason']});continue
         src=config['sources'][c['source']]
         records={qid:e for qid,e in by_site[c['site']].items() if e.get('sitelinks',{}).get(c['site'],{}).get('title','').replace('_',' ').casefold()==c['title'].replace('_',' ').casefold()}
         if len(records)!=1:excluded.append({**c,'reason':'Wikipedia title does not resolve to one Wikidata identity'});continue

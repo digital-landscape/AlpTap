@@ -49,3 +49,10 @@ output/interaction/
 
 # Local game-mode browser captures
 output/modes/
+
+# New-mode GIS/Wikidata source caches and review exports
+.cache/modes/
+output/mode-review/
+
+# Resumable worldwide discovery HTTP snapshots and service cooldown state
+.cache/modes/discovery/

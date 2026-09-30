@@ -50,3 +50,29 @@ test('withholds the real valley catalogue until all countries pass review',async
  await expect(page.locator('.game-card')).toHaveCount(0);
  expect(await page.evaluate(()=>localStorage.getItem('alptap:session:v2:alpine-valleys'))).toBeNull();
 });
+
+test('world rounds advance Easy to Medium to Hard with a bold current tier and persisted summary',async({page})=>{
+ test.setTimeout(60000);
+ await page.emulateMedia({reducedMotion:'reduce'});
+ await page.goto('/');await page.locator('.mode-select select').selectOption('world-peaks');
+ for(const [index,tier] of ['Easy','Medium','Hard'].entries()){
+  const step=page.locator('.daily-order [aria-current="step"]');
+  await expect(step).toHaveText(tier);expect(await step.evaluate(el=>Number(getComputedStyle(el).fontWeight))).toBeGreaterThanOrEqual(700);
+  await page.getByRole('button',{name:'Guess at map center'}).click();await expect(page.locator('.result-stats')).toBeVisible();
+  expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('alptap:session:v2:world-peaks')!).results.length)).toBe(index+1);
+ }
+ await expect(page.locator('.summary-card')).toBeVisible();
+ await page.reload();await expect(page.locator('.summary-card')).toBeVisible();
+ await expect(page.locator('.daily-order [aria-current="step"]')).toHaveCount(0);
+});
+
+test('reveals a valley outline on the map without a summit pin',async({page},info)=>{
+ await fixtureValleys(page);await page.emulateMedia({reducedMotion:'reduce'});
+ await page.goto('/');await page.locator('.mode-select select').selectOption('alpine-valleys');
+ await expect(page.getByTestId('map')).toHaveAttribute('data-settled','true');
+ await page.getByRole('button',{name:'Guess at map center'}).click();
+ await expect(page.locator('.result-stats')).toBeVisible();
+ await expect(page.getByTestId('map')).toHaveAttribute('data-settled','true');
+ await expect(page.locator('.summit-pin')).toHaveCount(0);
+ await page.screenshot({path:`output/modes/${info.project.name}-valley-outline.png`});
+});

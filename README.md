@@ -1,6 +1,6 @@
 # AlpTap
 
-A daily Alpine geography game: three summits, satellite imagery, and a little mountain intuition.
+Daily mountain geography games with satellite imagery: Alpine Peaks, Worldwide Peaks, and a data-gated Alpine Valleys mode.
 
 The prototype includes a static React/TypeScript frontend, a separately deployable Node daily-selection API, MapLibre terrain, English/German/French/Italian interfaces, one-click guesses, animated reveals, SOIUSA section bonuses, local progress, and a prepared **Wikidata-primary database of 18,777 Alpine peaks**.
 
@@ -13,7 +13,7 @@ npm ci
 npm run dev
 ```
 
-Open **http://127.0.0.1:5173** on this computer, or **http://<this-computer-network-IP>:5173** from another device on the network. The frontend listens on all network interfaces; restart `npm run dev` after changing this setting. The development command starts both Vite and the API on port 8787; Vite proxies `/v1`. The prepared dataset is included, so no geographic download or Python setup is required to play.
+Open **http://127.0.0.1:5173** on this computer, or **http://<this-computer-network-IP>:5173** from another device on the network. The frontend listens on all network interfaces; restart `npm run dev` after changing this setting. The development command starts both Vite and the API on port 8787; Vite proxies `/v1` and `/v2`. The prepared dataset is included, so no geographic download or Python setup is required to play.
 
 ```sh
 npm test                 # pure logic, persistence, provider, and live HTTP API tests
@@ -116,3 +116,19 @@ Starting the next summit preserves the map position and zoom. The map frames the
 A vertical slider on the right, below the map controls (beside them on narrow screens), adjusts terrain exaggeration live from 0× to 3× in 0.1 steps (default 1.5×). It supports mouse, touch and keyboard arrows, and is disabled in 2D or when terrain is unavailable. Adjusting height preserves the camera view.
 
 The initial Git snapshot includes the application, tests, documentation, and prepared datasets. Local caches, dependencies, build output, and browser captures are excluded.
+
+## Worldwide peaks and Alpine valleys
+
+The mode selector keeps each daily game's progress separate. Worldwide Peaks includes **107 reviewed peaks (49 Easy, 47 Medium, 11 Hard)**, original GMBA Standard 300 regions, a 250 km scoring scale, and region bonuses. Each worldwide round starts from a world overview.
+
+Alpine Valleys gameplay and its multi-source preparation pipeline are implemented, but **release remains disabled**: 19 candidates pass review (7 Easy, 6 Medium, 6 Hard) across France, Italy and Switzerland; Austria has no fully verified entry yet. The app shows this mode as unavailable rather than releasing partial country coverage. Details, source definitions, exclusions, licenses and deployment instructions are in [mode documentation](docs/MODES.md).
+
+Run `npm run data:modes` to prepare catalogues, or add `-- --offline` to reuse cached source snapshots. Deploy `public/data/mode-*` static assets before enabling `data/processed/mode-index.json` on the API host. `/v2/challenge` adds mode-aware target IDs; `/v1/challenge` and existing Alpine progress remain compatible. English, German, French and Italian instructions, the free Mont Blanc practice, and bold current difficulty are preserved.
+
+### Full worldwide candidate retrieval
+
+Run `npm run data:world:discover` to query worldwide Wikidata mountains **and volcanoes**, including subclasses, without a title shortlist or result limit. A safe ≥20 total-sitelink prefilter is followed by exact Wikipedia-edition counts and unchanged GMBA Standard 300 polygon checks. This downloads candidates to `data/processed/world-discovery.json`; `world-discovery-status.json` records completion or failure. It does not label unreviewed candidates as reviewed or silently replace the playable catalogue. Raw API responses and rate-limit cooldowns are cached; `-- --offline` reuses complete cached responses. The currently playable 107 entries are still the initial shortlist, not the full query result.
+
+## Git workflow
+
+The repository uses `master` as its primary branch. Commit application code, tests, documentation and prepared public datasets; local caches, secrets, dependencies and build output stay ignored.

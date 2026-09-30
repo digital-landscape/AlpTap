@@ -75,7 +75,7 @@ test('section bonus survives refresh and the curve explains its value',async({pa
  const result=await readResult();expect(result.areaBonus).toBeGreaterThan(0);expect(result.score).toBe(result.distanceScore+result.areaBonus);
  await page.reload();await expect(page.locator('.section-result')).toHaveClass(/matched/);expect((await readResult()).score).toBe(result.score);
  await page.getByRole('button',{name:'About AlpTap'}).click();await expect(page.locator('.curve-values')).toContainText('463');
- await page.getByRole('slider').fill('100');await expect(page.locator('.curve-values')).toContainText('265');
+ await page.getByRole('slider',{name:'How points work'}).fill('100');await expect(page.locator('.curve-values')).toContainText('265');
 });
 test('a failed section fetch keeps the submitted guess and retries without losing the bonus',async({page})=>{
  await page.route('**/sections/SZ.*.json',route=>route.abort());await page.goto('/');

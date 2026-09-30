@@ -2,7 +2,7 @@ import {afterEach,expect,it,vi} from 'vitest';
 import {modeChallenge,modeSessionKey,restoreMode,targetGeometry} from '../src/data/modes';
 import {generateModeChallenge,type ModeManifest,type Target} from '../src/core/modes';
 import {viennaDate} from '../src/core/date';
-const targets:Target[]=['easy','medium','hard'].flatMap((tier,i)=>Array.from({length:6},(_,j)=>({id:`wikidata:Q${i*10+j}`,kind:'valley',name:'Valley',names:{},position:{lon:1,lat:1},difficulty:tier,countries:['CH','FR','AT','IT'],wikipedia:{},regionIds:[],geometryRef:`valleys/${i*10+j}.json`,provenance:{source:'fixture',url:'https://example.org',license:'CC0',reviewed:true}} as Target)));
+const targets:Target[]=['easy','medium','hard'].flatMap((tier,i)=>Array.from({length:6},(_,j)=>({id:`wikidata:Q${i*10+j}`,kind:'valley',name:'Valley',names:{},position:{lon:1,lat:1},difficulty:tier,countries:['CH','FR','AT','IT'],wikipedia:{},regionIds:[],geometryRef:`valleys/${i*10+j}.json`,displayGeometryRef:`valleys/${i*10+j}-display.json`,provenance:{source:'fixture',url:'https://example.org',license:'CC0',reviewed:true}} as Target)));
 const challenge=()=>generateModeChallenge({version:'mode-123456abcdef',mode:'alpine-valleys',validated:true,targets},viennaDate());
 const manifest:ModeManifest={schemaVersion:2,version:'mode-123456abcdef',mode:'alpine-valleys',targets,regions:[],bounds:[0,0,2,2],attribution:[]};
 const storage=()=>{const data=new Map<string,string>();return {getItem:(k:string)=>data.get(k)??null,setItem:(k:string,v:string)=>{data.set(k,v);}};};

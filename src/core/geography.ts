@@ -4,7 +4,7 @@ export type SectionFeature = Feature<Polygon | MultiPolygon, { id: string; name:
 // Boundary-inclusive winding test: shared section edges qualify; hole interiors do not.
 function inRing(point: Position, ring: Coordinate[]): 'inside' | 'outside' | 'boundary' {
   // GeoJSON may store a dateline-crossing ring without splitting it at ±180°.
-  if(ring.some((p,i)=>i>0&&Math.abs(p[0]-ring[i-1][0])>180)) {
+  if(ring.some((p,i)=>i>0&&Math.abs(p[0]-ring[i-1][0])>180&&Math.abs(p[0]-ring[i-1][0])<360-1e-10)) {
     const unwrapped:Coordinate[]=[];
     for(const p of ring){const anchor=unwrapped.at(-1)?.[0]??p[0];unwrapped.push([anchor+((p[0]-anchor+540)%360+360)%360-180,p[1]]);}
     const anchor=unwrapped.reduce((sum,p)=>sum+p[0],0)/unwrapped.length;

@@ -10,12 +10,15 @@ export type GameMode = typeof MODES[number];
 export type NewMode = Exclude<GameMode,'alpine-peaks'>;
 export const TIERS: Difficulty[] = ['easy','medium','hard'];
 export type ScoringRule = 'alpine-section-v2'|'world-region-v1'|'valley-area-v1';
-export interface Target {
-  id: string; kind: 'summit'|'valley'; name: string; names: Partial<Record<Locale,string>>;
+interface TargetBase {
+  id: string; name: string; names: Partial<Record<Locale,string>>;
   position: Position; difficulty: Difficulty; countries: string[]; wikipedia: Record<string,string>;
   regionIds: string[]; geometryRef?: string; displayGeometryRef?: string;
   provenance: { source: string; url: string; license: string; reviewed: boolean; [key:string]: unknown };
 }
+export type SummitTarget=TargetBase & {kind:'summit'};
+export type ValleyTarget=TargetBase & {kind:'valley';geometryRef:string;displayGeometryRef:string};
+export type Target=SummitTarget|ValleyTarget;
 export interface ModeRegion {id: string; name: string; geometryRef: string; displayGeometryRef: string}
 export interface ModeManifest {
   schemaVersion: 2; version: string; mode: NewMode; targets: Target[]; regions: ModeRegion[];
@@ -49,7 +52,7 @@ export function validV2(c:unknown):c is ChallengeV2 {
 }
 export function validTarget(value:unknown,mode:NewMode):value is Target {
   if(!value||typeof value!=='object')return false;const t=value as Target;
-  return /^wikidata:Q\d+$/.test(t.id)&&t.kind===(mode==='world-peaks'?'summit':'valley')&&typeof t.name==='string'&&t.name.length>0&&validPosition(t.position)&&TIERS.includes(t.difficulty)&&!!t.names&&Object.values(t.names).every(v=>typeof v==='string')&&!!t.wikipedia&&Object.values(t.wikipedia).every(v=>typeof v==='string'&&/^https:\/\/[a-z-]+\.wikipedia\.org\/wiki\//.test(v))&&Array.isArray(t.countries)&&t.countries.every(c=>typeof c==='string')&&Array.isArray(t.regionIds)&&t.regionIds.every(id=>typeof id==='string')&&t.provenance?.reviewed===true&&(mode==='world-peaks'?t.regionIds.length>0:typeof t.geometryRef==='string');
+  return /^wikidata:Q\d+$/.test(t.id)&&t.kind===(mode==='world-peaks'?'summit':'valley')&&typeof t.name==='string'&&t.name.length>0&&validPosition(t.position)&&TIERS.includes(t.difficulty)&&!!t.names&&Object.values(t.names).every(v=>typeof v==='string')&&!!t.wikipedia&&Object.values(t.wikipedia).every(v=>typeof v==='string'&&/^https:\/\/[a-z-]+\.wikipedia\.org\/wiki\//.test(v))&&Array.isArray(t.countries)&&t.countries.every(c=>typeof c==='string')&&Array.isArray(t.regionIds)&&t.regionIds.every(id=>typeof id==='string')&&t.provenance?.reviewed===true&&(mode==='world-peaks'?t.regionIds.length>0:typeof t.geometryRef==='string'&&typeof t.displayGeometryRef==='string');
 }
 // Shift longitude to the copy nearest an anchor, for antimeridian camera/path continuity.
 export const nearbyLongitude=(lon:number,anchor:number)=>anchor+((lon-anchor+540)%360+360)%360-180;

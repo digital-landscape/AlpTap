@@ -1,3 +1,24 @@
+## Repository checks
+
+- Documented `master` as the primary Git branch and removed a duplicate ignore rule.
+- Fixed the scoring-curve browser test to select its named slider when terrain controls are visible.
+
+## Worldwide mountain and volcano discovery
+
+- Added unbounded worldwide Wikidata discovery for mountain and volcano classes, replacing manual candidate enumeration for the retrieval stage.
+- Added batched identity/coordinate/name/Wikipedia enrichment, Wikipedia-only recognition checks and original GMBA region assignments.
+- Added resumable raw response caches, persistent Retry-After handling, explicit completion status and an unreviewed candidate export separate from published game data.
+
+# Worldwide peaks and valley mode infrastructure — 2026-09-30
+
+- Added localized mode selection, independent daily progress and versioned `/v2/challenge`; retained legacy Alpine sessions and `/v1` compatibility.
+- Published 107 reviewed worldwide peaks with exact GMBA Standard 300 scoring regions, 250 km distance scoring and remaining-points bonuses.
+- Added world overview, antimeridian reveal handling and bold current difficulty; preserved satellite/terrain exploration and free Mont Blanc practice.
+- Implemented polygon-based valley scoring, outlines, holes/multipolygons and saved-guess retry handling.
+- Inspected Swiss, French, Piedmont and Austrian source downloads. Kept valley release disabled: 19 candidates pass in CH/FR/IT; Austria's matched unit combines Enns/Gaflenz valleys and also lacks Wikidata coordinates.
+- Added reproducible data preparation, documented source definitions/attribution, release gates and inclusion/exclusion reports; kept exact and display geometry separate.
+- Added mode API/scoring/persistence/data checks and desktop/mobile regressions, with synthetic valley fixtures isolated from production catalogues.
+
 # Changes
 
 ## 0.2.0 — 2026-09-29

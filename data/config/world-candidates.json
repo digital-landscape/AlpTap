@@ -127,5 +127,17 @@
       "tier": "easy",
       "reason": "Annapurna I is one of the fourteen eight-thousanders; separate summit and massif articles undercount recognition of the summit."
     }
+  },
+  "resolvedTitles": {
+    "Kilimanjaro": "Mount Kilimanjaro",
+    "Mount Teide": "Teide",
+    "Mount Toubkal": "Toubkal",
+    "Pico do Arieiro": "Pico do Areeiro",
+    "Mount Semeru": "Semeru",
+    "Tirich Mir": "Terich Mir",
+    "Mount Smolikas": "Smolikas"
+  },
+  "excludedTitles": {
+    "Mount Vinson": "The supplied article title does not resolve to a unique summit identity; do not substitute the multi-summit Vinson Massif article."
   }
 }

@@ -39,3 +39,7 @@ Peak country arrays support future country filters. Generic geographic units ret
 The default importer is `scripts/wikidata_peaks.py`; it discovers mountains from Wikidata directly, independently of OSM. `wikidata:Q…` IDs are accepted alongside legacy `osm:node/…` IDs so old saved challenges continue working. Shards use the final numeric ID modulo 64. Wikipedia article URLs are supplied by cached sitelinks, resolved by interface language with an explicit language fallback. The question shows the recorded SOIUSA section name before guessing.
 
 Mixed selection uses mixed-tier-deck-v1: independent seeded sorted-ID decks per tier, advancing one card per Vienna calendar day. Output order is Easy, Medium, Hard. Each tier needs at least two peaks to avoid adjacent-day repeats across wraps; production validation retains six per region/tier. Mixed curated overrides must follow tier order. Dataset and algorithm versions are included in identity.
+
+## Additional daily modes
+
+See [mode datasets, scoring, API, release gates and deployment](MODES.md) for Worldwide Peaks and Alpine Valleys. Existing Alpine data and session formats remain supported.

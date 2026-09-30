@@ -249,7 +249,9 @@
       "site": "dewiki",
       "title": "Oberösterreichisches Ennstal",
       "tier": "medium",
-      "reason": "Explicit Upper Austrian named Ennstal unit, distinct from the entire Enns valley."
+      "reason": "Explicit Upper Austrian named Ennstal unit, distinct from the entire Enns valley.",
+      "excludeReason": "The named NaLa unit combines the Enns valley and the valley around Gaflenz; excluded under the single-valley rule. Wikidata Q1372120 also has no P625 coordinates.",
+      "reviewUrl": "https://de.wikipedia.org/w/index.php?title=Ober%C3%B6sterreichisches_Ennstal&oldid=259751042"
     }
   ],
   "excludedSourceGroups": [

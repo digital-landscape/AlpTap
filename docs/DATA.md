@@ -36,3 +36,7 @@ Processed peaks, full SOIUSA hierarchy, diagnostics and the API index live in `d
 Publish static assets before switching the API index. In production, switch versions at the Alpine day boundary and retain older versions for saved games. This development migration can be previewed immediately with a fresh browser session; existing progress is preserved.
 
 Wikidata structured data is CC0. Historical OSM data remains subject to ODbL. Supplied SOIUSA boundary redistribution terms remain unconfirmed. Wikipedia article text is not copied into the game.
+
+## Additional daily modes
+
+See [mode datasets, scoring, API, release gates and deployment](MODES.md) for Worldwide Peaks and Alpine Valleys. Existing Alpine data and session formats remain supported.
