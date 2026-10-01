@@ -95,36 +95,43 @@ def world(offline):
         if not valid_geometry(g):excluded.append({'region':row['GMBA_V2_ID'],'reason':'invalid polygon'});continue
         # Keep the official 300 selection, including named island/highland units.
         ranges.append((row,g))
-    config=json.loads((CONFIG/'world-candidates.json').read_text());records=entities(config['titles'],offline=offline)
-    records.update(entities(list(config.get('resolvedTitles',{}).values()),offline=offline))
-    resolved={e.get('sitelinks',{}).get('enwiki',{}).get('title') for e in records.values()}
-    for title in config['titles']:
-        canonical=config.get('resolvedTitles',{}).get(title,title)
-        if canonical not in resolved:excluded.append({'title':title,'reason':config.get('excludedTitles',{}).get(title,'Wikipedia title does not resolve to one Wikidata identity')})
+    discovery_path=OUT/'world-discovery.json'
+    discovery=json.loads(discovery_path.read_text())
+    review=json.loads((CONFIG/'world-review.json').read_text())
+    if not discovery.get('complete') or review['discoverySha256']!=hashlib.sha256(discovery_path.read_bytes()).hexdigest():
+        raise ValueError('Worldwide discovery must be complete and match its reviewed snapshot')
+    candidates=discovery['candidates'];decisions={r['id']:r for r in review['decisions']}
+    if len(decisions)!=len(review['decisions']) or len({c['id'] for c in candidates})!=len(candidates) or set(decisions)!={c['id'] for c in candidates}:
+        raise ValueError('Every unique candidate needs exactly one review decision')
     targets=[];used={}
-    countries_map={'Q30':'US','Q16':'CA','Q142':'FR','Q38':'IT','Q39':'CH','Q40':'AT','Q183':'DE','Q148':'CN','Q837':'NP','Q668':'IN','Q843':'PK','Q414':'AR','Q298':'CL','Q419':'PE','Q736':'EC','Q96':'MX','Q1033':'NG','Q114':'KE','Q924':'TZ','Q334':'SG','Q833':'MY','Q252':'ID','Q928':'PH','Q664':'NZ','Q408':'AU','Q29':'ES','Q45':'PT','Q159':'RU','Q43':'TR','Q794':'IR','Q230':'GE','Q215':'SI','Q145':'GB','Q27':'IE','Q20':'NO','Q34':'SE','Q36':'PL','Q214':'SK','Q219':'BG','Q41':'GR','Q79':'EG'}
-    for qid,e in records.items():
-        links=articles(e);position=coordinates(e);name=e.get('labels',{}).get('en',{}).get('value') or e.get('sitelinks',{}).get('enwiki',{}).get('title',qid)
-        reason=None
-        if len(links)<20:reason='fewer than 20 Wikipedia editions'
-        elif not position:reason='ambiguous, unsupported latitude, or non-Earth coordinates'
-        matches=[] if not position else [(r,g) for r,g in ranges if g.covers(Point(position['lon'],position['lat']))]
-        if not reason and len(matches)!=1:reason='unresolved GMBA membership'
-        # Annapurna can designate a massif: use individual summit candidates instead.
-        if name=='Annapurna':reason='massif rather than unambiguous individual summit'
-        if reason:excluded.append({'id':qid,'name':name,'reason':reason,'editions':len(links)});continue
+    for c in candidates:
+        qid=c['id'].split(':')[1];decision=decisions[c['id']]
+        if not decision['include']:
+            excluded.append({'id':qid,'name':c['name'],'reason':decision['reason'],'editions':c['wikipediaEditions']});continue
+        links=c['wikipedia'];position=c['position'];count=len(links)
+        if c['checks'] or count<20 or count!=c['wikipediaEditions'] or not position:
+            raise ValueError('Review cannot bypass geographic or recognition checks: '+qid)
+        matches=[(r,g) for r,g in ranges if g.covers(Point(position['lon'],position['lat']))]
+        if len(matches)!=1:raise ValueError('Reviewed GMBA assignment no longer resolves: '+qid)
         row,g=matches[0];region_id='gmba:'+str(row['GMBA_V2_ID']);used[region_id]=(row,g)
-        count=len(links);tier='easy' if count>=60 else 'medium' if count>=35 else 'hard'
-        override=config.get('overrides',{}).get(qid,{})
-        tier=override.get('tier',tier);name=override.get('name',name)
+        if [r['id'] for r in c['gmbaRegions']]!=[region_id]:raise ValueError('GMBA source assignment changed: '+qid)
+        tier='easy' if count>=60 else 'medium' if count>=35 else 'hard'
+        override=review.get('overrides',{}).get(qid,{})
+        # Prefer recorded article titles over malformed or ambiguous English labels.
+        title=urllib.parse.unquote(links['en'].split('/wiki/',1)[1]).replace('_',' ') if 'en' in links else c['name']
+        name=override.get('name',title);tier=override.get('tier',tier)
         if tier not in ['easy','medium','hard']:raise ValueError('Invalid tier override')
-        country_ids=[c['mainsnak'].get('datavalue',{}).get('value',{}).get('id') for c in e.get('claims',{}).get('P17',[]) if c.get('rank')!='deprecated']
-        targets.append({'id':'wikidata:'+qid,'kind':'summit','name':name,'names':{**{k:v['value'] for k,v in e.get('labels',{}).items() if k in ['en','fr','it','de']},'en':name},'position':position,'difficulty':tier,'countries':sorted({countries_map[c] for c in country_ids if c in countries_map}),'wikipedia':links,'regionIds':[region_id],'provenance':{'source':'Wikidata; editorial summit shortlist','url':'https://www.wikidata.org/wiki/'+qid,'license':'CC0','reviewed':True,'wikipediaEditions':count,'recognitionRule':'world-recognition-v1','reviewReason':config['reason'],'override':override}})
+        names={k:v for k,v in c['names'].items() if k in ['en','de','fr','it']};names['en']=name
+        targets.append({'id':c['id'],'kind':'summit','name':name,'names':names,'position':position,'difficulty':tier,'countries':[],
+            'wikipedia':links,'regionIds':[region_id],'provenance':{'source':'Wikidata worldwide mountain and volcano discovery',
+            'url':c['provenance']['url'],'license':'CC0','reviewed':True,'reviewDate':review['reviewDate'],'reviewMethod':review['method'],
+            'discoverySha256':review['discoverySha256'],'featureType':'volcano' if 'volcano' in c['discoveredAs'] else 'mountain',
+            'wikipediaEditions':count,'recognitionRule':'world-recognition-v1','reviewReason':decision['reason'],'override':override}})
     regions=[];geometries={}
     for id_,(row,g) in used.items():
         file='regions/'+id_.split(':')[1];regions.append({'id':id_,'name':row['MapName'],'geometryRef':file+'.json','displayGeometryRef':file+'-display.json'})
         geometries[file+'.json']=feature(id_,row['MapName'],g);geometries[file+'-display.json']=feature(id_,row['MapName'],g.simplify(.015,preserve_topology=True))
-    publish('world-peaks',targets,regions,geometries,[{'name':'Wikidata','url':'https://www.wikidata.org/wiki/Wikidata:Licensing','license':'CC0'},{'name':'GMBA Mountain Inventory v2.0, Standard 300 selection','url':'https://doi.org/10.48601/earthenv-t9k2-1407','license':'CC BY 4.0'},{'name':'Snethlage et al. (2022), A hierarchical inventory of the world’s mountains','url':'https://doi.org/10.1038/s41597-022-01256-y','license':'CC BY 4.0'}],{'excluded':excluded,'sources':[{'url':GMBA_URL,'sha256':hashlib.sha256((CACHE/'gmba.zip').read_bytes()).hexdigest()}]})
+    publish('world-peaks',targets,regions,geometries,[{'name':'Wikidata','url':'https://www.wikidata.org/wiki/Wikidata:Licensing','license':'CC0'},{'name':'GMBA Mountain Inventory v2.0, Standard 300 selection','url':'https://doi.org/10.48601/earthenv-t9k2-1407','license':'CC BY 4.0'},{'name':'Snethlage et al. (2022), A hierarchical inventory of the world’s mountains','url':'https://doi.org/10.1038/s41597-022-01256-y','license':'CC BY 4.0'}],{'excluded':excluded,'discoverySha256':review['discoverySha256'],'discovered':len(candidates),'volcanoes':sum(t['provenance']['featureType']=='volcano' for t in targets),'sources':[{'url':GMBA_URL,'sha256':hashlib.sha256((CACHE/'gmba.zip').read_bytes()).hexdigest()}]})
 
 
 def valleys(offline):

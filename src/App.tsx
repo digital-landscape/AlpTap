@@ -9,6 +9,7 @@ import { matchingSections, type SectionFeature } from './core/geography';
 import { loadSections } from './data/sections';
 import { AnimatedNumber } from './ui/AnimatedNumber';
 import { ScoringCurve } from './ui/ScoringCurve';
+import { InstitutionFooter } from './ui/InstitutionFooter';
 import { GAME, LOCALES, REGIONS } from './core/config';
 import { alternativeNames, getPeakName } from './core/names';
 import { initialPreferences, loadSession, readJSON, saveJSON, sessionKey, type StorageLike } from './core/persistence';
@@ -20,8 +21,8 @@ const AlpineMap = lazy(() => import('./map/AlpineMap').then(m => ({default:m.Alp
 const storage: StorageLike = { getItem: key => localStorage.getItem(key), setItem: (key,value) => localStorage.setItem(key,value) };
 function MountainIcon({large=false}:{large?:boolean}) { return <svg className={large?'mountain-icon large':'mountain-icon'} viewBox="0 0 48 40" fill="none" aria-hidden="true"><path d="M3 34 19 7l10 17 6-10 11 20H3Z" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round"/><path d="m13 17 6 4 5-5M30 23l5 3 4-5" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/></svg>; }
 function Arrow() { return <span aria-hidden="true">↗</span>; }
-export default function App({modeControl,onLocale}:{modeControl?:ReactNode;onLocale?:(locale:Preferences['locale'])=>void}={}) {
-  const [preferences,setPreferences] = useState<Preferences>(()=>initialPreferences(storage,navigator.languages));
+export default function App({modeControl,onLocale,initialRegion}:{initialRegion?:Preferences['region'];modeControl?:ReactNode;onLocale?:(locale:Preferences['locale'])=>void}={}) {
+  const [preferences,setPreferences] = useState<Preferences>(()=>({...initialPreferences(storage,navigator.languages),...(initialRegion?{region:initialRegion}:{})}));
   const [session,setSession] = useState<GameSession|null>(null), [manifest,setManifest] = useState<Manifest|null>(null);
   const [loading,setLoading] = useState(true), [error,setError] = useState(false), [retry,setRetry] = useState(0), [storageOk,setStorageOk] = useState(true), [today,setToday] = useState(viennaDate());
   const welcomeDialog=useRef<HTMLDialogElement>(null);
@@ -126,6 +127,7 @@ export default function App({modeControl,onLocale}:{modeControl?:ReactNode;onLoc
       <ol className="welcome-steps">{onboarding.steps.map(step=><li key={step}>{step}</li>)}</ol>
       <section className="welcome-example"><h3>{onboarding.example}</h3><p>{onboarding.exampleText}</p><small>{onboarding.practice}</small></section>
       <button className="primary" onClick={startPractice}>{onboarding.start}<Arrow/></button>
+      <InstitutionFooter locale={locale} placement="welcome"/>
     </dialog>
     <dialog ref={dialog} className="about-dialog" aria-labelledby="about-title"><button className="dialog-close" aria-label={t.close} onClick={()=>dialog.current?.close()}>×</button><MountainIcon large/><p className="eyebrow">ALPTAP</p><h2 id="about-title">{t.how}</h2><button className="example-button" onClick={()=>{dialog.current?.close();setWelcomeOpen(true);}}>{onboarding.instructions} ↗</button><p>{t.howText}</p><p>{t.howScore}</p><ScoringCurve locale={locale}/><p>{t.howData}</p><p>{t.howPrivacy}</p><h3>{t.credits}</h3><p>{t.attribution}</p><p className="terrain-credits">Terrain: Mapzen; © offene Daten Österreichs (DGM Österreich); Copernicus EU-DEM, funded by the European Union; USGS (SRTM/GMTED2010); NOAA (ETOPO1).</p><div className="credit-links"><a href="https://www.wikidata.org/wiki/Wikidata:Licensing" target="_blank" rel="noreferrer">Wikidata · CC0 ↗</a><a href="https://maps.eox.at/" target="_blank" rel="noreferrer">EOX Maps ↗</a><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap ↗</a><a href="https://www.homoalpinus.com/alpes/subdivisions/soiusa/" target="_blank" rel="noreferrer">SOIUSA ↗</a><a href="https://github.com/tilezen/joerd/blob/master/docs/attribution.md" target="_blank" rel="noreferrer">Mapzen ↗</a></div></dialog>
   </main>;

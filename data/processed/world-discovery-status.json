@@ -1,1 +1,1 @@
-{"complete":false,"stage":"waiting-for-service","error":"HTTP Error 429: Too Many Requests","retryAt":"2026-09-30T17:17:43.047407+00:00"}
+{"complete":true,"finishedAt":"2026-10-01T08:03:55.374890+00:00","counts":{"discovered":1165,"wikipediaEligible":1066,"geometryEligible":838,"volcanoes":362}}

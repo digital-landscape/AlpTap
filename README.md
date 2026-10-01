@@ -63,6 +63,8 @@ See [geographic inventory](docs/GEOGRAPHY.md), [pipeline and difficulty details]
 
 ## Configuration
 
+Terrain mode uses custom WebGL 2 terrain cast shadows driven by the current date/time and viewed map location. Sunlight updates every minute and when returning to the tab or changing the view. The terrain height slider also changes the shadow geometry. Flat mode and zero height hide shadows; shadow failure leaves the satellite map usable. Manually enabling shadows at night uses readable ambient dimming. No device location is requested. See [solar shadow notes](docs/TERRAIN-SHADING.md) for the renderer, precision limits and fallback behavior.
+
 Copy `.env.example` to `.env` for Vite's build-time settings. Change satellite URL/attribution, native zoom, DEM URL/encoding, terrain enablement, or exaggeration independently in `src/map/config.ts` or through the environment. Default terrain uses Mapzen Terrarium with exaggeration 1.5 and falls back to 2D on failure. The MapLibre example DEM was inspected but is a small JAXA sample; it was not used for all-Alps coverage.
 
 Round count, score decay, and algorithm version are centralized in `src/core/config.ts`. Changing the round count changes challenge identities; dataset validation must continue to require at least twice that many peaks in each pool. UI progress and summary derive their count from the challenge. Update the four introductory/help messages if changing the default three-round game.
@@ -119,7 +121,7 @@ The initial Git snapshot includes the application, tests, documentation, and pre
 
 ## Worldwide peaks and Alpine valleys
 
-The mode selector keeps each daily game's progress separate. Worldwide Peaks includes **107 reviewed peaks (49 Easy, 47 Medium, 11 Hard)**, original GMBA Standard 300 regions, a 250 km scoring scale, and region bonuses. Each worldwide round starts from a world overview.
+The mode selector keeps each daily game's progress separate. Worldwide Peaks includes **771 reviewed mountains and volcanoes (62 Easy, 172 Medium, 537 Hard; including 215 volcanoes)**, original GMBA Standard 300 regions, a 250 km scoring scale, and region bonuses. Each worldwide round starts from a world overview.
 
 Alpine Valleys gameplay and its multi-source preparation pipeline are implemented, but **release remains disabled**: 19 candidates pass review (7 Easy, 6 Medium, 6 Hard) across France, Italy and Switzerland; Austria has no fully verified entry yet. The app shows this mode as unavailable rather than releasing partial country coverage. Details, source definitions, exclusions, licenses and deployment instructions are in [mode documentation](docs/MODES.md).
 
@@ -127,8 +129,30 @@ Run `npm run data:modes` to prepare catalogues, or add `-- --offline` to reuse c
 
 ### Full worldwide candidate retrieval
 
-Run `npm run data:world:discover` to query worldwide Wikidata mountains **and volcanoes**, including subclasses, without a title shortlist or result limit. A safe ≥20 total-sitelink prefilter is followed by exact Wikipedia-edition counts and unchanged GMBA Standard 300 polygon checks. This downloads candidates to `data/processed/world-discovery.json`; `world-discovery-status.json` records completion or failure. It does not label unreviewed candidates as reviewed or silently replace the playable catalogue. Raw API responses and rate-limit cooldowns are cached; `-- --offline` reuses complete cached responses. The currently playable 107 entries are still the initial shortlist, not the full query result.
+Run `npm run data:world:discover` to query worldwide Wikidata mountains **and volcanoes**, including subclasses, without a title shortlist or result limit. A safe ≥20 total-sitelink prefilter is followed by exact Wikipedia-edition counts and unchanged GMBA Standard 300 polygon checks. This downloads candidates to `data/processed/world-discovery.json`; `world-discovery-status.json` records completion or failure. It does not label unreviewed candidates as reviewed or silently replace the playable catalogue. Raw API responses and rate-limit cooldowns are cached; `-- --offline` reuses complete cached responses. The playable catalogue is prepared from this complete discovery snapshot and the pinned decisions in `data/config/world-review.json`; it no longer uses the initial 107-entry shortlist.
 
 ## Git workflow
 
 The repository uses `master` as its primary branch. Commit application code, tests, documentation and prepared public datasets; local caches, secrets, dependencies and build output stay ignored.
+
+The **Sun shadows** button beside **3D terrain** independently turns solar shading on or off. Its default follows daylight at the viewed map center: shadows are off when the sun is below the horizon, including nighttime visits. The automatic default is rechecked every minute and after map movement. Clicking the button overrides that default for the current page session, so night shading can still be enabled manually. The control is disabled in 2D, at zero terrain height or when elevation is unavailable.
+
+Worldwide discovery completed on **1 October 2026**: 1,165 unique candidates, including 362 volcanoes. Of these, 1,066 have at least 20 Wikipedia editions; 838 also pass coordinate and GMBA membership checks (62 Easy, 180 Medium, 596 Hard, before editorial overrides). The [full discovery export](data/processed/world-discovery.json) retains all candidates and failed checks. These are unreviewed candidates, not automatically activated game targets.
+
+## Institutional logos
+
+The ÖAW / IGF signatures share existing interface space in every mode: centered in the desktop header and in a small white badge at the left of the existing mobile footer. A localized “Designed by” caption identifies the credit. No additional row reduces the map height. ÖAW remains left of IGF, using the supplied cropped SVGs with equal visible image heights (32 px desktop, 18 px mobile) and original animations and aspect ratios. Links open in a new tab: German selects the German ÖAW and IGF pages; English, French and Italian select their English pages. Assets are in `public/logos/`; the shared component is `src/ui/InstitutionFooter.tsx`. The earlier `/logos-prototype.html` URL redirects to the finished game.
+
+Institutional logo links use their natural widths with equal spacing on either side of the divider. The desktop credit centers over the complete logo pair.
+
+The welcome popup repeats the same linked logo pair and localized “Designed by” credit below its practice button. It shares the cropped assets and link logic with the main interface and remains in normal dialog flow for small-screen scrolling.
+
+### Expanded worldwide game enabled
+
+Worldwide Peaks now uses `mode-13d7445c720f`: **771 targets including 215 volcanoes**. The catalogue review admits 771 of the 838 geographically eligible candidates and records 67 holds for ambiguous regional, island, pass, cultural-site or non-mountain identities. The 250 km scoring scale and original GMBA polygons are unchanged. Volcano prompts are translated in all four interface languages. Older versioned assets remain available so saved games keep their original targets.
+
+Rebuild with `npm run data:modes -- --mode world --offline`. Preparation requires a complete discovery snapshot whose SHA-256 matches `data/config/world-review.json`; changed or unreviewed input cannot silently enter the game. No new geographic downloads are needed for this release.
+
+Western Alps and Eastern Alps are also direct choices in the main game selector, including from Worldwide Peaks. They open the existing regional Alpine games with their separate saved progress.
+
+The game selector groups all Alpine choices (peaks, Western Alps, Eastern Alps and valleys) under **Alps**, with **Worldwide** in its own group. Group labels follow the selected interface language. Valley availability still depends on its data release checks.

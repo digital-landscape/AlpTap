@@ -56,7 +56,7 @@ test('provides an API retry state without creating a local challenge',async({pag
  await page.route('**/v1/challenge?**',route=>route.abort());await page.goto('/');await expect(page.getByRole('button',{name:'Try again',exact:true})).toBeVisible();await expect(page.locator('.game-card')).toHaveCount(0);
 });
 test('falls back to 2D when elevation tiles fail',async({page})=>{
- await page.route('**/terrarium/**',route=>route.abort());await page.goto('/');await expect(page.locator('.game-card')).toBeVisible();await expect(page.locator('.terrain-notice')).toBeVisible();await expect(page.locator('.terrain-toggle')).toBeDisabled();
+ await page.route('**/terrarium/**',route=>route.abort());await page.goto('/');await expect(page.locator('.game-card')).toBeVisible();await expect(page.locator('.terrain-notice')).toBeVisible();await expect(page.locator('.terrain-toggle:not(.shadow-toggle)')).toBeDisabled();
  await page.getByRole('button',{name:'Guess at map center'}).click();await expect(page.locator('.result-stats')).toBeVisible();
 });
 test('respects reduced motion and has no horizontal mobile overflow',async({page})=>{

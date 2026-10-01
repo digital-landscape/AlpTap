@@ -6,6 +6,9 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import mapWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 maplibregl.setWorkerUrl(mapWorkerUrl);
 import { satellite, terrainConfig } from './config';
+import { SolarShadows } from './SolarShadows';
+import { solarPosition } from './solar';
+const shadowLabels = { en: 'Sun shadows', de: 'Sonnenschatten', fr: 'Ombres du soleil', it: 'Ombre solari' };
 import { messages } from '../core/i18n';
 import type { SectionFeature } from '../core/geography';
 import type { Locale, Position, Result } from '../core/types';
@@ -27,6 +30,9 @@ export function AlpineMap(props: MapProps) {
   const guessMarker = useRef<maplibregl.Marker | null>(null), summitMarker = useRef<maplibregl.Marker | null>(null);
   const [ready, setReady] = useState(false), [loaded, setLoaded] = useState(false), [failed, setFailed] = useState(false), [terrainFailed, setTerrainFailed] = useState(false);
   const [terrain, setTerrain] = useState(terrainConfig.enabled), [revision, setRevision] = useState(0);
+  const [shadowPreference, setShadowPreference] = useState<boolean | null>(null);
+  const [shadowsEnabled, setShadowsEnabled] = useState(() => solarPosition((props.bounds[1]+props.bounds[3])/2, (props.bounds[0]+props.bounds[2])/2, Date.now()).altitude > 0);
+  const solarShadows = useRef<SolarShadows | null>(null);
   const [exaggeration, setExaggeration] = useState(terrainConfig.exaggeration);
   latest.current = props; const t = messages[props.locale];
   const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -68,23 +74,25 @@ export function AlpineMap(props: MapProps) {
       instance.addSource('connection', { type:'geojson', data:empty });
       instance.addLayer({ id:'connection-shadow', type:'line', source:'connection', paint:{'line-color':'#173c36','line-width':5,'line-opacity':.5} });
       instance.addLayer({ id:'connection', type:'line', source:'connection', paint:{'line-color':'#eaf4ba','line-width':2,'line-dasharray':[3,2]} });
+      solarShadows.current = new SolarShadows(instance, element.current!, setShadowsEnabled);
       setReady(true);
     });
     instance.on('sourcedata', e => { if (e.sourceId === 'satellite' && e.isSourceLoaded) { setLoaded(true); setFailed(false); } });
     instance.on('error', e => {
       const source = (e as unknown as {sourceId?: string}).sourceId;
       const text = String(e.error?.message ?? '');
-      if (source === 'dem' || /terrarium|elevation-tiles|dem/i.test(text)) { instance.setTerrain(null); setTerrainFailed(true); setTerrain(false); }
+      if (source === 'dem' || /terrarium|elevation-tiles|dem/i.test(text)) { instance.setTerrain(null); solarShadows.current?.setEnabled(false, exaggeration); setTerrainFailed(true); setTerrain(false); }
       else if (source === 'satellite' || /eox|WebGL|Failed to fetch/i.test(text)) setFailed(true);
     });
     const timeout = window.setTimeout(() => { if (!instance.isSourceLoaded('satellite')) setFailed(true); }, 18000);
     const observer = new ResizeObserver(() => instance.resize()); observer.observe(element.current!);
-    return () => { clearTimeout(timeout); instance.getCanvas().removeEventListener('pointerdown', onPointerDown); instance.getCanvas().removeEventListener('pointercancel', onPointerCancel); observer.disconnect(); guessMarker.current?.remove(); summitMarker.current?.remove(); guessMarker.current = null; summitMarker.current = null; instance.remove(); map.current = null; };
+    return () => { solarShadows.current?.dispose(); solarShadows.current = null; clearTimeout(timeout); instance.getCanvas().removeEventListener('pointerdown', onPointerDown); instance.getCanvas().removeEventListener('pointercancel', onPointerCancel); observer.disconnect(); guessMarker.current?.remove(); summitMarker.current?.remove(); guessMarker.current = null; summitMarker.current = null; instance.remove(); map.current = null; };
   }, [revision]);
   useEffect(() => {
     if (!ready || !map.current) return;
     map.current.setTerrain(terrain && !terrainFailed ? { source: 'dem', exaggeration } : null);
-  }, [terrain, terrainFailed, ready, exaggeration]);
+    solarShadows.current?.setEnabled(terrain && !terrainFailed, exaggeration, shadowPreference);
+  }, [terrain, terrainFailed, ready, exaggeration, shadowPreference]);
   useEffect(() => {
     if (!ready || !map.current) return;
     map.current.easeTo({ pitch: terrain ? 35 : 0, duration: reduced() ? 0 : 650 });
@@ -141,7 +149,10 @@ export function AlpineMap(props: MapProps) {
       <input type="range" min="0" max="3" step="0.1" value={exaggeration} disabled={!terrain || terrainFailed} aria-label={t.exaggeration} aria-orientation="vertical" aria-valuetext={`${exaggeration.toFixed(1)}×`} onChange={event=>setExaggeration(Number(event.target.value))}/>
       <output>{exaggeration.toFixed(1)}×</output>
     </label>
+    <div className="map-display-controls">
     <button className={`terrain-toggle ${terrain?'active':''}`} disabled={terrainFailed} aria-pressed={terrain} onClick={()=>setTerrain(v=>!v)}>{terrain?'△':'▱'} <span>{terrain?t.terrain:t.flat}</span><i/></button>
+    <button className={`terrain-toggle shadow-toggle ${shadowsEnabled?'active':''}`} aria-label={shadowLabels[props.locale]} title={shadowLabels[props.locale]} disabled={!terrain || terrainFailed || exaggeration === 0} aria-pressed={shadowsEnabled} onClick={()=>setShadowPreference(!shadowsEnabled)}>☀ <span>{shadowLabels[props.locale]}</span><i/></button>
+    </div>
     {!props.locked&&<button className="center-guess" onClick={()=>{ const canvas=map.current?.getCanvas(); const center=canvas&&map.current?.unproject([canvas.clientWidth/2,canvas.clientHeight*(window.innerWidth<720?.4:.5)]); if(center)props.onGuess({lon:center.wrap().lng,lat:center.lat}); }}>{t.center}</button>}
     {!props.locked&&<div className="map-crosshair" aria-hidden="true">+</div>}
     {props.actual&&<div className="map-legend"><span><i className="legend-guess"/>{t.yourGuess}</span><span><i className="legend-summit"/>{t.summit}</span></div>}

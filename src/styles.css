@@ -81,3 +81,39 @@
  .terrain-exaggeration input{height:76px}
  .terrain-toggle{top:276px}
 }
+
+/* Adjacent independent terrain and sunlight controls. */
+.map-display-controls{position:absolute;z-index:4;right:30px;bottom:83px;display:flex;gap:8px}
+.map-display-controls .terrain-toggle{position:static}
+@media(min-width:1500px){.map-display-controls{right:40px}}
+@media(max-width:719px){.map-display-controls{top:276px;bottom:auto;right:15px}.map-display-controls .terrain-toggle{padding:9px}}
+
+@media(max-width:719px){.terrain-exaggeration{top:150px}.terrain-exaggeration>span{font-size:16px;line-height:16px}.terrain-exaggeration input{height:70px}.terrain-exaggeration output{font-size:10px;line-height:12px}}
+
+/* Cropped signatures share existing chrome without reducing map height. */
+.institution-layout{position:relative;height:100svh;min-height:560px}
+.institution-layout>.app-shell{height:100%;min-height:0}
+.institution-layout .daily-heading{visibility:hidden}
+.institution-footer{position:absolute;z-index:6;top:34px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:12px}
+.institution-footer a{display:flex;justify-content:center;align-items:center;padding:3px 4px;border-radius:4px;transition:background-color .18s}
+.institution-footer a:hover{background:#eaf0e7}
+.institution-footer a:focus-visible{outline:2px solid #0047bb;outline-offset:2px}
+.institution-footer img{display:block;height:32px;width:auto;flex-shrink:0}
+.institution-divider{height:26px;width:1px;background:#d6ddd3}
+.institution-credit{position:absolute;top:-14px;left:0;right:0;text-align:center;font-size:9px;line-height:12px;letter-spacing:.04em;color:#77817a;white-space:nowrap}
+@media(max-width:719px){
+ .institution-footer{top:auto;bottom:2px;left:12px;transform:none;gap:6px;padding:3px 7px;background:#fff;border-radius:3px}
+ .institution-footer a{padding:0 2px}
+ .institution-footer img{height:18px}
+ .institution-divider{height:15px}
+ .institution-credit{position:static;font-size:7px;letter-spacing:0;color:#697768}
+ .institution-layout .app-footer>span:first-child{visibility:hidden}
+ .institution-layout .app-footer>span:last-child{max-width:calc(100% - 180px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+}
+
+/* Welcome credit stays in normal dialog flow, including on small screens. */
+.institution-footer.institution-footer--welcome{position:relative;top:auto;bottom:auto;left:auto;transform:none;justify-content:center;gap:12px;margin-top:20px;padding:25px 0 0;background:transparent;border-top:1px solid #dde3d7;border-radius:0}
+.institution-footer--welcome .institution-credit{position:absolute;top:7px;left:0;right:0;font-size:9px;line-height:12px;letter-spacing:.04em;text-align:center}
+.institution-footer--welcome a{width:auto;padding:3px 4px}
+.institution-footer--welcome img{height:32px}
+.institution-footer--welcome .institution-divider{height:26px}

@@ -1,3 +1,24 @@
+## 2026-10-01 — Group game choices by geography
+
+- Grouped Alpine peaks, regional Alpine games and valleys together, with Worldwide Peaks in a separate group; translated group labels in all four languages.
+
+## 2026-10-01 — Restore visible Alpine region choices
+
+- Added direct Western Alps and Eastern Alps entries to the main selector in all four languages, preserving existing regional games and progress.
+
+## 2026-10-01 — Expanded Worldwide Peaks enabled
+
+- Replaced the initial shortlist with the reviewed full-discovery catalogue: 771 mountains/volcanoes, including 215 volcanoes (62 Easy, 172 Medium, 537 Hard).
+- Added snapshot-pinned inclusion/exclusion decisions for every retrieved identity; held 67 ambiguous or unsuitable point targets from the geographically eligible pool.
+- Preserved GMBA polygons/scoring and older versioned datasets; added volcano-specific prompts in all four languages.
+- Publisher now requires complete discovery and matching review evidence before activating a new release.
+
+## 2026-10-01 — Complete worldwide discovery retrieval
+
+- Resumed cached requests and finished the GMBA matching/export: 1,165 unique mountain/volcano candidates, including 362 volcanoes.
+- 1,066 pass the Wikipedia edition threshold; 838 also pass coordinate and region checks. Retained failed checks and unreviewed status for catalogue review.
+- Verified unique identities, completion status and tier counts without changing the active game dataset.
+
 ## Repository checks
 
 - Documented `master` as the primary Git branch and removed a duplicate ignore rule.
@@ -65,3 +86,46 @@
 - Replaced the illustrative Mont Blanc button with a real map guess and distance reveal, separate from daily progress.
 - Added an explicit transition from practice results to the daily challenge; paused daily advancement during practice.
 - Bolded the current Easy, Medium, or Hard stage in the toolbar.
+## Current-time solar cast shadows — 2026-09-30
+
+- Replaced fixed hillshade with original WebGL 2 light-space depth shadows, using the technique inspected in Vector Vario's deployed renderer.
+- Calculate sunlight from the viewed location and current UTC time; refresh every minute, after view changes and when returning to the tab.
+- Added filtered ridge occlusion, ambient night lighting, terrain-height synchronization, bounded DEM caching and GPU cleanup.
+- Added solar-position tests, synthetic GPU ridge checks and desktop/mobile live refresh checks.
+
+## Shadow controls — 2026-10-01
+
+- Added an independent, localized Sun shadows toggle beside the terrain button on desktop and mobile.
+- Default shadows to off below the viewed location's solar horizon; follow daylight until manually overridden for the page session.
+
+## Institutional logo placement prototype — 2026-10-01
+
+- Added an isolated `/logos-prototype.html` preview with the live game above a white institutional strip.
+- Preserved the supplied ÖAW and IGF SVG animations; matched image heights and placed IGF to the right of ÖAW, with responsive sizing.
+
+## Finished institutional footer — 2026-10-01
+
+- Integrated a compact white ÖAW / IGF signature row into every game mode; the map occupies the remaining height.
+- Logos link to the German institution pages for German and English pages for English, French and Italian, opening in new tabs with accessible localized labels.
+- The earlier prototype URL now leads to the finished app.
+
+## Compact institutional signatures — 2026-10-01
+
+- Removed the separate institutional strip, restoring its full height to the map.
+- Reused the center of the desktop header and the left of the existing mobile footer for the animated, linked logo pair.
+
+- Added a localized “Designed by” caption to the compact institutional signatures.
+
+- Centered the institutional credit over its divider by using equal-width logo slots, preserving equal logo heights.
+
+## Cropped institutional logos — 2026-10-01
+
+- Switched the signature pair to the supplied cropped animated SVGs so equal image heights correspond to equal artwork heights.
+- Retuned spacing and centered equal-width slots; retained localized external links and animations.
+- Kept mobile saved-progress text from overlapping the compact logo badge on narrow screens.
+
+- Removed equal-width logo slots to give each cropped logo the same gap from the divider; the credit remains centered over the whole pair.
+
+## Welcome institutional credit — 2026-10-01
+
+- Added the animated ÖAW / IGF pair and localized “Designed by” credit beneath the welcome popup's practice button, reusing the existing language-aware links.

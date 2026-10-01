@@ -126,9 +126,9 @@ test('terrain slider starts at 1.5 and adjusts without guessing',async({page})=>
  await expect(slider).toHaveValue('1.6');
  await expect(page.locator('.terrain-exaggeration output')).toHaveText('1.6×');
  await expect(page.locator('.game-card.revealed')).toHaveCount(0);
- await page.locator('.terrain-toggle').click();
+ await page.locator('.terrain-toggle:not(.shadow-toggle)').click();
  await expect(slider).toBeDisabled();
- await page.locator('.terrain-toggle').click();
+ await page.locator('.terrain-toggle:not(.shadow-toggle)').click();
  await expect(slider).toBeEnabled();
  await expect(slider).toHaveValue('1.6');
 });

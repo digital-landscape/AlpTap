@@ -1,3 +1,6 @@
+import {readFileSync} from 'node:fs';
+import {generateModeChallenge,type ModeManifest} from '../../src/core/modes';
+import {viennaDate} from '../../src/core/date';
 import {test,expect} from '@playwright/test';
 import {fixtureValleys} from './valley-fixture';
 
@@ -75,4 +78,47 @@ test('reveals a valley outline on the map without a summit pin',async({page},inf
  await expect(page.getByTestId('map')).toHaveAttribute('data-settled','true');
  await expect(page.locator('.summit-pin')).toHaveCount(0);
  await page.screenshot({path:`output/modes/${info.project.name}-valley-outline.png`});
+});
+
+test('serves the expanded catalogue and translates a volcano target',async({page})=>{
+ await page.route('**/v2/challenge?mode=world-peaks',async route=>{
+  const response=await route.fetch();const c=await response.json();
+  c.targetIds[0]='wikidata:Q16990'; // Etna: a real Easy volcano in the published catalogue.
+  await route.fulfill({json:c});
+ });
+ await page.goto('/');const request=page.waitForResponse(r=>r.url().includes('/v2/challenge?mode=world-peaks'));
+ await page.locator('.mode-select select').selectOption('world-peaks');
+ const c=await (await request).json();const manifest=await (await page.request.get(`/data/${c.datasetVersion}/manifest.json`)).json();
+ expect(manifest.targets.length).toBeGreaterThan(700);
+ expect(manifest.targets.filter((t:{provenance:{featureType:string}})=>t.provenance.featureType==='volcano').length).toBeGreaterThan(200);
+ for(const [locale,prompt] of Object.entries({en:'Where is this volcano?',fr:'Où se trouve ce volcan ?',de:'Wo liegt dieser Vulkan?',it:'Dove si trova questo vulcano?'})){
+  await page.locator('.language-select select').selectOption(locale);await expect(page.locator('.peak-heading .prompt')).toHaveText(prompt);
+ }
+});
+
+test('restores a saved worldwide challenge from the previous dataset',async({page})=>{
+ const manifest=JSON.parse(readFileSync('public/data/mode-c21e681de816/manifest.json','utf8')) as ModeManifest;
+ const challenge=generateModeChallenge({version:manifest.version,mode:'world-peaks',validated:true,targets:manifest.targets},viennaDate());
+ await page.addInitScript(challenge=>{
+  localStorage.setItem('alptap:mode',JSON.stringify('world-peaks'));
+  localStorage.setItem('alptap:session:v2:world-peaks',JSON.stringify({schemaVersion:2,challenge,targets:[],round:0,results:[],pendingGuess:null,complete:false}));
+ },challenge);
+ await page.goto('/');await expect(page.locator('.game-card')).toBeVisible();
+ await expect(page.locator('.peak-heading h1')).toHaveText(manifest.targets.find(t=>t.id===challenge.targetIds[0])!.name);
+ expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('alptap:session:v2:world-peaks')!).challenge.datasetVersion)).toBe(manifest.version);
+});
+
+test('Western and Eastern Alps are reachable directly from the worldwide mode selector',async({page})=>{
+ await page.goto('/');await page.locator('.mode-select select').selectOption('world-peaks');
+ for(const region of ['western-alps','eastern-alps']){
+  await page.locator('.mode-select select').selectOption(region);
+  await expect(page.locator('.filterbar>label:not(.mode-select) select')).toHaveValue(region);
+  await expect(page.locator('.game-card')).toBeVisible();
+  const saved=await page.evaluate(region=>JSON.parse(localStorage.getItem(`alptap:session:v1:${region}:mixed`)!).challenge.id,region);
+  await page.locator('.mode-select select').selectOption('world-peaks');
+  await page.locator('.mode-select select').selectOption(region);
+  await expect(page.locator('.game-card')).toBeVisible();
+  expect(await page.evaluate(region=>JSON.parse(localStorage.getItem(`alptap:session:v1:${region}:mixed`)!).challenge.id,region)).toBe(saved);
+ }
+ await page.reload();await expect(page.locator('.filterbar>label:not(.mode-select) select')).toHaveValue('eastern-alps');
 });

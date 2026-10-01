@@ -46,6 +46,7 @@ output/practice/
 
 # Local map-control layout, camera, and pointer regression captures
 output/interaction/
+output/terrain-shading/
 
 # Local game-mode browser captures
 output/modes/
@@ -56,3 +57,30 @@ output/mode-review/
 
 # Resumable worldwide discovery HTTP snapshots and service cooldown state
 .cache/modes/discovery/
+# Day/night shadow-toggle visual checks
+output/shadow-controls/
+
+# Disposable full-world catalogue review exports
+output/world-discovery-review/
+
+# Institutional logo prototype visual review captures
+output/logo-preview/
+# Finished institutional footer browser captures
+output/institution-footer/
+# Compact institutional signature review captures
+output/institution-compact/
+# Institutional credit layout review captures
+output/institution-credit/
+# Institutional signature alignment captures
+output/institution-alignment/
+# Cropped institutional logo visual review
+output/institution-cropped/
+# Natural-width institutional logo spacing captures
+output/institution-spacing/
+# Welcome-popup institutional logo review captures
+output/welcome-logos/
+
+# Keep reviewed release decisions in data/config/world-review.json tracked.
+
+# Local grouped game / region-selector verification captures
+output/region-selector/
