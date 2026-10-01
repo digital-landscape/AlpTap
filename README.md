@@ -155,4 +155,6 @@ Rebuild with `npm run data:modes -- --mode world --offline`. Preparation require
 
 Western Alps and Eastern Alps are also direct choices in the main game selector, including from Worldwide Peaks. They open the existing regional Alpine games with their separate saved progress.
 
-The game selector groups all Alpine choices (peaks, Western Alps, Eastern Alps and valleys) under **Alps**, with **Worldwide** in its own group. Group labels follow the selected interface language. Valley availability still depends on its data release checks.
+The game selector groups all Alpine choices (peaks, Western Alps and Eastern Alps) under **Alps**, with **Worldwide** in its own group. Group labels follow the selected interface language. Valley availability still depends on its data release checks.
+
+Alpine Valleys is removed from the public selector pending a suitable dataset; preparation code and reports remain for future work. Alpine and Worldwide share the original AlpTap mountain logo, lettering, tagline and mobile date. The repository’s primary branch is `master`.

@@ -8,7 +8,7 @@
 | Worldwide Peaks | 62 | 172 | 537 | Enabled, `mode-13d7445c720f`, including 215 volcanoes |
 | Alpine Valleys | 7 | 6 | 6 | Withheld: verified candidates cover CH, FR and IT, but not AT |
 
-The selector exposes all three modes. A withheld mode displays a localized unavailable message and does not create a game. No Swiss-only or three-country fallback is allowed. Valley gameplay is implemented and exercised with explicitly synthetic test fixtures; those fixtures are never production data.
+The selector exposes Alpine Peaks (including its regional choices) and Worldwide Peaks. Alpine Valleys is hidden pending suitable source data; a previously selected valley mode falls back to Alpine Peaks without deleting saved sessions. No Swiss-only or three-country fallback is allowed. Valley gameplay is implemented and exercised with explicitly synthetic test fixtures; those fixtures are never production data.
 
 The Austrian NaLa polygon `ra10` matches **Oberösterreichisches Ennstal**, Wikidata **Q1372120**, a particular Upper Austrian named landscape unit, not the entire Enns valley. The [matched article’s area definition](https://de.wikipedia.org/w/index.php?title=Ober%C3%B6sterreichisches_Ennstal&oldid=259751042) explicitly includes both the Enns valley and the valley around Gaflenz. This is a combined multi-valley unit and is excluded. Its Wikidata record also has no P625 coordinate. A suitable alternative Austrian single-valley polygon and verified identity are required before release. Do not substitute the whole Enns valley, draw a polygon, or lower the four-country gate. Other exclusions and exact reasons are in `data/processed/alpine-valleys-report.json`.
 

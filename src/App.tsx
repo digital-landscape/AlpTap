@@ -1,3 +1,5 @@
+import {MountainIcon} from './ui/MountainIcon';
+import {Brand} from './ui/Brand';
 import { practiceBounds, practiceSummit } from './core/practice';
 import { getAreaName } from './core/area-names';
 import { peakInfoLink } from './core/peak-links';
@@ -19,7 +21,7 @@ import { createChallengeProvider, loadDataset } from './data/provider';
 import type { GameSession, Manifest, Preferences, Position, Peak, Result } from './core/types';
 const AlpineMap = lazy(() => import('./map/AlpineMap').then(m => ({default:m.AlpineMap})));
 const storage: StorageLike = { getItem: key => localStorage.getItem(key), setItem: (key,value) => localStorage.setItem(key,value) };
-function MountainIcon({large=false}:{large?:boolean}) { return <svg className={large?'mountain-icon large':'mountain-icon'} viewBox="0 0 48 40" fill="none" aria-hidden="true"><path d="M3 34 19 7l10 17 6-10 11 20H3Z" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round"/><path d="m13 17 6 4 5-5M30 23l5 3 4-5" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/></svg>; }
+
 function Arrow() { return <span aria-hidden="true">↗</span>; }
 export default function App({modeControl,onLocale,initialRegion}:{initialRegion?:Preferences['region'];modeControl?:ReactNode;onLocale?:(locale:Preferences['locale'])=>void}={}) {
   const [preferences,setPreferences] = useState<Preferences>(()=>({...initialPreferences(storage,navigator.languages),...(initialRegion?{region:initialRegion}:{})}));
@@ -100,7 +102,7 @@ export default function App({modeControl,onLocale,initialRegion}:{initialRegion?
   return <main className="app-shell">
     {practiceActive?<Suspense fallback={<div className="map-backdrop"/>}><AlpineMap bounds={practiceBounds} guess={practiceResult?.guess??null} actual={practiceResult?practiceSummit:null} roundKey="practice:mont-blanc" locale={locale} onGuess={position=>setPracticeResult(current=>current??evaluateGuess('wikidata:Q583',position,practiceSummit))} locked={!!practiceResult||welcomeOpen} sections={[]}/></Suspense>:session&&unit?.bounds&&<Suspense fallback={<div className="map-backdrop"/>}><AlpineMap bounds={unit.bounds} guess={result?.guess??session.pendingGuess} actual={result&&peak?peak:null} result={result} roundKey={`${session.challenge.id}:${session.round}`} locale={locale} onGuess={guess} locked={welcomeOpen||!!session.pendingGuess||!!result||session.complete} sections={result?sections:[]}/></Suspense>}
     <header className="topbar">
-      <a className="brand" href="./" aria-label="AlpTap"><span className="brand-mark"><MountainIcon/></span><span>Alp<span className="brand-light">Tap</span><small className="brand-tagline">{t.tagline}</small><small className="brand-date">{dateLabel}</small></span></a>
+      <Brand tagline={t.tagline} dateLabel={dateLabel}/>
       <div className="daily-heading"><span className="eyebrow"><i/>{t.daily}</span><span className="date">{dateLabel}</span></div>
       <div className="header-actions"><label className="language-select"><span className="sr-only">{t.language}</span><span aria-hidden="true">◎</span><select aria-label={t.language} value={locale} onChange={e=>change('locale',e.target.value as Preferences['locale'])}>{LOCALES.map(l=><option key={l} value={l}>{l.toUpperCase()}</option>)}</select></label><button className="help-button" aria-label={t.help} title={t.help} onClick={()=>dialog.current?.showModal()}>?</button></div>
     </header>

@@ -5,7 +5,8 @@ import {test,expect} from '@playwright/test';
 import {fixtureValleys} from './valley-fixture';
 
 test.beforeEach(async({page})=>{await page.addInitScript(()=>localStorage.setItem('alptap:onboarding:v1','true'));});
-test('world and valleys have independent progress and mode-specific geometry',async({page},info)=>{
+// Deferred while Valleys is removed from the public selector pending source data.
+test.skip('world and valleys have independent progress and mode-specific geometry',async({page},info)=>{
  await fixtureValleys(page);
  const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto('/');await expect(page.locator('.game-card')).toBeVisible();
@@ -34,7 +35,8 @@ test('world and valleys have independent progress and mode-specific geometry',as
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
  expect(errors).toEqual([]);
 });
-test('retains a guess when a valley boundary fails and can retry',async({page})=>{
+// Deferred while Valleys is removed from the public selector pending source data.
+test.skip('retains a guess when a valley boundary fails and can retry',async({page})=>{
  await fixtureValleys(page);
  await page.route('**/valleys/*.json',r=>r.abort());await page.goto('/');await page.locator('.mode-select select').selectOption('alpine-valleys');
  await expect(page.locator('.game-card')).toBeVisible();await page.getByRole('button',{name:'Guess at map center'}).click();
@@ -47,10 +49,15 @@ test('new mode labels and instructions follow all interface languages',async({pa
  for(const locale of ['fr','de','it','en']){await page.locator('.language-select select').selectOption(locale);await expect(page.locator('html')).toHaveAttribute('lang',locale);await expect(page.locator('.mode-select select')).toHaveValue('world-peaks');}
 });
 
-test('withholds the real valley catalogue until all countries pass review',async({page})=>{
- await page.goto('/');await page.locator('.mode-select select').selectOption('alpine-valleys');
- await expect(page.locator('.loading-card')).toContainText('not ready yet');
- await expect(page.locator('.game-card')).toHaveCount(0);
+test('hides valleys and preserves the original brand in both available modes',async({page})=>{
+ await page.addInitScript(()=>localStorage.setItem('alptap:mode',JSON.stringify('alpine-valleys')));
+ await page.goto('/');
+ await expect(page.locator('.mode-select select')).toHaveValue('alpine-peaks');
+ await expect(page.locator('.mode-select option[value="alpine-valleys"]')).toHaveCount(0);
+ const brand=await page.locator('.brand').innerHTML();
+ await page.locator('.mode-select select').selectOption('world-peaks');
+ await expect(page.locator('.game-card')).toBeVisible();
+ expect(await page.locator('.brand').innerHTML()).toBe(brand);
  expect(await page.evaluate(()=>localStorage.getItem('alptap:session:v2:alpine-valleys'))).toBeNull();
 });
 
@@ -69,7 +76,8 @@ test('world rounds advance Easy to Medium to Hard with a bold current tier and p
  await expect(page.locator('.daily-order [aria-current="step"]')).toHaveCount(0);
 });
 
-test('reveals a valley outline on the map without a summit pin',async({page},info)=>{
+// Deferred while Valleys is removed from the public selector pending source data.
+test.skip('reveals a valley outline on the map without a summit pin',async({page},info)=>{
  await fixtureValleys(page);await page.emulateMedia({reducedMotion:'reduce'});
  await page.goto('/');await page.locator('.mode-select select').selectOption('alpine-valleys');
  await expect(page.getByTestId('map')).toHaveAttribute('data-settled','true');

@@ -67,7 +67,7 @@
 @media(max-width:719px){.difficulty-step{gap:4px}}
 
 .mode-select{min-width:135px}.mode-select select{max-width:190px}.mode-game .about-dialog p{margin:16px 0;line-height:1.6}.mode-game .loading-card p{margin:18px 0;line-height:1.6}.mode-game .recap-card h2{margin-top:12px}
-@media(max-width:719px){.filterbar{gap:8px;padding-left:12px;padding-right:12px}.filterbar>.mode-select{min-width:0;flex:1}.filterbar>.mode-select select{max-width:125px;font-size:10px}.filterbar>label:not(.mode-select){max-width:90px}.filterbar>label:not(.mode-select) select{max-width:90px;font-size:9px}.filterbar .mode-highlight{padding:5px;gap:4px}.filterbar .mode-label{display:none}.filterbar .daily-order{gap:4px;font-size:9px}.mode-game .brand{font-size:24px}}
+@media(max-width:719px){.filterbar{gap:8px;padding-left:12px;padding-right:12px}.filterbar>.mode-select{min-width:0;flex:1}.filterbar>.mode-select select{max-width:125px;font-size:10px}.filterbar>label:not(.mode-select){max-width:90px}.filterbar>label:not(.mode-select) select{max-width:90px;font-size:9px}.filterbar .mode-highlight{padding:5px;gap:4px}.filterbar .mode-label{display:none}.filterbar .daily-order{gap:4px;font-size:9px}}
 
 /* Terrain height control stays separate from the map's guess gestures. */
 .terrain-exaggeration{position:absolute;z-index:4;right:30px;top:318px;width:44px;padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:8px;border-radius:12px;background:var(--paper);box-shadow:0 5px 18px #122f3425;color:var(--ink)}

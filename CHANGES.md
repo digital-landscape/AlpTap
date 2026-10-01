@@ -1,3 +1,9 @@
+## 2026-10-01 — Preserve original branding and defer Valleys
+
+- Removed Valleys from the selector while retaining preparation work and saved data.
+- Shared the original AlpTap mountain mark and typography across Alpine and Worldwide headers.
+- Prepared the feature branch for integration into the primary `master` branch.
+
 ## 2026-10-01 — Group game choices by geography
 
 - Grouped Alpine peaks, regional Alpine games and valleys together, with Worldwide Peaks in a separate group; translated group labels in all four languages.

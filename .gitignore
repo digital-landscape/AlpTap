@@ -82,5 +82,5 @@ output/welcome-logos/
 
 # Keep reviewed release decisions in data/config/world-review.json tracked.
 
-# Local grouped game / region-selector verification captures
+# Local grouped game, brand and region-selector verification captures
 output/region-selector/
