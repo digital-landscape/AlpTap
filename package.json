@@ -21,13 +21,15 @@
     "data:modes": "uv run --cache-dir .cache/uv --project scripts python scripts/prepare_modes.py",
     "data:world:discover": "uv run --cache-dir .cache/uv --project scripts python scripts/discover_world.py",
     "data:explore": "node scripts/prepare-explore.mjs",
-    "predev": "npm run data:explore",
-    "predev:web": "npm run data:explore",
-    "prebuild": "npm run data:explore",
-    "prebuild:pages": "npm run data:explore"
+    "predev": "npm run data:explore && npm run data:catalog",
+    "predev:web": "npm run data:explore && npm run data:catalog",
+    "prebuild": "npm run data:explore && npm run data:catalog",
+    "prebuild:pages": "npm run data:explore && npm run data:catalog",
+    "data:catalog": "node scripts/prepare-catalog.mjs"
   },
   "dependencies": {
     "maplibre-gl": "^6.11.2",
+    "polygon-clipping": "^0.15.7",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"
   },

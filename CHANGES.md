@@ -173,3 +173,24 @@
 - Added a frontend-only Pages build and made institutional assets and the legacy redirect work under `/AlpTap/`.
 
 - Pages builds now derive their base path from GitHub configuration, supporting both project URLs and a future dedicated domain; pushes to `master` automatically deploy updates.
+
+## OSM coordinate comparison
+
+- Added a read-only, resumable audit of active Alpine and worldwide summit coordinates against OSM, with source timestamps/hashes and searchable HTML/JSON reports.
+- Separated direct Wikidata ID matches, tentative nearby name matches, multiple candidates, non-point objects, unmatched records and unavailable sources. Game coordinates remain unchanged.
+- Added focused checks for identity conflicts, ambiguous matches, duplicate extracts, non-point exclusion, incomplete responses and dateline distances.
+
+## Worldwide globe and compass — 2026-10-02
+
+- Switched worldwide games and exploration to globe projection with responsive overview framing.
+- Added a rotating compass with localized, keyboard-accessible north reset in every map.
+- Centered the compass icon horizontally on desktop and mobile by removing native button padding and aligning the SVG with CSS grid.
+- Adjusted desktop/mobile control spacing and ignored clicks outside the globe.
+# Custom daily areas and shareable links
+
+- Replaced the large Custom/Copy link text buttons with compact polygon and chain icons, localized tooltips, accessible names, and a copied checkmark.
+- Added Custom polygon drawing with Undo/Clear/Cancel, geographic overlap preview, source selection, and minimum-three-peak validation.
+- Added compact, canonical polygon URLs and explicit mode/region parameters; shared links pin immutable catalogue releases and always play today's Alpine date.
+- Added deterministic custom tier selection with distinct fallback peaks, polygon outlines during play, and separate validated progress per challenge.
+- Preserved existing scoring, standard daily selection, Explore links, and older stored sessions; added English, German, French, and Italian custom/share copy.
+- Added catalogue publication to dev/build commands, unit/provider regression coverage, and updated browser checks for URL precedence and catalogue failures.

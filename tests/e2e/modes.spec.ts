@@ -115,15 +115,19 @@ test('serves the expanded catalogue and translates a volcano target',async({page
  }
 });
 
-test('restores a saved worldwide challenge from the previous dataset',async({page})=>{
+test('an explicit mode URL selects today’s catalogue and preserves older saved progress',async({page})=>{
  const manifest=JSON.parse(readFileSync('public/data/mode-c21e681de816/manifest.json','utf8')) as ModeManifest;
  const challenge=generateModeChallenge({version:manifest.version,mode:'world-peaks',validated:true,targets:manifest.targets},viennaDate());
  await page.addInitScript(challenge=>{
   localStorage.setItem('alptap:mode',JSON.stringify('world-peaks'));
   localStorage.setItem('alptap:session:v2:world-peaks',JSON.stringify({schemaVersion:2,challenge,targets:[],round:0,results:[],pendingGuess:null,complete:false}));
  },challenge);
- await page.goto('/');await expect(page.locator('.game-card')).toBeVisible();
- await expect(page.locator('.peak-heading h1')).toHaveText(manifest.targets.find(t=>t.id===challenge.targetIds[0])!.name);
+ const current=JSON.parse(readFileSync('public/data/catalogs/current.json','utf8'));
+ const catalog=JSON.parse(readFileSync(`public/data/catalogs/${current.id}.json`,'utf8'));
+ const expected=generateModeChallenge(catalog.world,viennaDate());
+ const active=JSON.parse(readFileSync(`public/data/${catalog.world.version}/manifest.json`,'utf8')) as ModeManifest;
+ await page.goto('/?mode=world-peaks');await expect(page.locator('.game-card')).toBeVisible();
+ await expect(page.locator('.peak-heading h1')).toHaveText(active.targets.find(t=>t.id===expected.targetIds[0])!.name);
  expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('alptap:session:v2:world-peaks')!).challenge.datasetVersion)).toBe(manifest.version);
 });
 
@@ -131,7 +135,7 @@ test('Western and Eastern Alps are reachable directly from the worldwide mode se
  await page.goto('/');await page.locator('.mode-select select').selectOption('world-peaks');
  for(const region of ['western-alps','eastern-alps']){
   await page.locator('.mode-select select').selectOption(region);
-  await expect(page.locator('.filterbar>label:not(.mode-select) select')).toHaveValue(region);
+  await expect(page.locator('.mode-select select')).toHaveValue(region);
   await expect(page.locator('.game-card')).toBeVisible();
   const saved=await page.evaluate(region=>JSON.parse(localStorage.getItem(`alptap:session:v1:${region}:mixed`)!).challenge.id,region);
   await page.locator('.mode-select select').selectOption('world-peaks');
@@ -139,5 +143,5 @@ test('Western and Eastern Alps are reachable directly from the worldwide mode se
   await expect(page.locator('.game-card')).toBeVisible();
   expect(await page.evaluate(region=>JSON.parse(localStorage.getItem(`alptap:session:v1:${region}:mixed`)!).challenge.id,region)).toBe(saved);
  }
- await page.reload();await expect(page.locator('.filterbar>label:not(.mode-select) select')).toHaveValue('eastern-alps');
+ await page.reload();await expect(page.locator('.mode-select select')).toHaveValue('eastern-alps');
 });

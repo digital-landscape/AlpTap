@@ -127,8 +127,22 @@ output/reveal-wording/
 # Explorer catalogues are generated from the versioned source data before dev/build.
 public/explore/
 
+# Shared daily links depend on immutable catalogue releases. Keep them in Git.
+!public/data/catalogs/
+!public/data/catalogs/*.json
+
+# Regenerable OSM coordinate comparison reports and source queries
+output/osm-audit/
+.cache/osm-audit/
 # Local map-first explorer review captures
 output/explore-map/
 
 # Disposable sharing/replay browser captures (published social artwork is tracked).
 output/sharing/
+
+# Local globe and compass visual review captures
+output/playwright/globe-compass/
+# Compass centering screenshots at desktop and mobile sizes
+output/playwright/compass-alignment/
+# Compact polygon and copy-link toolbar visual checks
+output/playwright/area-icons/
