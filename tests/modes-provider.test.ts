@@ -32,3 +32,17 @@ it('rejects empty and non-closed scoring rings',async()=>{
   await expect(targetGeometry(manifest,targets[0])).rejects.toThrow('Invalid geometry');
  }
 });
+
+it('recalculates an old worldwide edge miss with the buffered region bonus',async()=>{
+ const worldTargets:Target[]=targets.map(t=>({...t,kind:'summit',regionIds:['gmba:test']}));
+ const c=generateModeChallenge({version:manifest.version,mode:'world-peaks',validated:true,targets:worldTargets},viennaDate());
+ const worldManifest:ModeManifest={...manifest,mode:'world-peaks',targets:worldTargets,regions:[{id:'gmba:test',name:'Region',geometryRef:'regions/test.json',displayGeometryRef:'regions/test-display.json'}]};
+ const cache=storage(),guess={lon:1,lat:-.05};
+ cache.setItem(modeSessionKey('world-peaks'),JSON.stringify({schemaVersion:2,challenge:c,round:0,results:[{guess,score:0,areaBonus:0,inside:false,scoringRule:'world-region-v1'}],pendingGuess:guess,complete:false}));
+ vi.stubGlobal('fetch',vi.fn(async(url:string)=>new Response(JSON.stringify(url.endsWith('manifest.json')?worldManifest:{type:'Feature',properties:{id:'gmba:test',name:'Region'},geometry:{type:'Polygon',coordinates:[[[0,0],[2,0],[2,2],[0,2],[0,0]]]}}))));
+ const result=(await restoreMode(cache,'world-peaks'))!.session.results[0];
+ expect(result.guess).toEqual(guess);
+ expect(result.inside).toBe(true);
+ expect(result.areaBonus).toBeGreaterThan(0);
+ expect(result.score).toBe(result.distanceScore+result.areaBonus);
+});

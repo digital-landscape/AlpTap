@@ -1,5 +1,5 @@
 import {describe,it,expect} from 'vitest';
-import {continuousPath,evaluateModeGuess,generateModeChallenge,polygonDistance,releaseReady,revealBounds,validV2,type ModeIndex,type Target} from '../src/core/modes';
+import {continuousPath,evaluateModeGuess,generateModeChallenge,polygonDistance,releaseReady,revealBounds,validV2,WORLD_REGION_BUFFER_KM,type ModeIndex,type Target} from '../src/core/modes';
 import {scoreDistance} from '../src/core/scoring';
 import {sectionCovers,type SectionFeature} from '../src/core/geography';
 const polygon:SectionFeature={type:'Feature',properties:{id:'wikidata:Q1',name:'Valley'},geometry:{type:'Polygon',coordinates:[[[0,0],[2,0],[2,2],[0,2],[0,0]],[[.8,.8],[1.2,.8],[1.2,1.2],[.8,1.2],[.8,.8]]]}};
@@ -17,6 +17,48 @@ describe('valley area scoring',()=>{
 describe('world scoring and antimeridian',()=>{
  it('uses a forgiving world curve and the remaining-points region bonus',()=>{const summit={...valley,kind:'summit' as const,regionIds:[polygon.properties.id]};const r=evaluateModeGuess('world-peaks',summit,{lon:1.5,lat:1.5},[polygon]);const base=scoreDistance(r.distanceKm,'world').normalizedScore;expect(r.score).toBe(Math.round(1000*(base+.15*(1-base))));expect(r.areaBonus).toBe(r.score-r.distanceScore);});
  it('fits across the dateline and unwraps reveal paths',()=>{expect(revealBounds({lon:179,lat:10},{lon:-179,lat:12})).toEqual([179,10,181,12]);expect(continuousPath([[179,1],[-179,2],[-178,3]])).toEqual([[179,1],[181,2],[182,3]]);});
+});
+
+describe('worldwide GMBA boundary tolerance',()=>{
+ const summit:Target={...valley,kind:'summit',regionIds:[polygon.properties.id]};
+ const degreesPerKm=180/(Math.PI*6371.0088);
+ it('includes the 10 km limit, excludes guesses beyond it, and preserves distance points',()=>{
+  for(const km of [0,9.99,WORLD_REGION_BUFFER_KM,10.01,20]){
+   const guess={lon:1,lat:-km*degreesPerKm};
+   const r=evaluateModeGuess('world-peaks',summit,guess,[polygon]);
+   const expectedInside=km<=WORLD_REGION_BUFFER_KM;
+   expect(r.inside).toBe(expectedInside);
+   const base=scoreDistance(r.distanceKm,'world').normalizedScore;
+   expect(r.distanceScore).toBe(Math.round(1000*base));
+   expect(r.score).toBe(Math.round(1000*(base+(expectedInside?.15*(1-base):0))));
+  }
+ });
+ it('buffers hole edges without filling a large hole or changing valley membership',()=>{
+  const near={lon:.85,lat:1},deep={lon:1,lat:1};
+  expect(evaluateModeGuess('world-peaks',summit,near,[polygon]).inside).toBe(true);
+  expect(evaluateModeGuess('world-peaks',summit,deep,[polygon]).inside).toBe(false);
+  expect(evaluateModeGuess('alpine-valleys',valley,near,[polygon]).inside).toBe(false);
+ });
+ it('includes detached components and only awards the target’s own region',()=>{
+  const detached:number[][][]=[[[5,0],[6,0],[6,1],[5,1],[5,0]]];
+  const multi:SectionFeature={...polygon,geometry:{type:'MultiPolygon',coordinates:[(polygon.geometry as GeoJSON.Polygon).coordinates,detached]}};
+  const guess={lon:5.5,lat:-.05};
+  expect(evaluateModeGuess('world-peaks',summit,guess,[multi]).inside).toBe(true);
+  expect(evaluateModeGuess('world-peaks',summit,guess,[polygon,{...multi,properties:{id:'unrelated',name:'Other'}}]).inside).toBe(false);
+ });
+ it('measures kilometres at high latitudes and across the antimeridian',()=>{
+  const polar:SectionFeature={...polygon,geometry:{type:'Polygon',coordinates:[[[0,79],[2,79],[2,81],[0,81],[0,79]]]}};
+  expect(evaluateModeGuess('world-peaks',summit,{lon:-.4,lat:80},[polar]).inside).toBe(true);
+  expect(evaluateModeGuess('world-peaks',summit,{lon:-.6,lat:80},[polar]).inside).toBe(false);
+  const dateline:SectionFeature={...polygon,geometry:{type:'Polygon',coordinates:[[[179,0],[-179,0],[-179,2],[179,2],[179,0]]]}};
+  for(const lon of [178.95,-178.95])expect(evaluateModeGuess('world-peaks',summit,{lon,lat:1},[dateline]).inside).toBe(true);
+  for(const lon of [178.8,-178.8,0])expect(evaluateModeGuess('world-peaks',summit,{lon,lat:1},[dateline]).inside).toBe(false);
+ });
+ it('retains the same region tolerance with custom distance scoring',()=>{
+  const r=evaluateModeGuess('world-peaks',summit,{lon:1,lat:-.05},[polygon],{perfectRadiusKm:1,farDistanceKm:50});
+  expect(r.inside).toBe(true);
+  expect(r.areaBonus).toBeGreaterThan(0);
+ });
 });
 
 it('recognizes an unsplit dateline region without awarding the opposite hemisphere',()=>{
