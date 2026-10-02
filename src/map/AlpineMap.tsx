@@ -1,14 +1,16 @@
 import { continuousPath, revealBounds } from '../core/modes';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import * as maplibregl from 'maplibre-gl';
 import type { GeoJSONSource, Map as LibreMap } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import mapWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 maplibregl.setWorkerUrl(mapWorkerUrl);
-import { satellite, terrainConfig } from './config';
+import { terrainConfig } from './config';
+import { basemapLabels, basemapSources, basemapStyle, readBasemap, saveBasemap } from './basemap';
 import { SolarShadows } from './SolarShadows';
 import { solarPosition } from './solar';
 const shadowLabels = { en: 'Sun shadows', de: 'Sonnenschatten', fr: 'Ombres du soleil', it: 'Ombre solari' };
+const controlLabels = { en: 'Map controls', de: 'Kartensteuerung', fr: 'Commandes de la carte', it: 'Controlli della mappa' };
 import { messages } from '../core/i18n';
 import type { SectionFeature } from '../core/geography';
 import type { Locale, Position, Result } from '../core/types';
@@ -39,6 +41,14 @@ export function AlpineMap(props: MapProps) {
   const guessMarker = useRef<maplibregl.Marker | null>(null), summitMarker = useRef<maplibregl.Marker | null>(null);
   const [ready, setReady] = useState(false), [loaded, setLoaded] = useState(false), [failed, setFailed] = useState(false), [terrainFailed, setTerrainFailed] = useState(false);
   const [terrain, setTerrain] = useState(terrainConfig.enabled), [revision, setRevision] = useState(0);
+  const [basemap, setBasemap] = useState(readBasemap);
+  const [controlsOpen, setControlsOpen] = useState(false);
+  const controlsId = useId();
+  const controlsToggle = useRef<HTMLButtonElement>(null);
+  const activeBasemap = useRef(basemap);
+  const failedSources = useRef(new Set<string>());
+  activeBasemap.current = basemap;
+  const labels = basemapLabels[props.locale];
   const [shadowPreference, setShadowPreference] = useState<boolean | null>(null);
   const [shadowsEnabled, setShadowsEnabled] = useState(() => solarPosition((props.bounds[1]+props.bounds[3])/2, (props.bounds[0]+props.bounds[2])/2, Date.now()).altitude > 0);
   const solarShadows = useRef<SolarShadows | null>(null);
@@ -48,12 +58,12 @@ export function AlpineMap(props: MapProps) {
   const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   useEffect(() => {
     setReady(false); setLoaded(false); setFailed(false); setTerrainFailed(false);
+    failedSources.current.clear();
     let instance: LibreMap;
     try {
-      instance = new maplibregl.Map({ container: element.current!, style: { version: 8, glyphs:'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf', sources: { satellite }, layers: [{ id:'satellite', type:'raster', source:'satellite', paint:{'raster-fade-duration': 300, 'raster-saturation': -.1} }] }, center: [10.5,46.5], zoom: 5.5, maxZoom: 15, minZoom: props.world ? -2 : 3, maxPitch: 65, pitch: 35, attributionControl: { compact: false }, dragRotate: true, canvasContextAttributes: { antialias: true }, renderWorldCopies: !!props.world });
+      instance = new maplibregl.Map({ container: element.current!, style: basemapStyle(activeBasemap.current), center: [10.5,46.5], zoom: 5.5, maxZoom: 15, minZoom: props.world ? -2 : 3, maxPitch: 65, pitch: 35, attributionControl: { compact: false }, dragRotate: true, canvasContextAttributes: { antialias: true }, renderWorldCopies: !!props.world });
     } catch { setFailed(true); return; }
     map.current = instance;
-    instance.getCanvas().setAttribute('aria-label', 'AlpTap satellite map');
     instance.on('idle', () => element.current?.setAttribute('data-settled', 'true'));
     instance.on('movestart', () => element.current?.setAttribute('data-settled', 'false'));
     instance.doubleClickZoom.disable();
@@ -112,17 +122,41 @@ export function AlpineMap(props: MapProps) {
       solarShadows.current = new SolarShadows(instance, element.current!, setShadowsEnabled);
       setReady(true);
     });
-    instance.on('sourcedata', e => { if (e.sourceId === 'satellite' && e.isSourceLoaded) { setLoaded(true); setFailed(false); } });
     instance.on('error', e => {
       const source = (e as unknown as {sourceId?: string}).sourceId;
       const text = String(e.error?.message ?? '');
-      if (source === 'dem' || /terrarium|elevation-tiles|dem/i.test(text)) { instance.setTerrain(null); solarShadows.current?.setEnabled(false, exaggeration); setTerrainFailed(true); setTerrain(false); }
-      else if (source === 'satellite' || /eox|WebGL|Failed to fetch/i.test(text)) setFailed(true);
+      if (source) failedSources.current.add(source);
+      if (source === 'dem') { instance.setTerrain(null); solarShadows.current?.setEnabled(false, exaggeration); setTerrainFailed(true); setTerrain(false); }
+      if ((source && basemapSources(activeBasemap.current).includes(source)) || /WebGL/i.test(text)) setFailed(true);
     });
-    const timeout = window.setTimeout(() => { if (!instance.isSourceLoaded('satellite')) setFailed(true); }, 18000);
+    const initialTimeout = window.setTimeout(() => {
+      if (!basemapSources(activeBasemap.current).every(id => instance.isSourceLoaded(id))) setFailed(true);
+    }, 18000);
     const observer = new ResizeObserver(() => instance.resize()); observer.observe(element.current!);
-    return () => { solarShadows.current?.dispose(); solarShadows.current = null; clearTimeout(timeout); instance.getCanvas().removeEventListener('pointerdown', onPointerDown); instance.getCanvas().removeEventListener('pointercancel', onPointerCancel); observer.disconnect(); guessMarker.current?.remove(); summitMarker.current?.remove(); guessMarker.current = null; summitMarker.current = null; instance.remove(); map.current = null; };
+    return () => { clearTimeout(initialTimeout); solarShadows.current?.dispose(); solarShadows.current = null; instance.getCanvas().removeEventListener('pointerdown', onPointerDown); instance.getCanvas().removeEventListener('pointercancel', onPointerCancel); observer.disconnect(); guessMarker.current?.remove(); summitMarker.current?.remove(); guessMarker.current = null; summitMarker.current = null; instance.remove(); map.current = null; };
   }, [revision]);
+  useEffect(() => {
+    saveBasemap(basemap);
+    if (!ready || !map.current) return;
+    const instance = map.current;
+    setFailed(basemapSources(basemap).some(id => failedSources.current.has(id))); setLoaded(false);
+    instance.setLayoutProperty('satellite', 'visibility', basemap === 'satellite' ? 'visible' : 'none');
+    for (const id of ['relief-background', 'relief-hillshade', 'oceans', 'hydrography']) {
+      instance.setLayoutProperty(id, 'visibility', basemap === 'relief' ? 'visible' : 'none');
+    }
+    instance.setPaintProperty('section-outline', 'line-color', basemap === 'relief' ? '#466332' : '#e3efb8');
+    const sources = basemapSources(basemap);
+    const updateLoaded = () => setLoaded(sources.every(id => instance.isSourceLoaded(id)));
+    instance.on('sourcedata', updateLoaded);
+    updateLoaded();
+    const timeout = window.setTimeout(() => {
+      if (!sources.every(id => instance.isSourceLoaded(id))) setFailed(true);
+    }, 18000);
+    return () => { clearTimeout(timeout); instance.off('sourcedata', updateLoaded); };
+  }, [basemap, ready]);
+  useEffect(() => {
+    if (ready) map.current?.getCanvas().setAttribute('aria-label', `AlpTap · ${labels[basemap]}`);
+  }, [ready, basemap, props.locale]);
   useEffect(() => {
     if (!ready || !map.current) return;
     map.current.setTerrain(terrain && !terrainFailed ? { source: 'dem', exaggeration } : null);
@@ -204,11 +238,19 @@ export function AlpineMap(props: MapProps) {
     map.current.jumpTo({center:[point.lon,point.lat],zoom:Math.max(map.current.getZoom(),10),pitch:terrain?35:0});
     return () => {pin.remove();};
   }, [ready, props.explorePoint, props.locale]);
-  return <div className="map-wrap">
-    <div className="map-canvas" ref={element} data-testid="map"/>
+  return <div className={`map-wrap basemap-${basemap}`}>
+    <div className="map-canvas" ref={element} data-testid="map" data-basemap={basemap}/>
     <div className="map-vignette"/>
-    {(!loaded || failed) && <div className={`map-status ${failed?'is-error':''}`} role="status">{failed?t.mapError:t.mapLoading}{failed&&<button onClick={()=>setRevision(r=>r+1)}>{t.retryMap}</button>}</div>}
+    {(!loaded || failed) && <div className={`map-status ${failed?'is-error':''}`} role="status">{basemap === 'relief' ? (failed ? labels.error : labels.loading) : (failed ? t.mapError : t.mapLoading)}{failed&&<button onClick={()=>setRevision(r=>r+1)}>{t.retryMap}</button>}</div>}
     {terrainFailed&&<div className="terrain-notice" role="status">{t.terrainError}</div>}
+    <button ref={controlsToggle} className="map-controls-toggle" aria-label={controlLabels[props.locale]} title={controlLabels[props.locale]} aria-expanded={controlsOpen} aria-controls={controlsId} onClick={() => setControlsOpen(value => !value)}>
+      <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"><path d="M4 3v18M12 3v18M20 3v18"/><path d="M1 8h6M9 16h6M17 8h6" strokeWidth="4"/></svg>
+    </button>
+    <div id={controlsId} className={`map-controls-panel${controlsOpen ? ' is-open' : ''}`} onKeyDown={event => {
+      if (event.key === 'Escape' && window.matchMedia('(max-width: 719px)').matches) {
+        event.stopPropagation(); setControlsOpen(false); controlsToggle.current?.focus();
+      }
+    }}>
     <div className="map-tools"><button aria-label={t.zoomIn} title={t.zoomIn} onClick={()=>map.current?.zoomIn()}>+</button><button aria-label={t.zoomOut} title={t.zoomOut} onClick={()=>map.current?.zoomOut()}>−</button><span/><button title={t.reset} aria-label={t.reset} onClick={()=>map.current?.fitBounds(props.bounds,{padding:viewPadding(),duration:reduced()?0:800})}>⌖</button></div>
     <label className="terrain-exaggeration" title={t.exaggeration}>
       <span aria-hidden="true">△</span>
@@ -216,8 +258,12 @@ export function AlpineMap(props: MapProps) {
       <output>{exaggeration.toFixed(1)}×</output>
     </label>
     <div className="map-display-controls">
+    <button className="basemap-switch" role="switch" aria-label={labels.relief} aria-checked={basemap === 'relief'} title={`${labels.satellite} / ${labels.relief}`} onClick={() => setBasemap(value => value === 'satellite' ? 'relief' : 'satellite')}>
+      <span aria-hidden="true">🛰️</span><span aria-hidden="true">🏔️</span>
+    </button>
     <button className={`terrain-toggle ${terrain?'active':''}`} aria-label={terrain?t.terrain:t.flat} disabled={terrainFailed} aria-pressed={terrain} onClick={()=>setTerrain(v=>!v)}>{terrain?'△':'▱'} <span>{terrain?t.terrain:t.flat}</span><i/></button>
     <button className={`terrain-toggle shadow-toggle ${shadowsEnabled?'active':''}`} aria-label={shadowLabels[props.locale]} title={shadowLabels[props.locale]} disabled={!terrain || terrainFailed || exaggeration === 0} aria-pressed={shadowsEnabled} onClick={()=>setShadowPreference(!shadowsEnabled)}>☀ <span>{shadowLabels[props.locale]}</span><i/></button>
+    </div>
     </div>
     {!props.locked&&<button className="center-guess" onClick={()=>{ const canvas=map.current?.getCanvas(); const center=canvas&&map.current?.unproject([canvas.clientWidth/2,canvas.clientHeight*(window.innerWidth<720?.4:.5)]); if(center)props.onGuess({lon:center.wrap().lng,lat:center.lat}); }}>{t.center}</button>}
     {!props.locked&&<div className="map-crosshair" aria-hidden="true">+</div>}

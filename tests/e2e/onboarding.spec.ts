@@ -116,6 +116,7 @@ test('terrain slider starts at 1.5 and adjusts without guessing',async({page})=>
  await page.goto('/');
  await expect(page.locator('.welcome-dialog')).toBeVisible();
  await page.keyboard.press('Escape');
+ if(test.info().project.name==='mobile')await page.getByRole('button',{name:'Map controls',exact:true}).click();
  const slider=page.getByRole('slider',{name:'Terrain exaggeration'});
  await expect(slider).toHaveValue('1.5');
  await expect(slider).toBeEnabled();
