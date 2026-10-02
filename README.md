@@ -8,7 +8,7 @@ The prototype includes a static React/TypeScript frontend, browser-generated dai
 
 AlpTap is a project from the [Digital Landscape](https://digital-landscape.at/) group at [IGF](https://www.oeaw.ac.at/en/igf/home), the Institute for Interdisciplinary Mountain Research of the [Austrian Academy of Sciences (ÖAW)](https://www.oeaw.ac.at/en/).
 
-The motivation is simple: challenge ourselves to learn new peaks, one daily discovery at a time. Thanks also to **ChatGPT** for coding assistance. Yes, this was vibe coded — the vibes were high, just like the mountains.
+The motivation is simple: challenge ourselves to learn new peaks, one daily discovery at a time. Inspired by [maptap.gg](https://maptap.gg/). Thanks also to **ChatGPT** for coding assistance. Yes, this was vibe coded — the vibes were high, just like the mountains.
 
 These group-level credits are available in the About/help dialog in all game modes and all four interface languages, with linked logos ordered ÖAW, IGF, then Digital Landscape above the heading and justified paragraphs with language-aware hyphenation. The Digital Landscape logo links directly to its website without a caption; its icon is bundled from the official website (`https://digital-landscape.at/assets/images/apple-touch-icon.png`).
 

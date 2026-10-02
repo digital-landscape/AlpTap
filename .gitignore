@@ -91,7 +91,7 @@ output/scoring/
 # Static deployment verification captures
 output/static-daily/
 
-# Disposable About-dialog group-credit review captures
+# Disposable About-dialog group-credit and inspiration-link review captures
 output/project-credits/
 # Disposable justified project-credit layout checks
 output/project-credits-layout/

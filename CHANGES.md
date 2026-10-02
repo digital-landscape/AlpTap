@@ -1,3 +1,7 @@
+## 2026-10-02 — Credit Maptap inspiration
+
+- Add a linked “Inspired by maptap.gg” acknowledgement to the project motivation in all four interface languages and the README.
+
 ## 2026-10-02 — Clarify share controls and logo order
 
 - Use a connected-nodes icon for Share results and overlapping-pages icons for Copy results and Copy link.
