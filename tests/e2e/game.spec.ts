@@ -70,7 +70,7 @@ test('loads all three mixed regional challenges and switches all interface langu
  await page.reload();await expect(page.locator('.mode-select select')).toHaveValue('eastern-alps');await expect(page.locator('.filterbar>label:not(.mode-select) select')).toHaveCount(0);
 });
 test('provides a retry state when the static selection catalogue fails',async({page})=>{
- await page.route('**/data/processed/api-index.json*',route=>route.abort());await page.goto('/');await expect(page.getByRole('button',{name:'Try again',exact:true})).toBeVisible();await expect(page.locator('.game-card')).toHaveCount(0);
+ await page.route('**/data/catalogs/current.json',route=>route.abort());await page.goto('/');await expect(page.getByRole('button',{name:'Retry',exact:true})).toBeVisible();await expect(page.locator('.game-card')).toHaveCount(0);
 });
 test('falls back to 2D when elevation tiles fail',async({page})=>{
  await page.route('**/terrarium/**',route=>route.abort());await page.goto('/');await expect(page.locator('.game-card')).toBeVisible();await expect(page.locator('.terrain-notice')).toBeVisible();await expect(page.locator('.terrain-toggle:not(.shadow-toggle)')).toBeDisabled();

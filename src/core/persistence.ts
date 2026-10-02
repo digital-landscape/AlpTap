@@ -3,6 +3,13 @@ import { viennaDate } from './date';
 import { validPosition, evaluateGuess } from './scoring';
 import type { Challenge, GameSession, Peak, Preferences } from './types';
 export interface StorageLike { getItem(key: string): string | null; setItem(key: string, value: string): void }
+// Keep this page's progress when browser storage is blocked or full. The write
+// still throws so saveJSON reports the existing non-persistent-storage warning.
+const pageStorage = new Map<string,string>();
+export const browserStorage:StorageLike = {
+  getItem: key => pageStorage.get(key) ?? localStorage.getItem(key),
+  setItem: (key,value) => {pageStorage.set(key,value);localStorage.setItem(key,value);},
+};
 export function readJSON(storage: StorageLike, key: string): unknown { try { return JSON.parse(storage.getItem(key) ?? 'null'); } catch { return null; } }
 export function saveJSON(storage: StorageLike, key: string, value: unknown): boolean { try { storage.setItem(key, JSON.stringify(value)); return true; } catch { return false; } }
 export function initialPreferences(storage: StorageLike, languages: readonly string[]): Preferences {

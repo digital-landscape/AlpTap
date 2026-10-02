@@ -1,0 +1,14 @@
+.area-controls{display:flex;gap:2px;align-items:center;flex-shrink:0;padding-left:10px;border-left:1px solid #d6dccf}
+.area-controls button{display:grid;place-items:center;width:38px;height:38px;padding:0;border:0;border-radius:50%;background:transparent;color:#52695f;cursor:pointer}
+.area-controls button svg{display:block;width:20px;height:20px}
+.area-controls button.is-active,.area-controls button.is-copied{background:#e6edda;color:#285a46}
+.custom-actions button,.copy-link-panel button{border:1px solid #c6c8b5;border-radius:7px;padding:9px 12px;background:#fbfaf4;color:#244038;font:inherit;cursor:pointer}
+.area-controls button:hover,.custom-actions button:hover{background:#e9eddb}
+.area-controls button:disabled,.custom-actions button:disabled{opacity:.5;cursor:not-allowed}
+.custom-panel{position:absolute;z-index:5;left:24px;top:24px;width:350px;max-height:calc(100dvh - 100px);overflow:auto;padding:24px;background:#fbfaf4;box-shadow:0 8px 40px #173c3640;border-radius:14px;color:#244038}
+.custom-panel h1{font-size:1.6rem;margin:0 0 12px}.custom-panel p{font-size:.9rem;line-height:1.5;margin:10px 0}
+.custom-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.custom-actions .primary{background:#244038;color:#fff;width:auto;margin:0}
+.custom-preview{border-top:1px solid #c6c8b5;padding-top:14px}.custom-panel [role=alert]{color:#96391f}
+.copy-link-panel{position:fixed;z-index:100;left:50%;top:35%;transform:translateX(-50%);width:min(90vw,550px);padding:24px;background:#fbfaf4;box-shadow:0 6px 80px #173c3670;border-radius:12px;display:flex;gap:12px;align-items:end}
+.copy-link-panel label{flex:1;min-width:0}.copy-link-panel input{display:block;width:100%;margin-top:8px;padding:8px}
+@media(max-width:719px){.filterbar{flex-wrap:wrap;gap:8px}.filterbar .filter-note{display:none}.area-controls{padding-left:6px}.area-controls button{width:40px;height:40px}.custom-panel{left:12px;right:12px;top:auto;bottom:65px;width:auto;padding:16px;max-height:45dvh}.custom-panel h1{font-size:1.2rem}.custom-panel p{margin:5px 0;font-size:.8rem}.custom-actions{margin-top:10px;gap:6px}.custom-actions button{padding:8px 10px;font-size:.8rem}.custom-editor .center-guess{top:14px;bottom:auto;left:14px;transform:none}.custom-editor .map-status{top:58px}}

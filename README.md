@@ -33,11 +33,23 @@ npm run build           # static dist/ and standalone dist-api/server.mjs
 
 Browser tests use real imagery for visual checks and therefore need network access. Browser captures go to ignored `output/playwright/`.
 
+## Custom areas and shared games
+
+Use the **Custom** polygon icon beside the game mode selector to draw a polygon (3–64 corners), finish it, and preview the database and eligible mountain count. More than 50% overlap with the SOIUSA Alpine coverage selects the Alps database; otherwise it selects worldwide data. Only summits inside or on the polygon qualify. At least three are required. Missing Easy/Medium/Hard tiers are filled from other eligible mountains, without duplicate picks; the interface shows their actual difficulties.
+
+Custom scoring adapts to the polygon’s geographical surface area: smaller areas require more precise guesses, while the maximum stays 1,000 points per mountain. The preview shows the area and scoring distances; About uses the same scale. Saved custom guesses are recalculated on reload. Standard daily games keep their existing scoring. See [the scaling formula](docs/CUSTOM-AREAS.md#surface-based-scoring).
+
+The **Copy link** chain icon copies the full address, including the mode, compact polygon when applicable, URL version, and immutable catalogue release. Both icons have localized tooltips and accessible labels; a checkmark confirms copying. If clipboard access is unavailable, select and copy the displayed link. The same link gives everyone the same ordered picks each Alpine day and changes at midnight in `Europe/Vienna`. It contains neither the date nor player answers. Standard entry links also work: `?mode=world-peaks` and `?mode=alpine-peaks&region=western-alps`.
+
+Explicit links take priority over saved preferences. Progress is stored by catalogue and challenge identity. Matching legacy progress is imported; older/different games remain in storage. The URL-driven games always open today's selection and roll over at Alpine midnight, including after a suspended tab regains focus. Existing Explore and training links remain available.
+
+`npm run data:catalog` publishes a content-addressed release under `public/data/catalogs/`; dev/build commands run it automatically. **Commit new releases and `current.json`, and retain all older catalogue files and the versioned data they reference.** Never overwrite or prune a released catalogue. See [custom areas and sharing](docs/CUSTOM-AREAS.md) for the URL format, validation, and deployment contract.
+
 ## Static deployment
 
 Run `npm run build` and upload **all of `dist/`** to any static HTTPS host. Leave `VITE_API_URL` empty. `npm run preview` serves the production build locally without an API. No scheduled job or daily deployment is required.
 
-The browser loads the bundled selection catalogues on demand and uses today's date in `Europe/Vienna` with the existing deterministic deck algorithms. Everyone using the same dataset gets the same daily Easy → Medium → Hard selection, with no consecutive-day repeats within a tier. Alpine regional selections and curated overrides are preserved. Progress remains stored locally and existing in-progress games use their pinned versioned data.
+The browser loads the bundled selection catalogues on demand and uses today's date in `Europe/Vienna` with the existing deterministic deck algorithms. Everyone using the same dataset gets the same daily Easy → Medium → Hard selection, with no consecutive-day repeats within a tier. Alpine regional selections and curated overrides are preserved. Progress remains stored locally, and shared games use their pinned versioned data.
 
 Deploy catalogue updates at Vienna midnight to keep selections consistent within a day. Upload the complete build together, keep old versioned data directories and JavaScript assets available for existing sessions and open tabs, and never overwrite a dataset version with changed content. Serve `index.html` with revalidation and hashed JavaScript/versioned data with long-lived caching.
 
@@ -57,7 +69,7 @@ To add a dedicated domain later, configure it in **Settings → Pages → Custom
 
 ### Optional legacy API
 
-Set `VITE_API_URL=https://api.example.org` at build time to retain server-selected challenges. Deploy `dist-api/server.mjs`, `data/processed/api-index.json`, `data/processed/mode-index.json`, and `data/config/curated.json` to a Node host and run with `HOST=0.0.0.0 PORT=8787 CORS_ORIGINS=https://play.example.org npm run start:api`. The API determines the Vienna date independently of the client. `npm run dev:api` starts it locally; Vite retains `/v1` and `/v2` proxies for compatibility.
+The URL-driven public games use static catalogues. Legacy provider consumers can set `VITE_API_URL=https://api.example.org` at build time for server-selected challenges. Deploy `dist-api/server.mjs`, `data/processed/api-index.json`, `data/processed/mode-index.json`, and `data/config/curated.json` to a Node host and run with `HOST=0.0.0.0 PORT=8787 CORS_ORIGINS=https://play.example.org npm run start:api`. The API determines the Vienna date independently of the client. `npm run dev:api` starts it locally; Vite retains `/v1` and `/v2` proxies for compatibility.
 
 ## Data preparation
 
@@ -80,7 +92,7 @@ See [geographic inventory](docs/GEOGRAPHY.md), [pipeline and difficulty details]
 
 ## Configuration
 
-On phones, the sliders-icon **Map controls** button opens a compact panel for zoom/reset, terrain height, basemap, 3D and sun shadows. It starts collapsed to leave more map visible. Tap again or press Escape inside the panel to close it; hidden controls are removed from keyboard navigation. The map-center guess button stays available. Desktop controls remain visible, and collapsing the panel preserves all map settings.
+On phones, the sliders-icon **Map controls** button opens a compact panel for zoom, north/reset, terrain height, basemap, 3D and sun shadows. It starts collapsed to leave more map visible. Tap again or press Escape inside the panel to close it; hidden controls are removed from keyboard navigation. The map-center guess button stays available. Desktop controls remain visible, and collapsing the panel preserves all map settings.
 
 The map's **🛰️ Satellite / 🏔️ Relief** sliding switch toggles between satellite imagery and a light hillshade map with EOX lakes and rivers and filled seas and oceans. Click anywhere on the switch, or use Space/Enter while focused, to toggle; its circular thumb slides to the selected icon. Reduced-motion preferences disable the animation. The camera, guesses and results stay in place. The choice is saved as `alptap:basemap:v1` in this browser's local storage and applies across game and explorer maps; satellite is the default. If storage is blocked, switching still works for the current map. Clearing site data resets the preference.
 
@@ -199,3 +211,17 @@ Open `/explore/` (or `/training/`) to explore every Alpine or worldwide peak on 
 The final Alpine and Worldwide recaps include **Share results** and **Copy results**, with mountain score badges (🚶 walker, 🥾 hiker, 🧗 climber, 🏔️ summit). Shared links pin the exact ordered peaks, region/difficulty and dataset version, so recipients can play the same selection on another day. Replay progress is saved separately from daily progress. Keep historical versioned datasets deployed for old links to work.
 
 A 1200 × 630 illustrated mountain card accompanies crawler-readable Open Graph and large-image card metadata. GitHub Pages sets its absolute public image URL automatically. Other hosts should set `SITE_URL` to the public URL including the base path when building. See [sharing, replay format, artwork prompt and deployment checks](docs/SHARING.md).
+
+## Compare summit coordinates with OpenStreetMap
+
+Run `python3 scripts/audit_osm.py` to create a read-only audit of the active Alpine and worldwide catalogues, or add `--offline` to reuse cached responses. Open `output/osm-audit/report.html` for a searchable report; `report.json` includes every target, candidate, distance, dataset version, source hash and retrieval error. This script uses Python's standard library and curl, without changing published coordinates. The endpoint can be selected with `--endpoint URL`.
+
+Alpine comparisons reuse the six cached OSM peak extracts in `.cache/data/osm/` (their timestamps are included). Worldwide comparisons retrieve peak/volcano records linked by Wikidata ID and search within 10 km for missing point matches. A unique Wikidata ID link is stronger evidence than a matching normalized name. Names/aliases in recorded languages are compared, but name matches remain review candidates; explicit conflicting Wikidata IDs are excluded. Multiple point matches are ambiguous. Way/relation centers are never treated as summit positions. Distance bands are ≤100 m, 100–500 m, 500 m–1 km and >1 km, as review priorities rather than accuracy guarantees. No matching record does not establish that a summit is absent from OSM. Failed queries produce an explicitly incomplete report and can be resumed using successful cached responses.
+
+OSM agreement is a consistency check, not independent surveying or proof of correctness. Review discrepancies before changing the game. Comparison output contains © OpenStreetMap contributors data under ODbL; Wikidata data is CC0. Query behavior follows the [Overpass QL documentation](https://wiki.openstreetmap.org/wiki/Overpass_API/Overpass_QL).
+
+## Globe and compass
+
+Worldwide games and the worldwide peak explorer use MapLibre’s [globe projection](https://maplibre.org/maplibre-gl-js/docs/examples/display-a-globe-with-a-vector-map/), with a globe overview that adapts to the available screen area. Zoom in to explore satellite imagery and terrain. Show whole region restores the overview; each new worldwide round also starts there. Clicks outside the globe do not submit a guess.
+
+The compass follows map rotation in every mode. Click it (or focus it and press Enter/Space) to restore north while keeping the current location, zoom and tilt. Its accessible label follows the interface language, and reset animations respect reduced-motion preferences. The icon is centered within the control on desktop and mobile, without browser-default button padding.
