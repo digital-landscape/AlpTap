@@ -14,6 +14,26 @@
 - Made the explorer searchable by region, preserved Wikipedia source links in every language, and generated game/explorer catalogues from the same release.
 - Kept daily selection and saved-game assets compatible; added admission, retrieval, catalogue parity and browser regression checks.
 
+## 2026-10-02 — Forgive guesses near worldwide region edges
+
+- Add a 10 km GMBA region-bonus tolerance for worldwide games, including replays and custom areas.
+- Keep source polygons and target selection intact; explain the tolerance in all four help languages.
+- Recalculate restored guesses with the same tolerance and cover edge, hole, multipart, high-latitude and dateline cases.
+
+## 2026-10-02 — Scale custom scores to the drawn surface
+
+- Scale custom Alpine and worldwide distance scoring by the square root of polygon area, retaining click tolerance, score limits and section/region bonuses.
+- Show area and scoring distances in the localized preview and help; adapt the Alpine scoring chart.
+- Recalculate saved custom guesses with the same scale; preserve standard daily scoring and selection identities.
+- Cover geographic area, precision scaling, tiny/large polygons and restoration with regression tests.
+
+## 2026-10-02 — Share results and exact challenge replays
+
+- Added localized native sharing, clipboard copying and a selectable fallback to completed Alpine/regional and Worldwide games. Scores use walker, hiker, climber and summit badges.
+- Added validated versioned replay URLs pinning ordered peaks and dataset assets, with separate saved progress and an explicit return to today’s game.
+- Added an illustrated 1200 × 630 social preview JPEG and build-time Open Graph/large-image card tags with GitHub Pages public-URL configuration.
+- Added replay, corruption, historical-dataset and persistence regression coverage; documented the format and retained-dataset requirement.
+
 ## 2026-10-01 — More forgiving distance scoring
 
 - Added full-score click buffers: 1 km Alpine, 10 km worldwide.
@@ -182,3 +202,30 @@
 - Added a frontend-only Pages build and made institutional assets and the legacy redirect work under `/AlpTap/`.
 
 - Pages builds now derive their base path from GitHub configuration, supporting both project URLs and a future dedicated domain; pushes to `master` automatically deploy updates.
+
+## OSM coordinate comparison
+
+- Added a read-only, resumable audit of active Alpine and worldwide summit coordinates against OSM, with source timestamps/hashes and searchable HTML/JSON reports.
+- Separated direct Wikidata ID matches, tentative nearby name matches, multiple candidates, non-point objects, unmatched records and unavailable sources. Game coordinates remain unchanged.
+- Added focused checks for identity conflicts, ambiguous matches, duplicate extracts, non-point exclusion, incomplete responses and dateline distances.
+
+## Worldwide globe and compass — 2026-10-02
+
+- Switched worldwide games and exploration to globe projection with responsive overview framing.
+- Added a rotating compass with localized, keyboard-accessible north reset in every map.
+- Centered the compass icon horizontally on desktop and mobile by removing native button padding and aligning the SVG with CSS grid.
+- Adjusted desktop/mobile control spacing and ignored clicks outside the globe.
+# Custom daily areas and shareable links
+
+- Replaced the large Custom/Copy link text buttons with compact polygon and chain icons, localized tooltips, accessible names, and a copied checkmark.
+- Added Custom polygon drawing with Undo/Clear/Cancel, geographic overlap preview, source selection, and minimum-three-peak validation.
+- Added compact, canonical polygon URLs and explicit mode/region parameters; shared links pin immutable catalogue releases and always play today's Alpine date.
+- Added deterministic custom tier selection with distinct fallback peaks, polygon outlines during play, and separate validated progress per challenge.
+- Preserved existing scoring, standard daily selection, Explore links, and older stored sessions; added English, German, French, and Italian custom/share copy.
+- Added catalogue publication to dev/build commands, unit/provider regression coverage, and updated browser checks for URL precedence and catalogue failures.
+
+## Relief basemap and phone controls — 2026-10-02
+
+- Added a sliding satellite/relief switch with a browser-saved preference, DEM-derived hillshade, EOX inland water and filled OpenFreeMap oceans.
+- Added a collapsed-by-default phone controls panel with keyboard dismissal, preserving map settings and the accessible guess button.
+- Integrated with master’s worldwide globe, north-reset compass and custom-area drawing; retained provider attribution and active-basemap loading errors.

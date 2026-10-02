@@ -94,7 +94,7 @@ export class SolarShadows {
       if(generation!==this.generation||this.stopped){image.close();return;}
       const source=this.map.getSource(sourceId) as ImageSource | undefined;
       if(source)source.updateImage({image,coordinates:scene.coordinates});
-      else{this.map.addSource(sourceId,{type:'image',coordinates:scene.coordinates});(this.map.getSource(sourceId) as ImageSource).updateImage({image});this.map.addLayer({id:layerId,type:'raster',source:sourceId,paint:{'raster-fade-duration':0}},'section-fill');}
+      else{this.map.addSource(sourceId,{type:'image',coordinates:scene.coordinates});(this.map.getSource(sourceId) as ImageSource).updateImage({image});this.map.addLayer({id:layerId,type:'raster',source:sourceId,paint:{'raster-fade-duration':0}},this.map.getLayer('oceans') ? 'oceans' : 'section-fill');}
       this.mask?.close();this.mask=image;
       this.map.setLayoutProperty(layerId,'visibility','visible');this.status('ready');
       this.element.dataset.solarTime=new Date(now).toISOString();this.element.dataset.solarAltitude=sun.altitude.toFixed(2);this.element.dataset.solarAzimuth=sun.azimuth.toFixed(2);

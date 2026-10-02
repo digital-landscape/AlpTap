@@ -1,7 +1,7 @@
 import type { Difficulty, Locale, Position } from './types';
 import type { SectionFeature } from './geography';
 import { sectionCovers } from './geography';
-import { distanceKm, validPosition, scoreDistance } from './scoring';
+import { distanceKm, validPosition, scoreDistance, type ScoringProfile } from './scoring';
 import { shuffle } from './challenge';
 import { dateOrdinal, nextViennaRollover } from './date';
 
@@ -9,6 +9,8 @@ export const MODES = ['alpine-peaks','world-peaks','alpine-valleys'] as const;
 export type GameMode = typeof MODES[number];
 export type NewMode = Exclude<GameMode,'alpine-peaks'>;
 export const TIERS: Difficulty[] = ['easy','medium','hard'];
+// Gameplay tolerance around the original GMBA region, measured in kilometres.
+export const WORLD_REGION_BUFFER_KM = 10;
 export type ScoringRule = 'alpine-section-v2'|'world-region-v1'|'valley-area-v1';
 interface TargetBase {
   id: string; name: string; names: Partial<Record<Locale,string>>;
@@ -75,14 +77,17 @@ export function polygonDistance(p:Position,feature:SectionFeature):number {
   for(const polygon of polygons)for(const ring of polygon)for(let i=1;i<ring.length;i++)best=Math.min(best,segmentDistance(p,{lon:ring[i-1][0],lat:ring[i-1][1]},{lon:ring[i][0],lat:ring[i][1]}));
   if(!Number.isFinite(best))throw new Error('Invalid valley boundary');return best;
 }
-export function evaluateModeGuess(mode:NewMode,target:Target,guess:Position,geometry:SectionFeature[]):ModeResult {
+export function evaluateModeGuess(mode:NewMode,target:Target,guess:Position,geometry:SectionFeature[],profile?:ScoringProfile):ModeResult {
   if(!validPosition(guess))throw new Error('Invalid guess');
   if(!geometry.length)throw new Error('Scoring geometry unavailable');
   if(mode==='world-peaks'&&!target.regionIds.every(id=>geometry.some(g=>g.properties.id===id)))throw new Error('Incomplete mountain regions');
   if(mode==='alpine-valleys'&&(geometry.length!==1||geometry[0].properties.id!==target.id))throw new Error('Incorrect valley geometry');
-  const inside=geometry.some(g=>sectionCovers(g,guess));
+  const inside=mode==='world-peaks'
+    // A micrometre of numerical slack keeps the exact buffer boundary inclusive.
+    ? geometry.some(g=>target.regionIds.includes(g.properties.id)&&polygonDistance(guess,g)<=WORLD_REGION_BUFFER_KM+1e-9)
+    : geometry.some(g=>sectionCovers(g,guess));
   const distance=mode==='world-peaks'?distanceKm(guess,target.position):polygonDistance(guess,geometry[0]);
-  const base=scoreDistance(distance,mode==='world-peaks'?'world':'alpine').normalizedScore;
+  const base=scoreDistance(distance,profile??(mode==='world-peaks'?'world':'alpine')).normalizedScore;
   const normalized=base+(mode==='world-peaks'&&inside ? .15*(1-base) : 0);
   const score=Math.round(1000*normalized),distanceScore=Math.round(1000*base);
   return {guess,distanceKm:distance,score,distanceScore,areaBonus:score-distanceScore,inside,scoringRule:scoringRuleFor(mode)};

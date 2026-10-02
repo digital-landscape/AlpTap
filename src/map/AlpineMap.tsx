@@ -1,20 +1,24 @@
+import {customMessages} from '../core/custom-i18n';
+import {unwrap,type Ring} from '../core/custom';
 import { continuousPath, revealBounds } from '../core/modes';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import * as maplibregl from 'maplibre-gl';
 import type { GeoJSONSource, Map as LibreMap } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import mapWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 maplibregl.setWorkerUrl(mapWorkerUrl);
-import { satellite, terrainConfig } from './config';
+import { terrainConfig } from './config';
+import { basemapLabels, basemapSources, basemapStyle, readBasemap, saveBasemap } from './basemap';
 import { SolarShadows } from './SolarShadows';
 import { solarPosition } from './solar';
 const shadowLabels = { en: 'Sun shadows', de: 'Sonnenschatten', fr: 'Ombres du soleil', it: 'Ombre solari' };
+const controlLabels = { en: 'Map controls', de: 'Kartensteuerung', fr: 'Commandes de la carte', it: 'Controlli della mappa' };
 import { messages } from '../core/i18n';
 import type { SectionFeature } from '../core/geography';
 import type { Locale, Position, Result } from '../core/types';
 export interface MapPair { guess: Position; actual: Position; label: string }
 export interface ExploreMapPeak { id:string; name:string; position:Position; difficulty:string }
-export interface MapProps { explorePeaks?: ExploreMapPeak[]; onExploreSelect?(id:string):void; explorePoint?: Position; pairs?: MapPair[]; focusedPair?: number | null; world?: boolean; valley?: boolean; bounds: [number, number, number, number]; guess: Position | null; actual: Position | null; result?: Result; roundKey: string; locale: Locale; locked: boolean; sections: SectionFeature[]; onGuess(p: Position): void }
+export interface MapProps { area?: Ring; drawing?: boolean; onVertex?(p:Position):void; frameBounds?: boolean; explorePeaks?: ExploreMapPeak[]; onExploreSelect?(id:string):void; explorePoint?: Position; pairs?: MapPair[]; focusedPair?: number | null; world?: boolean; valley?: boolean; bounds: [number, number, number, number]; guess: Position | null; actual: Position | null; result?: Result; roundKey: string; locale: Locale; locked: boolean; sections: SectionFeature[]; onGuess(p: Position): void }
 const empty = { type: 'FeatureCollection' as const, features: [] };
 function padding() {
   const panel = document.querySelector('.game-card')?.getBoundingClientRect();
@@ -39,21 +43,39 @@ export function AlpineMap(props: MapProps) {
   const guessMarker = useRef<maplibregl.Marker | null>(null), summitMarker = useRef<maplibregl.Marker | null>(null);
   const [ready, setReady] = useState(false), [loaded, setLoaded] = useState(false), [failed, setFailed] = useState(false), [terrainFailed, setTerrainFailed] = useState(false);
   const [terrain, setTerrain] = useState(terrainConfig.enabled), [revision, setRevision] = useState(0);
+  const [basemap, setBasemap] = useState(readBasemap);
+  const [controlsOpen, setControlsOpen] = useState(false);
+  const controlsId = useId();
+  const controlsToggle = useRef<HTMLButtonElement>(null);
+  const activeBasemap = useRef(basemap);
+  const failedSources = useRef(new Set<string>());
+  activeBasemap.current = basemap;
+  const labels = basemapLabels[props.locale];
+  const [bearing, setBearing] = useState(0);
   const [shadowPreference, setShadowPreference] = useState<boolean | null>(null);
   const [shadowsEnabled, setShadowsEnabled] = useState(() => solarPosition((props.bounds[1]+props.bounds[3])/2, (props.bounds[0]+props.bounds[2])/2, Date.now()).altitude > 0);
   const solarShadows = useRef<SolarShadows | null>(null);
   const [exaggeration, setExaggeration] = useState(terrainConfig.exaggeration);
-  const viewPadding = () => props.explorePeaks ? (window.innerWidth<720 ? {top:175,bottom:90,left:30,right:60} : {top:80,bottom:80,left:390,right:90}) : props.explorePoint ? {top:40,bottom:60,left:40,right:100} : padding();
+  const viewPadding = () => props.drawing || props.onVertex ? (window.innerWidth<720?{top:30,bottom:285,left:25,right:65}:{top:50,bottom:85,left:410,right:100}) : props.explorePeaks ? (window.innerWidth<720 ? {top:175,bottom:90,left:30,right:60} : {top:80,bottom:80,left:390,right:90}) : props.explorePoint ? {top:40,bottom:60,left:40,right:100} : padding();
+  const showOverview = (instance: LibreMap, duration: number) => {
+    const inset = viewPadding();
+    if (props.world && !props.frameBounds) {
+      const diameter = Math.max(120, Math.min(instance.getCanvas().clientWidth-inset.left-inset.right, instance.getCanvas().clientHeight-inset.top-inset.bottom));
+      instance.easeTo({center:[10.5,20],zoom:Math.log2(diameter*Math.PI/512),bearing:0,pitch:0,padding:inset,duration});
+    } else instance.fitBounds(props.bounds,{padding:inset,duration,maxZoom:props.area?.length?12:8,pitch:props.world?0:terrain?35:0});
+  };
   latest.current = props; const t = messages[props.locale];
   const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   useEffect(() => {
     setReady(false); setLoaded(false); setFailed(false); setTerrainFailed(false);
+    failedSources.current.clear();
     let instance: LibreMap;
     try {
-      instance = new maplibregl.Map({ container: element.current!, style: { version: 8, glyphs:'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf', sources: { satellite }, layers: [{ id:'satellite', type:'raster', source:'satellite', paint:{'raster-fade-duration': 300, 'raster-saturation': -.1} }] }, center: [10.5,46.5], zoom: 5.5, maxZoom: 15, minZoom: props.world ? -2 : 3, maxPitch: 65, pitch: 35, attributionControl: { compact: false }, dragRotate: true, canvasContextAttributes: { antialias: true }, renderWorldCopies: !!props.world });
+      instance = new maplibregl.Map({ container: element.current!, style: { ...basemapStyle(activeBasemap.current), projection: {type: props.world ? 'globe' : 'mercator'} }, center: [10.5,46.5], zoom: 5.5, maxZoom: 15, minZoom: props.world || props.frameBounds ? -2 : 3, maxPitch: 65, pitch: props.world ? 0 : 35, attributionControl: { compact: false }, dragRotate: true, canvasContextAttributes: { antialias: true }, renderWorldCopies: false });
     } catch { setFailed(true); return; }
     map.current = instance;
-    instance.getCanvas().setAttribute('aria-label', 'AlpTap satellite map');
+    setBearing(instance.getBearing());
+    instance.on('rotate', () => setBearing(instance.getBearing()));
     instance.on('idle', () => element.current?.setAttribute('data-settled', 'true'));
     instance.on('movestart', () => element.current?.setAttribute('data-settled', 'false'));
     instance.doubleClickZoom.disable();
@@ -61,7 +83,7 @@ export function AlpineMap(props: MapProps) {
     // the round that was accepting guesses when the pointer went down.
     let gestureRound: string | null = null;
     const onPointerDown = (event: PointerEvent) => {
-      gestureRound = event.isPrimary && event.button === 0 && !latest.current.locked
+      gestureRound = event.isPrimary && event.button === 0 && (!latest.current.locked || !!latest.current.drawing)
         ? latest.current.roundKey : null;
     };
     const onPointerCancel = () => { gestureRound = null; };
@@ -71,8 +93,9 @@ export function AlpineMap(props: MapProps) {
     instance.on('click', e => {
       const startedRound = gestureRound;
       gestureRound = null;
-      if (startedRound === latest.current.roundKey && !latest.current.locked) {
-        latest.current.onGuess({ lon: e.lngLat.wrap().lng, lat: e.lngLat.lat });
+      if (startedRound === latest.current.roundKey && (!latest.current.locked || latest.current.drawing) && (!latest.current.world || instance.project(e.lngLat).dist(e.point) < 2)) {
+        const point={ lon: e.lngLat.wrap().lng, lat: e.lngLat.lat };
+        if(latest.current.drawing)latest.current.onVertex?.(point);else latest.current.onGuess(point);
       }
     });
     instance.on('load', () => {
@@ -101,6 +124,10 @@ export function AlpineMap(props: MapProps) {
         instance.on('mouseleave','explore-clusters',()=>{instance.getCanvas().style.cursor='';});
       }
 
+      instance.addSource('custom-area', {type:'geojson',data:empty});
+      instance.addLayer({id:'custom-fill',type:'fill',source:'custom-area',filter:['==',['geometry-type'],'Polygon'],paint:{'fill-color':'#eed593','fill-opacity':.10}});
+      instance.addLayer({id:'custom-outline',type:'line',source:'custom-area',filter:['!=',['geometry-type'],'Point'],paint:{'line-color':'#eed593','line-width':2,'line-dasharray':[3,2]}});
+      instance.addLayer({id:'custom-vertices',type:'circle',source:'custom-area',filter:['==',['geometry-type'],'Point'],paint:{'circle-radius':5,'circle-color':'#eed593','circle-stroke-color':'#203a34','circle-stroke-width':2}});
       instance.addSource('dem', terrainConfig.source);
       if (terrainConfig.enabled) instance.setTerrain({ source: 'dem', exaggeration });
       instance.addSource('summit-sections', {type:'geojson',data:empty});
@@ -112,17 +139,41 @@ export function AlpineMap(props: MapProps) {
       solarShadows.current = new SolarShadows(instance, element.current!, setShadowsEnabled);
       setReady(true);
     });
-    instance.on('sourcedata', e => { if (e.sourceId === 'satellite' && e.isSourceLoaded) { setLoaded(true); setFailed(false); } });
     instance.on('error', e => {
       const source = (e as unknown as {sourceId?: string}).sourceId;
       const text = String(e.error?.message ?? '');
-      if (source === 'dem' || /terrarium|elevation-tiles|dem/i.test(text)) { instance.setTerrain(null); solarShadows.current?.setEnabled(false, exaggeration); setTerrainFailed(true); setTerrain(false); }
-      else if (source === 'satellite' || /eox|WebGL|Failed to fetch/i.test(text)) setFailed(true);
+      if (source) failedSources.current.add(source);
+      if (source === 'dem') { instance.setTerrain(null); solarShadows.current?.setEnabled(false, exaggeration); setTerrainFailed(true); setTerrain(false); }
+      if ((source && basemapSources(activeBasemap.current).includes(source)) || /WebGL/i.test(text)) setFailed(true);
     });
-    const timeout = window.setTimeout(() => { if (!instance.isSourceLoaded('satellite')) setFailed(true); }, 18000);
+    const initialTimeout = window.setTimeout(() => {
+      if (!basemapSources(activeBasemap.current).every(id => instance.isSourceLoaded(id))) setFailed(true);
+    }, 18000);
     const observer = new ResizeObserver(() => instance.resize()); observer.observe(element.current!);
-    return () => { solarShadows.current?.dispose(); solarShadows.current = null; clearTimeout(timeout); instance.getCanvas().removeEventListener('pointerdown', onPointerDown); instance.getCanvas().removeEventListener('pointercancel', onPointerCancel); observer.disconnect(); guessMarker.current?.remove(); summitMarker.current?.remove(); guessMarker.current = null; summitMarker.current = null; instance.remove(); map.current = null; };
+    return () => { clearTimeout(initialTimeout); solarShadows.current?.dispose(); solarShadows.current = null; instance.getCanvas().removeEventListener('pointerdown', onPointerDown); instance.getCanvas().removeEventListener('pointercancel', onPointerCancel); observer.disconnect(); guessMarker.current?.remove(); summitMarker.current?.remove(); guessMarker.current = null; summitMarker.current = null; instance.remove(); map.current = null; };
   }, [revision]);
+  useEffect(() => {
+    saveBasemap(basemap);
+    if (!ready || !map.current) return;
+    const instance = map.current;
+    setFailed(basemapSources(basemap).some(id => failedSources.current.has(id))); setLoaded(false);
+    instance.setLayoutProperty('satellite', 'visibility', basemap === 'satellite' ? 'visible' : 'none');
+    for (const id of ['relief-background', 'relief-hillshade', 'oceans', 'hydrography']) {
+      instance.setLayoutProperty(id, 'visibility', basemap === 'relief' ? 'visible' : 'none');
+    }
+    instance.setPaintProperty('section-outline', 'line-color', basemap === 'relief' ? '#466332' : '#e3efb8');
+    const sources = basemapSources(basemap);
+    const updateLoaded = () => setLoaded(sources.every(id => instance.isSourceLoaded(id)));
+    instance.on('sourcedata', updateLoaded);
+    updateLoaded();
+    const timeout = window.setTimeout(() => {
+      if (!sources.every(id => instance.isSourceLoaded(id))) setFailed(true);
+    }, 18000);
+    return () => { clearTimeout(timeout); instance.off('sourcedata', updateLoaded); };
+  }, [basemap, ready]);
+  useEffect(() => {
+    if (ready) map.current?.getCanvas().setAttribute('aria-label', `AlpTap · ${labels[basemap]}`);
+  }, [ready, basemap, props.locale]);
   useEffect(() => {
     if (!ready || !map.current) return;
     map.current.setTerrain(terrain && !terrainFailed ? { source: 'dem', exaggeration } : null);
@@ -130,13 +181,22 @@ export function AlpineMap(props: MapProps) {
   }, [terrain, terrainFailed, ready, exaggeration, shadowPreference]);
   useEffect(() => {
     if (!ready || !map.current) return;
-    map.current.easeTo({ pitch: terrain ? 35 : 0, duration: reduced() ? 0 : 650 });
+    map.current.easeTo({ pitch: props.world ? 0 : terrain ? 35 : 0, duration: reduced() ? 0 : 650 });
   }, [terrain, terrainFailed, ready]);
   useEffect(() => {
     if (!ready || !map.current) return;
-    map.current.fitBounds(props.bounds, { padding:viewPadding(), duration: reduced() ? 0 : 950, maxZoom: 8, pitch:props.world ? 0 : terrain ? 35 : 0 });
+    showOverview(map.current, reduced() ? 0 : 950);
   // Worldwide rounds restart from the world overview; Alpine rounds retain exploration.
-  }, [ready, props.bounds[0], props.bounds[1], props.bounds[2], props.bounds[3], props.world && !props.explorePeaks ? props.roundKey : null]);
+  }, [ready, props.bounds[0], props.bounds[1], props.bounds[2], props.bounds[3], props.world && !props.explorePeaks && !props.frameBounds && !props.onVertex ? props.roundKey : null]);
+  useEffect(() => {
+    if(!ready||!map.current)return;
+    const ring=props.area??[], coordinates=unwrap(ring.length>=3?[...ring,ring[0]]:ring);
+    const features:GeoJSON.Feature[]=[];
+    if(ring.length>=3)features.push({type:'Feature',properties:{},geometry:{type:'Polygon',coordinates:[coordinates]}});
+    else if(ring.length===2)features.push({type:'Feature',properties:{},geometry:{type:'LineString',coordinates}});
+    if(props.onVertex)for(const point of unwrap(ring))features.push({type:'Feature',properties:{},geometry:{type:'Point',coordinates:point}});
+    (map.current.getSource('custom-area') as GeoJSONSource).setData({type:'FeatureCollection',features});
+  },[ready,props.area,props.onVertex]);
   useEffect(() => {
     if (!ready || !map.current) return;
     (map.current.getSource('summit-sections') as GeoJSONSource).setData({type:'FeatureCollection',features:props.sections});
@@ -204,23 +264,37 @@ export function AlpineMap(props: MapProps) {
     map.current.jumpTo({center:[point.lon,point.lat],zoom:Math.max(map.current.getZoom(),10),pitch:terrain?35:0});
     return () => {pin.remove();};
   }, [ready, props.explorePoint, props.locale]);
-  return <div className="map-wrap">
-    <div className="map-canvas" ref={element} data-testid="map"/>
+  return <div className={`map-wrap basemap-${basemap} ${props.world?'world-map':''}`}>
+    <div className="map-canvas" ref={element} data-testid="map" data-basemap={basemap}/>
     <div className="map-vignette"/>
-    {(!loaded || failed) && <div className={`map-status ${failed?'is-error':''}`} role="status">{failed?t.mapError:t.mapLoading}{failed&&<button onClick={()=>setRevision(r=>r+1)}>{t.retryMap}</button>}</div>}
+    {(!loaded || failed) && <div className={`map-status ${failed?'is-error':''}`} role="status">{basemap === 'relief' ? (failed ? labels.error : labels.loading) : (failed ? t.mapError : t.mapLoading)}{failed&&<button onClick={()=>setRevision(r=>r+1)}>{t.retryMap}</button>}</div>}
     {terrainFailed&&<div className="terrain-notice" role="status">{t.terrainError}</div>}
-    <div className="map-tools"><button aria-label={t.zoomIn} title={t.zoomIn} onClick={()=>map.current?.zoomIn()}>+</button><button aria-label={t.zoomOut} title={t.zoomOut} onClick={()=>map.current?.zoomOut()}>−</button><span/><button title={t.reset} aria-label={t.reset} onClick={()=>map.current?.fitBounds(props.bounds,{padding:viewPadding(),duration:reduced()?0:800})}>⌖</button></div>
+    <button ref={controlsToggle} className="map-controls-toggle" aria-label={controlLabels[props.locale]} title={controlLabels[props.locale]} aria-expanded={controlsOpen} aria-controls={controlsId} onClick={() => setControlsOpen(value => !value)}>
+      <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"><path d="M4 3v18M12 3v18M20 3v18"/><path d="M1 8h6M9 16h6M17 8h6" strokeWidth="4"/></svg>
+    </button>
+    <div id={controlsId} className={`map-controls-panel${controlsOpen ? ' is-open' : ''}`} onKeyDown={event => {
+      if (event.key === 'Escape' && window.matchMedia('(max-width: 719px)').matches) {
+        event.stopPropagation(); setControlsOpen(false); controlsToggle.current?.focus();
+      }
+    }}>
+    <div className="map-tools"><button aria-label={t.zoomIn} title={t.zoomIn} onClick={()=>map.current?.zoomIn()}>+</button><button aria-label={t.zoomOut} title={t.zoomOut} onClick={()=>map.current?.zoomOut()}>−</button><button className="map-compass" title={t.north} aria-label={t.north} onClick={()=>map.current?.resetNorth({duration:reduced()?0:500})}>
+      <svg viewBox="0 0 32 32" aria-hidden="true" style={{transform:`rotate(${-bearing}deg)`}}><text x="16" y="8" textAnchor="middle">N</text><path d="M16 10 10 24 16 21Z" fill="#b35c45"/><path d="M16 10 22 24 16 21Z" fill="currentColor"/></svg>
+    </button><span/><button title={t.reset} aria-label={t.reset} onClick={()=>{if(map.current)showOverview(map.current,reduced()?0:800);}}>⌖</button></div>
     <label className="terrain-exaggeration" title={t.exaggeration}>
       <span aria-hidden="true">△</span>
       <input type="range" min="0" max="3" step="0.1" value={exaggeration} disabled={!terrain || terrainFailed} aria-label={t.exaggeration} aria-orientation="vertical" aria-valuetext={`${exaggeration.toFixed(1)}×`} onChange={event=>setExaggeration(Number(event.target.value))}/>
       <output>{exaggeration.toFixed(1)}×</output>
     </label>
     <div className="map-display-controls">
+    <button className="basemap-switch" role="switch" aria-label={labels.relief} aria-checked={basemap === 'relief'} title={`${labels.satellite} / ${labels.relief}`} onClick={() => setBasemap(value => value === 'satellite' ? 'relief' : 'satellite')}>
+      <span aria-hidden="true">🛰️</span><span aria-hidden="true">🏔️</span>
+    </button>
     <button className={`terrain-toggle ${terrain?'active':''}`} aria-label={terrain?t.terrain:t.flat} disabled={terrainFailed} aria-pressed={terrain} onClick={()=>setTerrain(v=>!v)}>{terrain?'△':'▱'} <span>{terrain?t.terrain:t.flat}</span><i/></button>
     <button className={`terrain-toggle shadow-toggle ${shadowsEnabled?'active':''}`} aria-label={shadowLabels[props.locale]} title={shadowLabels[props.locale]} disabled={!terrain || terrainFailed || exaggeration === 0} aria-pressed={shadowsEnabled} onClick={()=>setShadowPreference(!shadowsEnabled)}>☀ <span>{shadowLabels[props.locale]}</span><i/></button>
     </div>
-    {!props.locked&&<button className="center-guess" onClick={()=>{ const canvas=map.current?.getCanvas(); const center=canvas&&map.current?.unproject([canvas.clientWidth/2,canvas.clientHeight*(window.innerWidth<720?.4:.5)]); if(center)props.onGuess({lon:center.wrap().lng,lat:center.lat}); }}>{t.center}</button>}
-    {!props.locked&&<div className="map-crosshair" aria-hidden="true">+</div>}
+    </div>
+    {(!props.locked||props.drawing)&&<button className="center-guess" onClick={()=>{ const canvas=map.current?.getCanvas(); const center=canvas&&map.current?.unproject([canvas.clientWidth/2,canvas.clientHeight*(window.innerWidth<720?.4:.5)]); if(center){const p={lon:center.wrap().lng,lat:center.lat};if(props.drawing)props.onVertex?.(p);else props.onGuess(p);} }}>{props.drawing?customMessages[props.locale].add:t.center}</button>}
+    {(!props.locked||props.drawing)&&<div className="map-crosshair" aria-hidden="true">+</div>}
     {props.actual&&<div className="map-legend"><span><i className="legend-guess"/>{t.yourGuess}</span><span><i className="legend-summit"/>{t.summit}</span></div>}
   </div>;
 }

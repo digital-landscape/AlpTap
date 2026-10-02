@@ -24,6 +24,7 @@ test('live shadows refresh time and follow terrain controls',async({page})=>{
  test.setTimeout(90000);
  await page.clock.install({time:new Date('2026-06-21T10:00:00Z')});
  await page.goto('/');await expect(page.locator('.welcome-dialog')).toBeVisible();await page.keyboard.press('Escape');
+ if(test.info().project.name==='mobile')await page.getByRole('button',{name:'Map controls',exact:true}).click();
  const map=page.getByTestId('map');
  await expect(map).toHaveAttribute('data-solar-status','ready',{timeout:45000});
  await page.screenshot({path:`output/terrain-shading/solar-${test.info().project.name}.png`});
@@ -43,6 +44,7 @@ test('shadows start off at night and can be enabled manually',async({page})=>{
  test.setTimeout(90000);
  await page.clock.install({time:new Date('2026-06-21T00:00:00Z')});
  await page.goto('/');await expect(page.locator('.welcome-dialog')).toBeVisible();await page.keyboard.press('Escape');
+ if(test.info().project.name==='mobile')await page.getByRole('button',{name:'Map controls',exact:true}).click();
  const map=page.getByTestId('map'),shadows=page.getByRole('button',{name:'Sun shadows',exact:true});
  await expect(map).toHaveAttribute('data-settled','true');
  await expect(shadows).toHaveAttribute('aria-pressed','false');

@@ -133,5 +133,36 @@ public/explore/
 output/world-inventory/
 output/world-coverage/
 
+
+# Shared daily links depend on immutable catalogue releases. Keep them in Git.
+!public/data/catalogs/
+!public/data/catalogs/*.json
+
+# Regenerable OSM coordinate comparison reports and source queries
+output/osm-audit/
+.cache/osm-audit/
 # Local map-first explorer review captures
 output/explore-map/
+
+# Disposable sharing/replay browser captures (published social artwork is tracked).
+output/sharing/
+
+# Disposable water/coastline tile samples used when checking basemap rendering.
+output/playwright/eox-samples/
+output/playwright/ocean-samples/
+# Local sliding basemap-switch visual checks.
+output/playwright/basemap-switch/
+# Collapsed/expanded phone control-panel verification captures.
+output/playwright/mobile-controls/
+# Local globe and compass visual review captures
+output/playwright/globe-compass/
+# Compass centering screenshots at desktop and mobile sizes
+output/playwright/compass-alignment/
+# Compact polygon and copy-link toolbar visual checks
+output/playwright/area-icons/
+
+# Disposable custom-area scoring and preview review captures
+output/custom-scoring/
+
+# Disposable GMBA boundary-tolerance verification output
+output/gmba-buffer/

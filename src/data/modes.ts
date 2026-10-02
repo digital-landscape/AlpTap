@@ -32,10 +32,11 @@ export async function targetGeometry(m:ModeManifest,t:Target,display=false,signa
  const refs=t.kind==='valley'?[{id:t.id,ref:display?t.displayGeometryRef:t.geometryRef}]:t.regionIds.map(id=>{const r=m.regions.find(r=>r.id===id);return {id,ref:display?r?.displayGeometryRef:r?.geometryRef};});
  return Promise.all(refs.map(async({id,ref})=>{if(!ref)throw new Error('Missing geometry reference');const g=await json(dataUrl(m.version,ref),signal);if(g.type!=='Feature'||g.properties?.id!==id||!['Polygon','MultiPolygon'].includes(g.geometry?.type)||!validPolygonCoordinates(g.geometry))throw new Error('Invalid geometry');return g as SectionFeature;}));
 }
-export async function restoreMode(storage:StorageLike,mode:NewMode,signal?:AbortSignal):Promise<{session:ModeSession;manifest:ModeManifest}|null>{
- const raw=readJSON(storage,modeSessionKey(mode)) as ModeSession|null;
- if(!raw||raw.schemaVersion!==2||!validV2(raw.challenge)||raw.challenge.mode!==mode||raw.challenge.date>viennaDate()||!Number.isInteger(raw.round)||raw.round<0||raw.round>2||!Array.isArray(raw.results)||![raw.round,raw.round+1].includes(raw.results.length)||typeof raw.complete!=='boolean'||(raw.complete&&raw.results.length!==3)||(raw.pendingGuess!==null&&!validPosition(raw.pendingGuess))||raw.results.some(r=>!r||!validPosition(r.guess)||r.scoringRule!==raw.challenge.scoringRule))return null;
- if(raw.challenge.date!==viennaDate()&&(raw.complete||(!raw.results.length&&!raw.pendingGuess)))return null;
+export async function restoreMode(storage:StorageLike,mode:NewMode,signal?:AbortSignal,replay?:{key:string;challenge:ChallengeV2}):Promise<{session:ModeSession;manifest:ModeManifest}|null>{
+ const raw=readJSON(storage,replay?.key??modeSessionKey(mode)) as ModeSession|null;
+ if(!raw||raw.schemaVersion!==2||!validV2(raw.challenge)||raw.challenge.mode!==mode||(!replay&&raw.challenge.date>viennaDate())||!Number.isInteger(raw.round)||raw.round<0||raw.round>2||!Array.isArray(raw.results)||![raw.round,raw.round+1].includes(raw.results.length)||typeof raw.complete!=='boolean'||(raw.complete&&raw.results.length!==3)||(raw.pendingGuess!==null&&!validPosition(raw.pendingGuess))||raw.results.some(r=>!r||!validPosition(r.guess)||r.scoringRule!==raw.challenge.scoringRule))return null;
+ if(replay&&JSON.stringify(raw.challenge)!==JSON.stringify(replay.challenge))return null;
+ if(!replay&&raw.challenge.date!==viennaDate()&&(raw.complete||(!raw.results.length&&!raw.pendingGuess)))return null;
  // Retrieve the pinned dataset, never trust cached target coordinates, polygons or scores.
  const manifest=await modeManifest(raw.challenge,signal),targets=raw.challenge.targetIds.map(id=>manifest.targets.find(t=>t.id===id)!);
  const results=await Promise.all(raw.results.map(async(r,i)=>evaluateModeGuess(mode,targets[i],r.guess,await targetGeometry(manifest,targets[i],false,signal))));
