@@ -3,7 +3,11 @@ import {afterEach,it,expect,vi} from 'vitest';
 import {loadCatalog,type Catalog} from '../src/data/catalog';
 import {preparePlay,customPool} from '../src/data/play';
 import {generateChallenge} from '../src/core/challenge';
-import {generateModeChallenge} from '../src/core/modes';
+import {evaluateGuess} from '../src/core/scoring';
+import {matchingSections} from '../src/core/geography';
+import {loadSections} from '../src/data/sections';
+import {targetGeometry} from '../src/data/modes';
+import {generateModeChallenge,evaluateModeGuess} from '../src/core/modes';
 import {encodePolygon,decodePolygon,type Ring} from '../src/core/custom';
 import type {GameRoute} from '../src/core/game-url';
 import {browserStorage,readJSON,saveJSON} from '../src/core/persistence';
@@ -55,4 +59,30 @@ it('pins old catalogue data even if the current release pointer changes',async()
   serve();const old=await loadCatalog(catalog.id);const first=await preparePlay({mode:'world-peaks',region:'alps',catalog:old.id},old,'2026-10-02',storage());
   vi.stubGlobal('fetch',vi.fn(async(url:string)=>url.endsWith('current.json')?new Response(JSON.stringify({id:'catalog-ffffffffffffffff'})):new Response(readFileSync('public/'+url.replace(/^\//,''),'utf8'))));
   const again=await preparePlay({mode:'world-peaks',region:'alps',catalog:old.id},await loadCatalog(old.id),'2026-10-02',storage());expect(again.session.challenge).toEqual(first.session.challenge);
+});
+it.each([
+  {mode:'alpine-peaks',polygon:[[7,45],[8,45],[8,46],[7,46]]},
+  {mode:'world-peaks',polygon:[[-72,-34],[-68,-34],[-68,-30],[-72,-30]]},
+] as const)('restores $mode custom results with the same surface scale as live guesses',async({mode,polygon})=>{
+  serve();const route:GameRoute={mode:'custom',region:'alps',catalog:catalog.id,polygon:polygon.map(([x,y])=>[x,y])};
+  const s=storage(),game=await preparePlay(route,catalog,'2026-10-02',s);
+  expect(game.kind).toBe(mode);expect(game.scoring).toBeDefined();
+  const guess={lon:polygon[0][0],lat:polygon[0][1]};
+  let live,standard;
+  if(game.kind==='alpine-peaks'){
+    const peak=game.session.peaks[0];const sections=await loadSections(game.session.challenge.datasetVersion,peak.soiusa.sectionIds);
+    const matched=matchingSections(guess,sections);
+    live=evaluateGuess(peak.id,guess,peak,matched,game.scoring);
+    standard=evaluateGuess(peak.id,guess,peak,matched);
+  }else{
+    const target=game.session.targets[0],geometry=await targetGeometry(game.manifest,target,false);
+    live=evaluateModeGuess('world-peaks',target,guess,geometry,game.scoring);
+    standard=evaluateModeGuess('world-peaks',target,guess,geometry);
+  }
+  expect(live.score).toBeLessThan(standard.score);
+  // Cached scores/profile are untrusted; only the polygon and recorded guess matter.
+  s.setItem(game.storageKey,JSON.stringify({...game.session,scoring:{perfectRadiusKm:1000,farDistanceKm:10000},pendingGuess:guess,results:[{...live,score:999,distanceScore:999}]}));
+  const restored=await preparePlay(route,catalog,'2026-10-02',s);
+  expect(restored.session.results[0]).toEqual(live);
+  expect(restored.scoring).toEqual(game.scoring);
 });

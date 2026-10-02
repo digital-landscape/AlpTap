@@ -39,3 +39,13 @@ Progress keys include the catalogue ID and canonical challenge ID. Custom IDs in
 ## Verification
 
 `tests/custom.test.ts` covers canonical encoding, boundaries, invalid rings and payloads, date-line continuity, geographic overlap and holes, 50% source choice, deterministic tiers/fallbacks, and URL parsing. `tests/shared-play.test.ts` exercises the published catalogue, unchanged standard selections, independent progress, pinned releases, unsupported versions, and failure without fallback. Existing browser tests cover gameplay, restoration, onboarding, navigation, and failure states. Browser review captures are disposable files under ignored `output/playwright/`.
+
+## Surface-based scoring
+
+Custom Alpine and worldwide games measure the canonical polygon with the same spherical area integration used for overlap, multiplied by the mean Earth radius squared (6,371.0088 km). Longitude unwrapping keeps date-line polygons local; concave areas use their actual surface, not the bounding rectangle. Surface is an approximation on a sphere, not terrain slope area.
+
+The distance at which the base score reaches 10 points is `clamp(sqrt(areaKm2), 1, standardFarDistanceKm)`, capped at 300 km for Alpine data and 2,000 km worldwide. The full-score radius scales by `customFarDistanceKm / standardFarDistanceKm`, with a minimum 25-metre click buffer. Thus 100 km² gives a 10 km distance reference, and 400 km² gives 20 km. The 1 km minimum distance reference keeps exceptionally tiny polygons playable. Long, narrow polygons can be more demanding than compact polygons with the same area.
+
+The existing smooth distance curve, maximum of 1,000 points and 15% remaining-points section/region bonus are preserved. Ordinary daily games, practice and exact challenge replays retain their existing scoring. The polygon determines the scale for both live evaluation and restoration; cached scores or profiles are never trusted. Older custom progress is recalculated under this curve without changing selected peaks or progress keys.
+
+The preview and About dialog explain the scaling in all four languages and display the actual full-score and 10-point distances. The Alpine scoring chart adapts its curve, formula, axis and slider to the custom scale. Regression coverage in `tests/custom-scoring.test.ts` and `tests/shared-play.test.ts` checks area measurement, proportional precision, limits, bonuses and reload consistency for both databases.

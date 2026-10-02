@@ -1,3 +1,4 @@
+import {CustomScoringInfo} from './ui/CustomScoringInfo';
 import {lazy,Suspense,useEffect,useRef,useState} from 'react';
 import type {Locale,Position} from './core/types';
 import {MAX_VERTICES,decodePolygon,encodePolygon,type Ring} from './core/custom';
@@ -18,7 +19,7 @@ export function CustomArea({catalog,locale,initial,world,onCancel,onPlay}:{catal
       {!preview&&<p>{t.instruction}</p>}
       <p>{points.length} / {MAX_VERTICES} {t.vertices}</p>
       {error&&<p role="alert">{t.polygon}</p>}
-      {preview&&<div role="status" className="custom-preview"><strong>{preview.mode==='alpine-peaks'?t.alpine:t.world}</strong><p>{t.overlap}: {new Intl.NumberFormat(locale,{style:'percent',maximumFractionDigits:1}).format(preview.overlap)}</p><p><b>{preview.pool.length}</b> {t.eligible}</p>{preview.pool.length<3?<p>{t.small}</p>:['easy','medium','hard'].some(tier=>!preview.pool.some(p=>p.difficulty===tier))&&<p>{t.fallback}</p>}<p>{t.daily}</p></div>}
+      {preview&&<div role="status" className="custom-preview"><strong>{preview.mode==='alpine-peaks'?t.alpine:t.world}</strong><p>{t.overlap}: {new Intl.NumberFormat(locale,{style:'percent',maximumFractionDigits:1}).format(preview.overlap)}</p><p><b>{preview.pool.length}</b> {t.eligible}</p>{preview.pool.length<3?<p>{t.small}</p>:['easy','medium','hard'].some(tier=>!preview.pool.some(p=>p.difficulty===tier))&&<p>{t.fallback}</p>}<CustomScoringInfo locale={locale} scoring={preview.scoring} areaKm2={preview.areaKm2}/><p>{t.daily}</p></div>}
       <div className="custom-actions">{preview?<><button onClick={()=>setPreview(null)}>{t.edit}</button><button className="primary" disabled={preview.pool.length<3} onClick={()=>onPlay(points)}>{t.play}</button></>:<><button disabled={!points.length} onClick={()=>{setPoints(p=>p.slice(0,-1));setError(false);}}>{t.undo}</button><button disabled={!points.length} onClick={()=>{setPoints([]);setError(false);}}>{t.clear}</button><button className="primary" disabled={points.length<3} onClick={finish}>{t.finish}</button></>}<button onClick={onCancel}>{t.cancel}</button></div>
     </section>
   </main>;

@@ -146,3 +146,6 @@ output/playwright/globe-compass/
 output/playwright/compass-alignment/
 # Compact polygon and copy-link toolbar visual checks
 output/playwright/area-icons/
+
+# Disposable custom-area scoring and preview review captures
+output/custom-scoring/

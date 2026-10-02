@@ -1,3 +1,4 @@
+import {CustomScoringInfo} from './ui/CustomScoringInfo';
 import {ShareResults} from './ui/ShareResults';
 import {shareMessages, type SharedGame} from './core/sharing';
 import type {AlpineSetup} from './data/play';
@@ -102,8 +103,8 @@ export default function App({modeControl,onLocale,initialRegion,setup,replay}:{r
   },[sectionKey,sectionRetry]);
   useEffect(()=>{
     if(!session?.pendingGuess || result || !peak || !sections.length || !peak.soiusa.sectionIds.every(id=>sections.some(s=>s.properties.id===id)))return;
-    setSession(s=>!s || s.peaks[s.round].id!==peak.id || !s.pendingGuess || s.results.length>s.round?s:{...s,results:[...s.results,evaluateGuess(peak.id,s.pendingGuess,peak,matchingSections(s.pendingGuess,sections))]});
-  },[session?.pendingGuess,sections,sectionKey,result]);
+    setSession(s=>!s || s.peaks[s.round].id!==peak.id || !s.pendingGuess || s.results.length>s.round?s:{...s,results:[...s.results,evaluateGuess(peak.id,s.pendingGuess,peak,matchingSections(s.pendingGuess,sections),setup?.scoring)]});
+  },[session?.pendingGuess,sections,sectionKey,result,setup?.scoring]);
   const unit=manifest?.units.find(u=>u.id===preferences.region);
   const number=(n:number,digits=0)=>new Intl.NumberFormat(locale,{maximumFractionDigits:digits,minimumFractionDigits:digits}).format(n);
   const date=session?.challenge.date??today;
@@ -143,6 +144,6 @@ export default function App({modeControl,onLocale,initialRegion,setup,replay}:{r
       <button className="primary" onClick={startPractice}>{onboarding.start}<Arrow/></button>
       <InstitutionFooter locale={locale} placement="welcome"/>
     </dialog>
-    <dialog ref={dialog} className="about-dialog" aria-labelledby="about-title"><button className="dialog-close" aria-label={t.close} onClick={()=>dialog.current?.close()}>×</button><MountainIcon large/><p className="eyebrow">ALPTAP</p><h2 id="about-title">{t.how}</h2><button className="example-button" onClick={()=>{dialog.current?.close();setWelcomeOpen(true);}}>{onboarding.instructions} ↗</button><p>{t.howText}</p><p>{t.howScore}</p><ScoringCurve locale={locale}/><p>{t.howData}</p><p>{t.howPrivacy}</p><ProjectCredits locale={locale}/><h3>{t.credits}</h3><p>{t.attribution}</p><p className="terrain-credits">Terrain: Mapzen; © offene Daten Österreichs (DGM Österreich); Copernicus EU-DEM, funded by the European Union; USGS (SRTM/GMTED2010); NOAA (ETOPO1).</p><div className="credit-links"><a href="https://www.wikidata.org/wiki/Wikidata:Licensing" target="_blank" rel="noreferrer">Wikidata · CC0 ↗</a><a href="https://maps.eox.at/" target="_blank" rel="noreferrer">EOX Maps ↗</a><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap ↗</a><a href="https://www.homoalpinus.com/alpes/subdivisions/soiusa/" target="_blank" rel="noreferrer">SOIUSA ↗</a><a href="https://github.com/tilezen/joerd/blob/master/docs/attribution.md" target="_blank" rel="noreferrer">Mapzen ↗</a></div></dialog>
+    <dialog ref={dialog} className="about-dialog" aria-labelledby="about-title"><button className="dialog-close" aria-label={t.close} onClick={()=>dialog.current?.close()}>×</button><MountainIcon large/><p className="eyebrow">ALPTAP</p><h2 id="about-title">{t.how}</h2><button className="example-button" onClick={()=>{dialog.current?.close();setWelcomeOpen(true);}}>{onboarding.instructions} ↗</button><p>{t.howText}</p>{setup?.scoring?<CustomScoringInfo locale={locale} scoring={setup.scoring}/>:<p>{t.howScore}</p>}<ScoringCurve locale={locale} profile={setup?.scoring}/><p>{t.howData}</p><p>{t.howPrivacy}</p><ProjectCredits locale={locale}/><h3>{t.credits}</h3><p>{t.attribution}</p><p className="terrain-credits">Terrain: Mapzen; © offene Daten Österreichs (DGM Österreich); Copernicus EU-DEM, funded by the European Union; USGS (SRTM/GMTED2010); NOAA (ETOPO1).</p><div className="credit-links"><a href="https://www.wikidata.org/wiki/Wikidata:Licensing" target="_blank" rel="noreferrer">Wikidata · CC0 ↗</a><a href="https://maps.eox.at/" target="_blank" rel="noreferrer">EOX Maps ↗</a><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap ↗</a><a href="https://www.homoalpinus.com/alpes/subdivisions/soiusa/" target="_blank" rel="noreferrer">SOIUSA ↗</a><a href="https://github.com/tilezen/joerd/blob/master/docs/attribution.md" target="_blank" rel="noreferrer">Mapzen ↗</a></div></dialog>
   </main>;
 }

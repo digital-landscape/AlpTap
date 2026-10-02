@@ -1,3 +1,10 @@
+## 2026-10-02 — Scale custom scores to the drawn surface
+
+- Scale custom Alpine and worldwide distance scoring by the square root of polygon area, retaining click tolerance, score limits and section/region bonuses.
+- Show area and scoring distances in the localized preview and help; adapt the Alpine scoring chart.
+- Recalculate saved custom guesses with the same scale; preserve standard daily scoring and selection identities.
+- Cover geographic area, precision scaling, tiny/large polygons and restoration with regression tests.
+
 ## 2026-10-02 — Share results and exact challenge replays
 
 - Added localized native sharing, clipboard copying and a selectable fallback to completed Alpine/regional and Worldwide games. Scores use walker, hiker, climber and summit badges.

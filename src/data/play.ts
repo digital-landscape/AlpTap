@@ -1,3 +1,5 @@
+import {customAreaKm2,customScoringProfile} from '../core/custom-scoring';
+import type {ScoringProfile} from '../core/scoring';
 import type {Catalog} from './catalog';
 import type {GameRoute} from '../core/game-url';
 import {alpineOverlap,databaseForOverlap,insidePolygon,customPicks,encodePolygon,polygonBounds,type Candidate,type Ring} from '../core/custom';
@@ -13,7 +15,7 @@ import {loadSections} from './sections';
 import {modeManifest,modeSessionKey,targetGeometry} from './modes';
 import type {Challenge,GameSession,Manifest} from '../core/types';
 
-interface SetupBase {storageKey:string;legacyKey?:string;polygon?:Ring;bounds?:[number,number,number,number]}
+interface SetupBase {scoring?:ScoringProfile;storageKey:string;legacyKey?:string;polygon?:Ring;bounds?:[number,number,number,number]}
 export interface AlpineSetup extends SetupBase {kind:'alpine-peaks';session:GameSession;manifest:Manifest}
 export interface WorldSetup extends SetupBase {kind:'world-peaks';session:ModeSession;manifest:ModeManifest}
 export type PlaySetup=AlpineSetup|WorldSetup;
@@ -26,7 +28,8 @@ export function customPool(catalog:Catalog,polygon:Ring){
   const overlap=alpineOverlap(polygon,catalog.boundary),mode=databaseForOverlap(overlap);
   const candidates:Candidate[]=mode==='alpine-peaks'?catalog.alpine.peaks:catalog.world.targets;
   const pool=candidates.filter(p=>insidePolygon(polygon,p.position));
-  return {overlap,mode,pool};
+  const areaKm2=customAreaKm2(polygon);
+  return {overlap,mode,pool,areaKm2,scoring:customScoringProfile(areaKm2,mode)};
 }
 // Restore only progress. Challenge definitions, coordinates, and scores come from
 // the pinned catalogue and its authoritative geometry, never cached target data.
@@ -36,10 +39,10 @@ async function restore(setup:PlaySetup,storage:StorageLike,signal?:AbortSignal):
   if(!raw||raw.challenge?.id!==expected.id||!Array.isArray(raw.results)||raw.results.length>3||!Number.isInteger(raw.round)||raw.round<0||raw.round>2||![raw.round,raw.round+1].includes(raw.results.length)||typeof raw.complete!=='boolean'||(raw.complete&&raw.results.length!==3)||(raw.pendingGuess!==null&&!validPosition(raw.pendingGuess))||raw.results.some(r=>!r||!validPosition(r.guess)))return setup;
   const state={round:raw.round,complete:raw.complete,pendingGuess:raw.pendingGuess};
   if(setup.kind==='alpine-peaks'){
-    const results=await Promise.all(raw.results.map(async(r,i)=>{const p=setup.session.peaks[i];const sections=await loadSections(expected.datasetVersion,p.soiusa.sectionIds);return evaluateGuess(p.id,r.guess,p,matchingSections(r.guess,sections));}));
+    const results=await Promise.all(raw.results.map(async(r,i)=>{const p=setup.session.peaks[i];const sections=await loadSections(expected.datasetVersion,p.soiusa.sectionIds);return evaluateGuess(p.id,r.guess,p,matchingSections(r.guess,sections),setup.scoring);}));
     signal?.throwIfAborted();return {...setup,session:{...setup.session,...state,results}};
   }
-  const results=await Promise.all(raw.results.map(async(r,i)=>{const t=setup.session.targets[i];return evaluateModeGuess('world-peaks',t,r.guess,await targetGeometry(setup.manifest,t,false,signal));}));
+  const results=await Promise.all(raw.results.map(async(r,i)=>{const t=setup.session.targets[i];return evaluateModeGuess('world-peaks',t,r.guess,await targetGeometry(setup.manifest,t,false,signal),setup.scoring);}));
   return {...setup,session:{...setup.session,...state,results}};
 }
 export async function preparePlay(route:GameRoute,catalog:Catalog,date:string,storage:StorageLike,signal?:AbortSignal):Promise<PlaySetup>{
@@ -50,7 +53,7 @@ export async function preparePlay(route:GameRoute,catalog:Catalog,date:string,st
   const identity=custom?`${catalog.id}|${encodePolygon(route.polygon!)}`:'';
   const picks=selection?customPicks(selection.pool,identity,date):null;
   const id=`custom-v1|${identity}|${date}`;
-  const common={polygon:route.polygon,bounds:route.polygon?polygonBounds(route.polygon):undefined};
+  const common={scoring:selection?.scoring,polygon:route.polygon,bounds:route.polygon?polygonBounds(route.polygon):undefined};
   if(mode==='alpine-peaks'){
     const challenge:Challenge=picks?{id,date,timezone:'Europe/Vienna',region:'alps',difficulty:'mixed',datasetVersion:catalog.alpine.version,algorithmVersion:'custom-v1',roundCount:3,peakIds:picks.map(p=>p.id),roundDifficulties:picks.map(p=>p.difficulty),nextRollover:nextViennaRollover(date)}:
       generateChallenge(catalog.alpine.peaks,{date,region:route.region,difficulty:'mixed',datasetVersion:catalog.alpine.version},catalog.curated);
