@@ -70,16 +70,18 @@ test('world rounds advance Easy to Medium to Hard with a bold current tier and p
   await expect(step).toHaveText(tier);expect(await step.evaluate(el=>Number(getComputedStyle(el).fontWeight))).toBeGreaterThanOrEqual(700);
   await page.getByRole('button',{name:'Guess at map center'}).click();await expect(page.locator('.result-stats')).toBeVisible();
   expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('alptap:session:v2:world-peaks')!).results.length)).toBe(index+1);
-  await page.getByRole('button',{name:index<2?'Next round':'See results',exact:true}).click();
+  // Let the six-second timer advance this round and open the final summary.
+  if(index<2)await expect(page.locator('.daily-order [aria-current="step"]')).toHaveText(['Medium','Hard'][index]);
  }
  await expect(page.locator('.summary-card')).toBeVisible();
- await expect(page.locator('.summary-scrim')).toHaveClass(/scores-aside/);
+ await expect(page.locator('.summary-scrim')).not.toHaveClass(/scores-aside/);
+ await page.getByRole('button',{name:'Move scores aside'}).click();
  await expect(page.locator('.guess-pin')).toHaveCount(3);
  await expect(page.locator('.guess-pin').first()).toBeVisible();
  await expect(page.locator('.summit-pin')).toHaveCount(3);
  await expect(page.locator('.summit-pin').first()).toBeVisible();
  await page.reload();await expect(page.locator('.summary-card')).toBeVisible();
- await expect(page.locator('.summary-scrim')).toHaveClass(/scores-aside/);
+ await expect(page.locator('.summary-scrim')).not.toHaveClass(/scores-aside/);
  await expect(page.locator('.daily-order [aria-current="step"]')).toHaveCount(0);
 });
 

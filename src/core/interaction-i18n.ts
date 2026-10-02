@@ -15,8 +15,8 @@ export const interactionMessages: Record<Locale, typeof en> = {
 };
 
 export const resultMessages: Record<Locale, { keepResult: string; nextRound: string; finish: string; mapView: string; scoresView: string }> = {
- en: {keepResult:'Compare your guess with the summit, then continue when ready.',nextRound:'Next round',finish:'See results',mapView:'Move scores aside',scoresView:'Expand scores'},
- de: {keepResult:'Vergleiche deinen Tipp mit dem Gipfel und gehe weiter, wenn du bereit bist.',nextRound:'Nächste Runde',finish:'Ergebnisse ansehen',mapView:'Punkte zur Seite',scoresView:'Punkte vergrößern'},
- fr: {keepResult:'Comparez votre repère au sommet, puis continuez à votre rythme.',nextRound:'Manche suivante',finish:'Voir les résultats',mapView:'Déplacer les scores',scoresView:'Agrandir les scores'},
- it: {keepResult:'Confronta la tua scelta con la vetta, poi prosegui quando vuoi.',nextRound:'Prossimo turno',finish:'Vedi risultati',mapView:'Sposta i punteggi',scoresView:'Espandi i punteggi'},
+ en: {keepResult:'The next view appears automatically after 6 seconds.',nextRound:'Next round',finish:'See results',mapView:'Move scores aside',scoresView:'Expand scores'},
+ de: {keepResult:'Nach 6 Sekunden geht es automatisch weiter.',nextRound:'Nächste Runde',finish:'Ergebnisse ansehen',mapView:'Punkte zur Seite',scoresView:'Punkte vergrößern'},
+ fr: {keepResult:'La suite apparaît automatiquement après 6 secondes.',nextRound:'Manche suivante',finish:'Voir les résultats',mapView:'Déplacer les scores',scoresView:'Agrandir les scores'},
+ it: {keepResult:'Si prosegue automaticamente dopo 6 secondi.',nextRound:'Prossimo turno',finish:'Vedi risultati',mapView:'Sposta i punteggi',scoresView:'Espandi i punteggi'},
 };

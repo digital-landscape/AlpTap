@@ -117,3 +117,6 @@ output/final-pairs/
 
 # Icon-only score-control visual checks
 output/score-icons/
+
+# Automatic round progression and default summary checks
+output/auto-summary/
