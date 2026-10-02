@@ -47,7 +47,7 @@ The device clock determines the date. Future selections and coordinates are insp
 
 Repository: https://github.com/digital-landscape/AlpTap
 
-Live site: https://digital-landscape.github.io/AlpTap/
+Live site: https://digital-landscape.at/AlpTap/ (inherits the organization’s existing Pages domain).
 
 Pushes to `master` run `.github/workflows/pages.yml`: install dependencies, run unit tests, build the static frontend with `npm run build:pages`, and publish `dist/` through GitHub Actions. The `/AlpTap/` base path applies to application assets, catalogues and institutional logos. Pages uses the **GitHub Actions** publishing source. Leave `VITE_API_URL` empty; no backend or daily rebuild is needed. You can also redeploy manually from the workflow’s Actions page.
 
