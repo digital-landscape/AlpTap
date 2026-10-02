@@ -164,3 +164,5 @@
 
 - Added automatic static deployment from `master` to Digital Landscape’s AlpTap Pages site.
 - Added a frontend-only Pages build and made institutional assets and the legacy redirect work under `/AlpTap/`.
+
+- Pages builds now derive their base path from GitHub configuration, supporting both project URLs and a future dedicated domain; pushes to `master` automatically deploy updates.

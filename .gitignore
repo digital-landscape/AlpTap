@@ -99,3 +99,6 @@ output/oeaw-fade/
 
 # Local GitHub Pages deployment checks
 output/pages/
+
+# Disposable custom-domain/base-path verification captures
+output/pages-domain/
