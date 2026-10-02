@@ -114,3 +114,6 @@ output/final-round/
 
 # Final-map pair and score-icon visual checks
 output/final-pairs/
+
+# Icon-only score-control visual checks
+output/score-icons/
