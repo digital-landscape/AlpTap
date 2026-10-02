@@ -179,3 +179,5 @@ Alpine Valleys is removed from the public selector pending a suitable dataset; p
 The game selector is the single region control. Reveals advance automatically after six seconds; **Next round** and **See results** allow earlier continuation. At completion, the full results popup opens by default, including after reload. Only the move-aside icon compacts the scores to access the map; the expand icon restores the large popup. All three guess–summit pairs remain on the final map. Worldwide misses at 2,000 km earn 10 distance points; the existing 15% remaining-points bonus applies inside the correct mountain region.
 
 The completed map displays all three numbered guess–summit pairs with great-circle connecting lines. Selecting a recap summit focuses its pair while keeping the other pairs visible. Score controls use icons only, with translated tooltips and accessible labels.
+
+Alpine reveals and recap cards use the neutral title “Summit revealed”. Distance feedback reserves “Right on the mountain” for guesses within 1 km; guesses from over 1 km to under 5 km say “Very close”. The same feedback applies in practice and is translated in all four languages.

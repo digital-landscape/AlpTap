@@ -120,3 +120,6 @@ output/score-icons/
 
 # Automatic round progression and default summary checks
 output/auto-summary/
+
+# Reveal wording visual checks
+output/reveal-wording/
