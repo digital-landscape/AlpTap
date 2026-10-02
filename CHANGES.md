@@ -1,3 +1,9 @@
+## 2026-10-02 — Forgive guesses near worldwide region edges
+
+- Add a 10 km GMBA region-bonus tolerance for worldwide games, including replays and custom areas.
+- Keep source polygons and target selection intact; explain the tolerance in all four help languages.
+- Recalculate restored guesses with the same tolerance and cover edge, hole, multipart, high-latitude and dateline cases.
+
 ## 2026-10-02 — Scale custom scores to the drawn surface
 
 - Scale custom Alpine and worldwide distance scoring by the square root of polygon area, retaining click tolerance, score limits and section/region bonuses.

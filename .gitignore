@@ -156,3 +156,6 @@ output/playwright/area-icons/
 
 # Disposable custom-area scoring and preview review captures
 output/custom-scoring/
+
+# Disposable GMBA boundary-tolerance verification output
+output/gmba-buffer/
