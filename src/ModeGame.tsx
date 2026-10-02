@@ -1,3 +1,5 @@
+import {ShareResults} from './ui/ShareResults';
+import {type SharedGame} from './core/sharing';
 import {ExploreLink} from './ui/ExploreLink';
 import {ProjectCredits} from './ui/ProjectCredits';
 import {Brand} from './ui/Brand';
@@ -14,7 +16,7 @@ import type {Locale} from './core/types';
 import type {SectionFeature} from './core/geography';
 const AlpineMap=lazy(()=>import('./map/AlpineMap').then(m=>({default:m.AlpineMap})));
 const storage:StorageLike={getItem:k=>localStorage.getItem(k),setItem:(k,v)=>localStorage.setItem(k,v)};
-export function ModeGame({mode,modeControl,onLocale}:{mode:NewMode;modeControl:ReactNode;onLocale(l:Locale):void}){
+export function ModeGame({mode,modeControl,onLocale,replay}:{replay?:Extract<SharedGame,{kind:'world'}>;mode:NewMode;modeControl:ReactNode;onLocale(l:Locale):void}){
  const [scoresAside,setScoresAside]=useState(false),[reviewRound,setReviewRound]=useState<number|null>(null);
  const [locale,setLocale]=useState(()=>initialPreferences(storage,navigator.languages).locale);
  const [session,setSession]=useState<ModeSession|null>(null),[manifest,setManifest]=useState<ModeManifest|null>(null);
@@ -40,17 +42,17 @@ export function ModeGame({mode,modeControl,onLocale}:{mode:NewMode;modeControl:R
  useEffect(()=>{
   const controller=new AbortController();setLoading(true);setError(false);setUnavailable(false);
   (async()=>{
-   const saved=await restoreMode(storage,mode,controller.signal);
+   const saved=await restoreMode(storage,mode,controller.signal,replay);
    if(saved){if(!controller.signal.aborted){setSession(saved.session);setManifest(saved.manifest);setLoading(false);}return;}
-   const response=await fetch(`${import.meta.env.VITE_API_URL??''}/v2/modes`,{signal:AbortSignal.any([controller.signal,AbortSignal.timeout(12000)])}).catch(e=>{if(controller.signal.aborted)throw e;return null;});
+   const response=replay?null:await fetch(`${import.meta.env.VITE_API_URL??''}/v2/modes`,{signal:AbortSignal.any([controller.signal,AbortSignal.timeout(12000)])}).catch(e=>{if(controller.signal.aborted)throw e;return null;});
    if(response?.ok){const status=await response.json();if(status.modes?.some((s:{mode:string;available:boolean})=>s.mode===mode&&!s.available)){if(!controller.signal.aborted){setUnavailable(true);setLoading(false);}return;}}
-   const challenge=await modeChallenge(mode,storage,controller.signal),data=await modeManifest(challenge,controller.signal);
+   const challenge=replay?.challenge??await modeChallenge(mode,storage,controller.signal),data=await modeManifest(challenge,controller.signal);
    if(controller.signal.aborted)return;
    setManifest(data);setSession({schemaVersion:2,challenge,targets:challenge.targetIds.map(id=>data.targets.find(t=>t.id===id)!),round:0,results:[],pendingGuess:null,complete:false});setLoading(false);
   })().catch(()=>{if(!controller.signal.aborted){setError(true);setLoading(false);}});
   return()=>controller.abort();
- },[mode,retry]);
- useEffect(()=>{if(session)setStorageOk(saveJSON(storage,modeSessionKey(mode),session));},[session,mode]);
+ },[mode,retry,replay]);
+ useEffect(()=>{if(session)setStorageOk(saveJSON(storage,replay?.key??modeSessionKey(mode),session));},[session,mode,replay]);
  useEffect(()=>{
   setGeometry([]);setDisplay([]);setGeometryError(false);if(!manifest||!target)return;
   const controller=new AbortController();
@@ -70,11 +72,11 @@ export function ModeGame({mode,modeControl,onLocale}:{mode:NewMode;modeControl:R
   {!loading&&!error&&session&&target&&!session.complete&&<section className={`game-card ${result?'revealed':''}`} data-difficulty={target.difficulty}>
    <div className="card-topline"><span className="eyebrow">{t.roundLabel} {session.round+1} / 3</span><span className="difficulty-badge">{t[target.difficulty]}</span></div>
    <div className="round-progress">{TIERS.map((tier,i)=><span key={tier} className={i<session.results.length?'done':i===session.round?'current':''}/>)}</div>
-   {date!==today&&<p className="previous-note">{t.previous}</p>}
+   {!replay&&date!==today&&<p className="previous-note">{t.previous}</p>}
    <div className="peak-heading"><p className="prompt">{target.kind==='valley'?m.findValley:target.provenance.featureType==='volcano'?m.findVolcano:m.findPeak}</p><h1 ref={heading} tabIndex={-1}>{name(target)}</h1>{target.kind==='summit'&&<div className="question-area"><span className="eyebrow">{m.range}</span><p>{target.regionIds.map(id=>manifest?.regions.find(r=>r.id===id)?.name).join(' · ')}</p></div>}</div>
    {!result?<><p className="instruction">{session.pendingGuess?t.revealing:target.kind==='valley'?m.valleyInstruction:t.instruction}</p>{target.kind==='valley'&&<p className="instruction">{m.valleyDefinition}</p>}<div className="instant-guess-hint">⌖ {session.pendingGuess?t.revealing:t.place}</div>{geometryError&&session.pendingGuess&&<div className="section-error" role="status"><p>{m.geometryError}</p><button onClick={()=>setGeometryRetry(v=>v+1)}>{t.retry}</button></div>}</>:<div className="reveal-content"><div className="result-stats"><div><span className="eyebrow">{target.kind==='valley'?m.boundaryDistance:t.distance}</span><strong>{number(result.distanceKm,1)}<small> km</small></strong></div><div><span className="eyebrow">{t.points}</span><strong>{number(result.score)}<small> / {number(1000)}</small></strong></div></div><div className="score-track"><span style={{width:`${result.score/10}%`}}/></div>{target.kind==='valley'?<p className="result-message">{result.inside?m.inside:m.outside}</p>:<div className="score-breakdown"><span>{t.distancePoints} <b>{number(result.distanceScore)}</b></span><span>{m.regionBonus} <b>+{result.areaBonus}</b></span></div>}<p className="result-continue-note">{t.keepResult}</p><a className="source-link" href={target.wikipedia[locale]??Object.values(target.wikipedia)[0]??`https://www.wikidata.org/wiki/${target.id.split(':')[1]}`} target="_blank" rel="noreferrer">{t.learn} ↗</a><button className="primary" onClick={()=>setSession(s=>!s?s:s.round===s.targets.length-1?{...s,complete:true}:{...s,round:s.round+1,pendingGuess:null})}>{session.round===session.targets.length-1?t.finish:t.nextRound}</button></div>}
   </section>}
-  {session?.complete&&!loading&&!error&&<div className={`summary-scrim ${scoresAside?'scores-aside':''}`}><section className="summary-card"><button className="summary-toggle" aria-label={scoresAside?t.scoresView:t.mapView} title={scoresAside?t.scoresView:t.mapView} onClick={()=>setScoresAside(v=>!v)}><span aria-hidden="true">{scoresAside?'⛶':'⇤'}</span></button><p className="eyebrow">{m.complete} · {m[mode]}</p><h1 ref={heading} tabIndex={-1}>{m.summary}</h1><div className="summary-score"><strong>{number(session.results.reduce((s,r)=>s+r.score,0))}<small> / {number(3000)}</small></strong></div><ol className="result-card-grid">{session.targets.map((target,i)=><li className="recap-card" key={target.id}><span className="recap-difficulty">{t[target.difficulty]}</span><h2><button className="recap-map-button" aria-pressed={(reviewRound??session.round)===i} onClick={()=>{setReviewRound(i);}}>{name(target)} ↗</button></h2><div className="result-stats"><strong>{number(session.results[i].score)}<small> {t.scoreLabel}</small></strong></div><p>{number(session.results[i].distanceKm,1)} km · {target.kind==='valley'?m.boundaryDistance:t.distance}</p></li>)}</ol><p>{t.tomorrowSub}</p>{date!==today&&<button className="primary" onClick={()=>{setSession(null);setRetry(r=>r+1);}}>{t.newToday}</button>}</section></div>}
+  {session?.complete&&!loading&&!error&&<div className={`summary-scrim ${scoresAside?'scores-aside':''}`}><section className="summary-card"><button className="summary-toggle" aria-label={scoresAside?t.scoresView:t.mapView} title={scoresAside?t.scoresView:t.mapView} onClick={()=>setScoresAside(v=>!v)}><span aria-hidden="true">{scoresAside?'⛶':'⇤'}</span></button><p className="eyebrow">{m.complete} · {m[mode]}</p><h1 ref={heading} tabIndex={-1}>{m.summary}</h1><div className="summary-score"><strong>{number(session.results.reduce((s,r)=>s+r.score,0))}<small> / {number(3000)}</small></strong></div>{mode==='world-peaks'&&<ShareResults challenge={session.challenge} scores={session.results.map(r=>r.score)} label={m[mode]} locale={locale}/>}<ol className="result-card-grid">{session.targets.map((target,i)=><li className="recap-card" key={target.id}><span className="recap-difficulty">{t[target.difficulty]}</span><h2><button className="recap-map-button" aria-pressed={(reviewRound??session.round)===i} onClick={()=>{setReviewRound(i);}}>{name(target)} ↗</button></h2><div className="result-stats"><strong>{number(session.results[i].score)}<small> {t.scoreLabel}</small></strong></div><p>{number(session.results[i].distanceKm,1)} km · {target.kind==='valley'?m.boundaryDistance:t.distance}</p></li>)}</ol><p>{t.tomorrowSub}</p>{!replay&&date!==today&&<button className="primary" onClick={()=>{setSession(null);setRetry(r=>r+1);}}>{t.newToday}</button>}</section></div>}
   <footer className="app-footer"><span>ALPTAP · {m[mode]}</span><span>{storageOk?t.saved:t.storageError}</span></footer>
   <dialog className="about-dialog" ref={help} onClose={()=>setHelpOpen(false)}><button className="dialog-close" aria-label={t.close} onClick={()=>help.current?.close()}>×</button><h2>{m[mode]}</h2><p>{mode==='world-peaks'?m.worldHelp:m.valleyHelp}</p>{mode==='alpine-valleys'&&<p>{m.valleyDefinition}</p>}<ProjectCredits locale={locale}/><h3>{m.credits}</h3>{manifest?.attribution.map(a=><p key={a.url}><a href={a.url} target="_blank" rel="noreferrer">{a.name}</a> · {a.license}</p>)}</dialog>
  </main>;

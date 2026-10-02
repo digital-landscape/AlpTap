@@ -129,3 +129,6 @@ public/explore/
 
 # Local map-first explorer review captures
 output/explore-map/
+
+# Disposable sharing/replay browser captures (published social artwork is tracked).
+output/sharing/

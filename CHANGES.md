@@ -1,3 +1,10 @@
+## 2026-10-02 — Share results and exact challenge replays
+
+- Added localized native sharing, clipboard copying and a selectable fallback to completed Alpine/regional and Worldwide games. Scores use walker, hiker, climber and summit badges.
+- Added validated versioned replay URLs pinning ordered peaks and dataset assets, with separate saved progress and an explicit return to today’s game.
+- Added an illustrated 1200 × 630 social preview JPEG and build-time Open Graph/large-image card tags with GitHub Pages public-URL configuration.
+- Added replay, corruption, historical-dataset and persistence regression coverage; documented the format and retained-dataset requirement.
+
 ## 2026-10-01 — More forgiving distance scoring
 
 - Added full-score click buffers: 1 km Alpine, 10 km worldwide.

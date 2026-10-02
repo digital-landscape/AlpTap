@@ -26,6 +26,7 @@ jobs:
       - run: npm run build:pages -- --base="${{ steps.pages.outputs.base_path }}/"
         env:
           VITE_API_URL: ''
+          SITE_URL: ${{ steps.pages.outputs.base_url }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
