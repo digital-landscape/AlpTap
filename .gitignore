@@ -93,6 +93,10 @@ output/static-daily/
 
 # Disposable About-dialog group-credit review captures
 output/project-credits/
+# Disposable justified project-credit layout checks
+output/project-credits-layout/
+# Disposable three-logo credit-row visual checks
+output/project-credit-logos/
 
 # Disposable corporate-logo fade review captures
 output/oeaw-fade/

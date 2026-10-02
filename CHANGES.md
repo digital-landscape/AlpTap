@@ -1,3 +1,9 @@
+## 2026-10-02 — Link and align project credits
+
+- Add linked Digital Landscape, IGF, and ÖAW logos above the credits heading, including the official Digital Landscape site icon.
+- Link IGF and ÖAW in all four translations of the About-dialog project credits.
+- Justify the credit paragraphs with language-aware hyphenation for a rectangular text block.
+
 ## 2026-10-02 — Global expansion without translation-count bias
 
 - Added 300 more targets across 93 GMBA regions: 1,085 total, covering 175 regions instead of 149. Additions span all six inhabited continents; Alpine share falls to 12.8% of worldwide targets.

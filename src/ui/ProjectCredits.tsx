@@ -29,9 +29,27 @@ const copy = {
 
 export function ProjectCredits({locale}: {locale: Locale}) {
   const text = copy[locale];
-  return <section aria-label={text.title}>
+  const links: Record<string, string> = {
+    IGF: locale === 'de' ? 'https://www.oeaw.ac.at/igf/home' : 'https://www.oeaw.ac.at/en/igf/home',
+    ÖAW: locale === 'de' ? 'https://www.oeaw.ac.at' : 'https://www.oeaw.ac.at/en/',
+  };
+  return <section className="project-credits" lang={locale} aria-label={text.title}>
+    <div className="project-credit-logos">
+      <a className="project-credit-group" href="https://digital-landscape.at/" target="_blank" rel="noopener noreferrer">
+        <img src={`${import.meta.env.BASE_URL}logos/digital-landscape.png`} alt="Digital Landscape"/>
+        <span aria-hidden="true">Digital Landscape</span>
+      </a>
+      <a href={links.IGF} target="_blank" rel="noopener noreferrer">
+        <img src={`${import.meta.env.BASE_URL}logos/igf-animated-cropped.svg`} alt="IGF"/>
+      </a>
+      <a href={links.ÖAW} target="_blank" rel="noopener noreferrer">
+        <img src={`${import.meta.env.BASE_URL}logos/oeaw-logo-animated-cropped.svg`} alt="ÖAW"/>
+      </a>
+    </div>
     <h3>{text.title}</h3>
-    <p>{text.group} <a href="https://digital-landscape.at/" target="_blank" rel="noopener noreferrer">Digital Landscape ↗</a></p>
+    <p>{text.group.split(/(IGF|ÖAW)/).map((part, index) => links[part]
+      ? <a key={index} href={links[part]} target="_blank" rel="noopener noreferrer">{part}</a>
+      : part)} <a href="https://digital-landscape.at/" target="_blank" rel="noopener noreferrer">Digital Landscape ↗</a></p>
     <p>{text.motivation}</p>
     <p>{text.thanks}</p>
   </section>;
