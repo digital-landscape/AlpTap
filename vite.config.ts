@@ -1,3 +1,3 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-export default defineConfig({ plugins: [react()], worker: { format: 'es' }, server: { proxy: { '/v2': 'http://127.0.0.1:8787', '/v1': 'http://127.0.0.1:8787' } }, build: { rollupOptions: { output: { manualChunks: (id: string) => id.includes('maplibre-gl') ? 'maplibre' : undefined } } } });
+export default defineConfig({ plugins: [react(), {name:'explore-pages', enforce:'post', generateBundle(_, bundle) { const index = bundle['index.html']; if (index?.type === 'asset') for (const page of ['explore','training']) this.emitFile({type:'asset',fileName:`${page}/index.html`,source:index.source}); }}], worker: { format: 'es' }, server: { proxy: { '/v2': 'http://127.0.0.1:8787', '/v1': 'http://127.0.0.1:8787' } }, build: { rollupOptions: { output: { manualChunks: (id: string) => id.includes('maplibre-gl') ? 'maplibre' : undefined } } } });

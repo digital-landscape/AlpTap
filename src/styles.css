@@ -126,3 +126,8 @@
 @media(max-width:719px){.summary-scrim.scores-aside{inset:auto 14px 39px;width:auto;max-height:36svh}.scores-aside .summary-card{max-height:36svh}.scores-aside .result-card-grid{grid-template-columns:1fr}.summary-toggle{position:sticky;top:0;z-index:1}}
 
 .summary-toggle{display:flex;align-items:center;gap:8px}.summary-toggle>span:first-child{font-size:21px;line-height:1}.pair-number{position:absolute;top:-9px;right:-10px;background:var(--paper);color:var(--ink);border-radius:50%;width:18px;height:18px;text-align:center;font-size:11px;line-height:18px;box-shadow:0 1px 4px #0005}
+
+/* Catalogue navigation in the shared game header. */
+.explore-link{font-size:12px;font-weight:600;text-decoration:none;padding:8px 0;border-bottom:1px solid #9cae8c;white-space:nowrap}
+.explore-link:hover{color:#527d3d;border-color:currentColor}
+@media(max-width:719px){.header-actions{gap:9px}.header-actions .explore-link{font-size:10px}}

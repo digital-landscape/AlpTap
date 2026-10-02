@@ -1,3 +1,4 @@
+import {ExploreLink} from './ui/ExploreLink';
 import {ProjectCredits} from './ui/ProjectCredits';
 import {MountainIcon} from './ui/MountainIcon';
 import {Brand} from './ui/Brand';
@@ -111,7 +112,7 @@ export default function App({modeControl,onLocale,initialRegion}:{initialRegion?
     <header className="topbar">
       <Brand tagline={t.tagline} dateLabel={dateLabel}/>
       <div className="daily-heading"><span className="eyebrow"><i/>{t.daily}</span><span className="date">{dateLabel}</span></div>
-      <div className="header-actions"><label className="language-select"><span className="sr-only">{t.language}</span><span aria-hidden="true">◎</span><select aria-label={t.language} value={locale} onChange={e=>change('locale',e.target.value as Preferences['locale'])}>{LOCALES.map(l=><option key={l} value={l}>{l.toUpperCase()}</option>)}</select></label><button className="help-button" aria-label={t.help} title={t.help} onClick={()=>dialog.current?.showModal()}>?</button></div>
+      <div className="header-actions"><ExploreLink locale={locale}/><label className="language-select"><span className="sr-only">{t.language}</span><span aria-hidden="true">◎</span><select aria-label={t.language} value={locale} onChange={e=>change('locale',e.target.value as Preferences['locale'])}>{LOCALES.map(l=><option key={l} value={l}>{l.toUpperCase()}</option>)}</select></label><button className="help-button" aria-label={t.help} title={t.help} onClick={()=>dialog.current?.showModal()}>?</button></div>
     </header>
     <div className="filterbar">{modeControl}<div className="mode-highlight"><span className="mode-label">{onboarding.mode}<b>{practiceActive?onboarding.practiceMode:onboarding.dailyMode}</b></span><div className="daily-order">{(['easy','medium','hard'] as const).map((level,i)=><span className="difficulty-step" key={level}>{i>0&&<span aria-hidden="true">→</span>}<span aria-current={!practiceActive&&!welcomeOpen&&!session?.complete&&peak?.difficulty.level===level?'step':undefined}>{t[level]}</span></span>)}</div></div><span className="filter-note">{t.hint}</span></div>
     {!practiceActive&&(loading||error)&&<section className="loading-card" role="status"><MountainIcon large/><h1>{loading?t.loading:t.error}</h1>{loading?<div className="loading-dots"><i/><i/><i/></div>:<><p>{t.errorHint}</p><button className="primary" onClick={()=>setRetry(n=>n+1)}>{t.retry}<Arrow/></button></>}</section>}

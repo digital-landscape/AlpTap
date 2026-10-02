@@ -51,7 +51,7 @@ Live site: https://digital-landscape.at/AlpTap/ (inherits the organization’s e
 
 Pushes to `master` run `.github/workflows/pages.yml`: install dependencies, run unit tests, build the static frontend with `npm run build:pages`, and publish `dist/` through GitHub Actions. The workflow reads the base path from GitHub Pages and applies it to application assets, catalogues and institutional logos: `/AlpTap/` for the organization project URL, or `/` for a dedicated custom domain. Pages uses the **GitHub Actions** publishing source. Leave `VITE_API_URL` empty; no backend or daily rebuild is needed. You can also redeploy manually from the workflow’s Actions page.
 
-To verify locally, run `npm run build:pages -- --base=/AlpTap/` and `npm run preview`, then open `http://127.0.0.1:4173/AlpTap/`.
+To verify locally, run `npm run build:pages -- --base=/AlpTap/` and `npm run preview -- --base=/AlpTap/`, then open `http://127.0.0.1:4173/AlpTap/`.
 
 To add a dedicated domain later, configure it in **Settings → Pages → Custom domain**, point its DNS to GitHub Pages, and enable HTTPS after GitHub verifies the certificate. Redeploy through **Actions → Deploy GitHub Pages → Run workflow** after changing the domain so the build picks up the new base path. GitHub redirects the default Pages URL to the configured domain. Both addresses lead to the game. Every subsequent push to `master` automatically tests, builds and deploys updates to the configured address. Browser progress is stored per origin and does not transfer automatically when switching domains.
 
@@ -181,3 +181,9 @@ The game selector is the single region control. Reveals advance automatically af
 The completed map displays all three numbered guess–summit pairs with great-circle connecting lines. Selecting a recap summit focuses its pair while keeping the other pairs visible. Score controls use icons only, with translated tooltips and accessible labels.
 
 Alpine reveals and recap cards use the neutral title “Summit revealed”. Distance feedback reserves “Right on the mountain” for guesses within 1 km; guesses from over 1 km to under 5 km say “Very close”. The same feedback applies in practice and is translated in all four languages.
+
+## Peak explorer
+
+Open `/explore/` (or `/training/`) to explore every Alpine or worldwide peak on a full-screen satellite map. Nearby peaks form numbered clusters: click a cluster to zoom in, then click a peak to open its information card. Individual markers are colored by difficulty; hovering shows the recorded name. The header links the daily game and explorer. Search recorded names, aliases or countries, filter by difficulty, and select a peak to see its satellite location, elevation when recorded, mountain region and source article. The explorer supports all four interface languages and never writes daily challenge progress. Selections have shareable URLs and browser Back/Forward support.
+
+`npm run data:explore` generates compact browsing catalogues from the current versioned datasets; `npm run dev`, `npm run dev:web`, `npm run build` and `npm run build:pages` run it automatically. Generated files in `public/explore/` are ignored. Peak details retain unknown values rather than filling gaps. Build output includes `explore/index.html` and `training/index.html` so direct links and refresh work on static hosts, including the `/AlpTap/` GitHub Pages base path. Search and difficulty filters update the map markers. The optional peak list provides keyboard-accessible selection and renders 60 results at a time with a Show more button. Selecting a peak from the map or list focuses its location; closing the detail card leaves the map view in place.

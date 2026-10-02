@@ -123,3 +123,9 @@ output/auto-summary/
 
 # Reveal wording visual checks
 output/reveal-wording/
+
+# Explorer catalogues are generated from the versioned source data before dev/build.
+public/explore/
+
+# Local map-first explorer review captures
+output/explore-map/
