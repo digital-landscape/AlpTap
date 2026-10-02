@@ -111,3 +111,6 @@ output/alpine-scoring/
 
 # Final-round map inspection screenshots
 output/final-round/
+
+# Final-map pair and score-icon visual checks
+output/final-pairs/

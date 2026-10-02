@@ -74,8 +74,10 @@ test('world rounds advance Easy to Medium to Hard with a bold current tier and p
  }
  await expect(page.locator('.summary-card')).toBeVisible();
  await expect(page.locator('.summary-scrim')).toHaveClass(/scores-aside/);
- await expect(page.locator('.guess-pin')).toBeVisible();
- await expect(page.locator('.summit-pin')).toBeVisible();
+ await expect(page.locator('.guess-pin')).toHaveCount(3);
+ await expect(page.locator('.guess-pin').first()).toBeVisible();
+ await expect(page.locator('.summit-pin')).toHaveCount(3);
+ await expect(page.locator('.summit-pin').first()).toBeVisible();
  await page.reload();await expect(page.locator('.summary-card')).toBeVisible();
  await expect(page.locator('.summary-scrim')).toHaveClass(/scores-aside/);
  await expect(page.locator('.daily-order [aria-current="step"]')).toHaveCount(0);

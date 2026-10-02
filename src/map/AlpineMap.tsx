@@ -12,7 +12,8 @@ const shadowLabels = { en: 'Sun shadows', de: 'Sonnenschatten', fr: 'Ombres du s
 import { messages } from '../core/i18n';
 import type { SectionFeature } from '../core/geography';
 import type { Locale, Position, Result } from '../core/types';
-export interface MapProps { world?: boolean; valley?: boolean; bounds: [number, number, number, number]; guess: Position | null; actual: Position | null; result?: Result; roundKey: string; locale: Locale; locked: boolean; sections: SectionFeature[]; onGuess(p: Position): void }
+export interface MapPair { guess: Position; actual: Position; label: string }
+export interface MapProps { pairs?: MapPair[]; focusedPair?: number | null; world?: boolean; valley?: boolean; bounds: [number, number, number, number]; guess: Position | null; actual: Position | null; result?: Result; roundKey: string; locale: Locale; locked: boolean; sections: SectionFeature[]; onGuess(p: Position): void }
 const empty = { type: 'FeatureCollection' as const, features: [] };
 function padding() {
   const panel = document.querySelector('.game-card')?.getBoundingClientRect();
@@ -25,8 +26,15 @@ function marker(kind: string, label: string) {
   const dot = document.createElement('span'); core.append(dot); el.append(core);
   return el;
 }
+function pairPath(a: Position, b: Position) {
+  // Great-circle interpolation for the connecting path, including long guesses.
+  const toVector = (p: Position) => { const lat=p.lat*Math.PI/180,lon=p.lon*Math.PI/180; return [Math.cos(lat)*Math.cos(lon),Math.cos(lat)*Math.sin(lon),Math.sin(lat)]; };
+  const va=toVector(a),vb=toVector(b),omega=Math.acos(Math.max(-1,Math.min(1,va.reduce((s,v,i)=>s+v*vb[i],0))));
+  return Array.from({length:65},(_,i)=>{ const f=i/64; if(omega<1e-6 || Math.abs(Math.sin(omega))<1e-6) return [a.lon+(b.lon-a.lon)*f,a.lat+(b.lat-a.lat)*f]; const v=va.map((x,j)=>(Math.sin((1-f)*omega)*x+Math.sin(f*omega)*vb[j])/Math.sin(omega)); return [Math.atan2(v[1],v[0])*180/Math.PI,Math.atan2(v[2],Math.hypot(v[0],v[1]))*180/Math.PI]; });
+}
 export function AlpineMap(props: MapProps) {
   const element = useRef<HTMLDivElement>(null), map = useRef<LibreMap | null>(null), latest = useRef(props);
+  const pairMarkers = useRef<maplibregl.Marker[]>([]);
   const guessMarker = useRef<maplibregl.Marker | null>(null), summitMarker = useRef<maplibregl.Marker | null>(null);
   const [ready, setReady] = useState(false), [loaded, setLoaded] = useState(false), [failed, setFailed] = useState(false), [terrainFailed, setTerrainFailed] = useState(false);
   const [terrain, setTerrain] = useState(terrainConfig.enabled), [revision, setRevision] = useState(0);
@@ -116,13 +124,14 @@ export function AlpineMap(props: MapProps) {
   useEffect(() => {
     if (!ready || !map.current) return;
     guessMarker.current?.remove(); guessMarker.current = null;
-    if (props.guess) guessMarker.current = new maplibregl.Marker({element:marker('guess-pin',t.yourGuess),anchor:'center'}).setLngLat([props.guess.lon,props.guess.lat]).addTo(map.current);
-  }, [props.guess, ready, props.locale]);
+    if (!props.pairs?.length && props.guess) guessMarker.current = new maplibregl.Marker({element:marker('guess-pin',t.yourGuess),anchor:'center'}).setLngLat([props.guess.lon,props.guess.lat]).addTo(map.current);
+  }, [props.guess, ready, props.locale, props.pairs]);
   useEffect(() => {
     if (!ready || !map.current) return;
     const instance = map.current;
     summitMarker.current?.remove(); summitMarker.current = null;
     const source = instance.getSource('connection') as GeoJSONSource;
+    if (props.pairs?.length) return;
     source.setData(empty);
     if (!props.actual || !props.guess) return;
     const a = props.guess, b = props.actual;
@@ -130,14 +139,33 @@ export function AlpineMap(props: MapProps) {
       summitMarker.current = new maplibregl.Marker({ element:marker('summit-pin',t.summit), anchor:'center' }).setLngLat([b.lon,b.lat]).addTo(instance);
     }, reduced() ? 0 : 550);
     const cameraTimer = window.setTimeout(() => instance.fitBounds(revealBounds(a,b), { padding:padding(), maxZoom:12, duration:reduced() ? 0 : 1700, pitch:terrain ? 35 : 0 }), reduced() ? 0 : 350);
-    // Great-circle interpolation for the connecting path, including long guesses.
-    const toVector = (p: Position) => { const lat=p.lat*Math.PI/180,lon=p.lon*Math.PI/180; return [Math.cos(lat)*Math.cos(lon),Math.cos(lat)*Math.sin(lon),Math.sin(lat)]; };
-    const va=toVector(a),vb=toVector(b),omega=Math.acos(Math.max(-1,Math.min(1,va.reduce((s,v,i)=>s+v*vb[i],0))));
-    const coordinates=Array.from({length:65},(_,i)=>{ const f=i/64; if(omega<1e-6 || Math.abs(Math.sin(omega))<1e-6) return [a.lon+(b.lon-a.lon)*f,a.lat+(b.lat-a.lat)*f]; const v=va.map((x,j)=>(Math.sin((1-f)*omega)*x+Math.sin(f*omega)*vb[j])/Math.sin(omega)); return [Math.atan2(v[1],v[0])*180/Math.PI,Math.atan2(v[2],Math.hypot(v[0],v[1]))*180/Math.PI]; });
+    const coordinates=pairPath(a,b);
     let frame=0; const start=performance.now()+(reduced()?0:600);
     const draw=(time:number)=>{const progress=reduced()?1:Math.max(0,Math.min(1,(time-start)/1400));source.setData({type:'Feature',properties:{},geometry:{type:'LineString',coordinates:continuousPath(coordinates).slice(0,Math.max(2,Math.ceil(progress*65)))}});if(progress<1)frame=requestAnimationFrame(draw);};
     frame=requestAnimationFrame(draw); return()=>{cancelAnimationFrame(frame);clearTimeout(summitTimer);clearTimeout(cameraTimer);};
-  }, [props.actual, ready, props.roundKey]);
+  }, [props.actual, ready, props.roundKey, props.pairs]);
+  useEffect(() => {
+    if (!ready || !map.current || !props.pairs?.length) return;
+    const instance = map.current;
+    const pairs = props.pairs;
+    pairMarkers.current = pairs.flatMap((pair,i) => [
+      new maplibregl.Marker({element:marker('guess-pin',`${i+1}. ${pair.label}: ${t.yourGuess}`),anchor:'center'}).setLngLat([pair.guess.lon,pair.guess.lat]).addTo(instance),
+      new maplibregl.Marker({element:marker('summit-pin',`${i+1}. ${pair.label}: ${t.summit}`),anchor:'center'}).setLngLat([pair.actual.lon,pair.actual.lat]).addTo(instance),
+    ]);
+    pairMarkers.current.forEach((pin,i)=>{const badge=document.createElement('b');badge.className='pair-number';badge.textContent=String(Math.floor(i/2)+1);pin.getElement().append(badge);});
+    (instance.getSource('connection') as GeoJSONSource).setData({type:'FeatureCollection',features:pairs.map((pair,i)=>({type:'Feature',properties:{round:i+1},geometry:{type:'LineString',coordinates:continuousPath(pairPath(pair.guess,pair.actual))}}))});
+    return()=>{pairMarkers.current.forEach(pin=>pin.remove());pairMarkers.current=[];};
+  },[props.pairs,ready,props.locale]);
+  useEffect(() => {
+    if (!ready || !map.current || !props.pairs?.length) return;
+    const selected=props.focusedPair==null?props.pairs:[props.pairs[props.focusedPair]].filter(Boolean);
+    const points=selected.flatMap(pair=>[pair.guess,pair.actual]);
+    const longs=points.map(p=>(p.lon+360)%360).sort((a,b)=>a-b);
+    let gap=-1,start=longs[0];
+    longs.forEach((lon,i)=>{const next=longs[(i+1)%longs.length]+(i===longs.length-1?360:0);if(next-lon>gap){gap=next-lon;start=next%360;}});
+    const xs=longs.map(lon=>lon<start?lon+360:lon),ys=points.map(p=>p.lat);
+    map.current.fitBounds([Math.min(...xs),Math.min(...ys),Math.max(...xs),Math.max(...ys)],{padding:padding(),maxZoom:12,duration:reduced()?0:1000,pitch:terrain?35:0});
+  },[props.pairs,props.focusedPair,ready]);
   return <div className="map-wrap">
     <div className="map-canvas" ref={element} data-testid="map"/>
     <div className="map-vignette"/>
