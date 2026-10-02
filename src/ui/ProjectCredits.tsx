@@ -35,15 +35,14 @@ export function ProjectCredits({locale}: {locale: Locale}) {
   };
   return <section className="project-credits" lang={locale} aria-label={text.title}>
     <div className="project-credit-logos">
-      <a className="project-credit-group" href="https://digital-landscape.at/" target="_blank" rel="noopener noreferrer">
-        <img src={`${import.meta.env.BASE_URL}logos/digital-landscape.png`} alt="Digital Landscape"/>
-        <span aria-hidden="true">Digital Landscape</span>
+      <a href={links.ÖAW} target="_blank" rel="noopener noreferrer">
+        <img src={`${import.meta.env.BASE_URL}logos/oeaw-logo-animated-cropped.svg`} alt="ÖAW"/>
       </a>
       <a href={links.IGF} target="_blank" rel="noopener noreferrer">
         <img src={`${import.meta.env.BASE_URL}logos/igf-animated-cropped.svg`} alt="IGF"/>
       </a>
-      <a href={links.ÖAW} target="_blank" rel="noopener noreferrer">
-        <img src={`${import.meta.env.BASE_URL}logos/oeaw-logo-animated-cropped.svg`} alt="ÖAW"/>
+      <a href="https://digital-landscape.at/" target="_blank" rel="noopener noreferrer">
+        <img src={`${import.meta.env.BASE_URL}logos/digital-landscape.png`} alt="Digital Landscape"/>
       </a>
     </div>
     <h3>{text.title}</h3>

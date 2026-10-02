@@ -1,3 +1,4 @@
+import {CopyIcon} from './ui/ShareIcons';
 import {parseSharedGame,shareMessages} from './core/sharing';
 import {useCallback,useEffect,useState} from 'react';
 import App from './App';
@@ -69,7 +70,7 @@ function DailyModeShell(){
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" aria-hidden="true" focusable="false"><path d="m5 6 13-2 2 13-13 3Z"/><g fill="currentColor" stroke="none"><circle cx="5" cy="6" r="2"/><circle cx="18" cy="4" r="2"/><circle cx="20" cy="17" r="2"/><circle cx="7" cy="20" r="2"/></g></svg>
       </button>
       <button className={copied?'is-copied':undefined} aria-label={copied?t.copied:t.share} title={copied?t.copied:t.share} disabled={!setup} onClick={share}>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">{copied?<path d="m5 12 4 4L19 6"/>:<><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></>}</svg>
+        {copied?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><path d="m5 12 4 4L19 6"/></svg>:<CopyIcon/>}
       </button>
       <span className="sr-only" role="status">{copied?t.copied:''}</span>
     </div>

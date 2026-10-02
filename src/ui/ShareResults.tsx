@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { challengeLink, shareMessages, shareText, type ShareChallenge } from '../core/sharing';
 import type { Locale } from '../core/types';
+import { CopyIcon, ShareIcon } from './ShareIcons';
 
 export function ShareResults({ challenge, scores, label, locale }: { challenge: ShareChallenge; scores: number[]; label: string; locale: Locale }) {
   const t = shareMessages[locale];
@@ -24,7 +25,7 @@ export function ShareResults({ challenge, scores, label, locale }: { challenge: 
     } finally { setBusy(false); }
   };
   return <div className="share-results">
-    <div className="share-actions"><button className="primary" disabled={busy} onClick={share}>{t.share} <span aria-hidden="true">↗</span></button><button className="share-copy" disabled={busy} onClick={copy}>{t.copy}</button></div>
+    <div className="share-actions"><button className="primary" disabled={busy} onClick={share}><ShareIcon/>{t.share}</button><button className="share-copy" disabled={busy} onClick={copy}><CopyIcon/>{t.copy}</button></div>
     <p className="share-legend">{t.legend}</p>
     <p className="share-status" role="status">{status ? t[status] : ''}</p>
     {status === 'failed' && <textarea ref={fallback} aria-label={t.preview} readOnly value={text} rows={7} onFocus={event => event.currentTarget.select()}/>}

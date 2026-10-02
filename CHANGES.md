@@ -1,6 +1,11 @@
+## 2026-10-02 — Clarify share controls and logo order
+
+- Use a connected-nodes icon for Share results and overlapping-pages icons for Copy results and Copy link.
+- Order the project logos ÖAW, IGF, then Digital Landscape; keep the DL website link without a caption.
+
 ## 2026-10-02 — Link and align project credits
 
-- Add linked Digital Landscape, IGF, and ÖAW logos above the credits heading, including the official Digital Landscape site icon.
+- Add linked logos above the credits heading in ÖAW, IGF, Digital Landscape order, with no caption below the Digital Landscape icon.
 - Link IGF and ÖAW in all four translations of the About-dialog project credits.
 - Justify the credit paragraphs with language-aware hyphenation for a rectangular text block.
 

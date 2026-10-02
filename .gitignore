@@ -95,7 +95,7 @@ output/static-daily/
 output/project-credits/
 # Disposable justified project-credit layout checks
 output/project-credits-layout/
-# Disposable three-logo credit-row visual checks
+# Disposable credit-row logo ordering and layout checks
 output/project-credit-logos/
 
 # Disposable corporate-logo fade review captures

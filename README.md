@@ -10,7 +10,7 @@ AlpTap is a project from the [Digital Landscape](https://digital-landscape.at/) 
 
 The motivation is simple: challenge ourselves to learn new peaks, one daily discovery at a time. Thanks also to **ChatGPT** for coding assistance. Yes, this was vibe coded — the vibes were high, just like the mountains.
 
-These group-level credits are available in the About/help dialog in all game modes and all four interface languages, with linked Digital Landscape, IGF, and ÖAW logos above the heading and justified paragraphs with language-aware hyphenation. The Digital Landscape icon is bundled from its official website (`https://digital-landscape.at/assets/images/apple-touch-icon.png`).
+These group-level credits are available in the About/help dialog in all game modes and all four interface languages, with linked logos ordered ÖAW, IGF, then Digital Landscape above the heading and justified paragraphs with language-aware hyphenation. The Digital Landscape logo links directly to its website without a caption; its icon is bundled from the official website (`https://digital-landscape.at/assets/images/apple-touch-icon.png`).
 
 ## Run locally
 
@@ -39,7 +39,7 @@ Use the **Custom** polygon icon beside the game mode selector to draw a polygon 
 
 Custom scoring adapts to the polygon’s geographical surface area: smaller areas require more precise guesses, while the maximum stays 1,000 points per mountain. The preview shows the area and scoring distances; About uses the same scale. Saved custom guesses are recalculated on reload. Standard daily games keep their existing scoring. See [the scaling formula](docs/CUSTOM-AREAS.md#surface-based-scoring).
 
-The **Copy link** chain icon copies the full address, including the mode, compact polygon when applicable, URL version, and immutable catalogue release. Both icons have localized tooltips and accessible labels; a checkmark confirms copying. If clipboard access is unavailable, select and copy the displayed link. The same link gives everyone the same ordered picks each Alpine day and changes at midnight in `Europe/Vienna`. It contains neither the date nor player answers. Standard entry links also work: `?mode=world-peaks` and `?mode=alpine-peaks&region=western-alps`.
+The **Copy link** overlapping-pages icon copies the full address, including the mode, compact polygon when applicable, URL version, and immutable catalogue release. Both icons have localized tooltips and accessible labels; a checkmark confirms copying. If clipboard access is unavailable, select and copy the displayed link. The same link gives everyone the same ordered picks each Alpine day and changes at midnight in `Europe/Vienna`. It contains neither the date nor player answers. Standard entry links also work: `?mode=world-peaks` and `?mode=alpine-peaks&region=western-alps`.
 
 Explicit links take priority over saved preferences. Progress is stored by catalogue and challenge identity. Matching legacy progress is imported; older/different games remain in storage. The URL-driven games always open today's selection and roll over at Alpine midnight, including after a suspended tab regains focus. Existing Explore and training links remain available.
 
