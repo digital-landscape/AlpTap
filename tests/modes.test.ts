@@ -28,11 +28,12 @@ it('recognizes an unsplit dateline region without awarding the opposite hemisphe
 
 it('preserves explicitly world-spanning polygons',()=>{expect(sectionCovers({...polygon,geometry:{type:'Polygon',coordinates:[[[-180,-85],[180,-85],[180,85],[-180,85],[-180,-85]]]}},{lon:8,lat:46})).toBe(true);});
 
-it('keeps world points until genuinely far away and forgives pointer errors',()=>{
+it('gives minimal world points at 2000 km and forgives pointer errors',()=>{
  expect(scoreDistance(10,'world').score).toBe(1000);
- expect(scoreDistance(250,'world').score).toBeGreaterThan(990);
- expect(scoreDistance(10000,'world').score).toBeGreaterThan(100);
- expect(scoreDistance(Math.PI*6371.0088,'world').score).toBe(10);
+ expect(scoreDistance(250,'world').score).toBeGreaterThan(800);
+ expect(scoreDistance(2000,'world').score).toBe(10);
+ expect(scoreDistance(3000,'world').score).toBeLessThanOrEqual(1);
+ expect(scoreDistance(Math.PI*6371.0088,'world').score).toBe(0);
  for(const profile of ['world','alpine'] as const){
   let previous=1000;
   for(let d=0;d<=21000;d+=10){const score=scoreDistance(d,profile).score;expect(score).toBeLessThanOrEqual(previous);expect(score).toBeGreaterThanOrEqual(0);previous=score;}

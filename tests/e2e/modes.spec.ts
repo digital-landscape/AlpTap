@@ -70,9 +70,14 @@ test('world rounds advance Easy to Medium to Hard with a bold current tier and p
   await expect(step).toHaveText(tier);expect(await step.evaluate(el=>Number(getComputedStyle(el).fontWeight))).toBeGreaterThanOrEqual(700);
   await page.getByRole('button',{name:'Guess at map center'}).click();await expect(page.locator('.result-stats')).toBeVisible();
   expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('alptap:session:v2:world-peaks')!).results.length)).toBe(index+1);
+  await page.getByRole('button',{name:index<2?'Next round':'See results',exact:true}).click();
  }
  await expect(page.locator('.summary-card')).toBeVisible();
+ await expect(page.locator('.summary-scrim')).toHaveClass(/scores-aside/);
+ await expect(page.locator('.guess-pin')).toBeVisible();
+ await expect(page.locator('.summit-pin')).toBeVisible();
  await page.reload();await expect(page.locator('.summary-card')).toBeVisible();
+ await expect(page.locator('.summary-scrim')).toHaveClass(/scores-aside/);
  await expect(page.locator('.daily-order [aria-current="step"]')).toHaveCount(0);
 });
 

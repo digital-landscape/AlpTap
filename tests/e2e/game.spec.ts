@@ -23,10 +23,11 @@ test('one click reveals, locks the guess, restores progress, and saves summary',
   await expect(page.locator('.result-stats')).toBeVisible();
   await expect(page.locator('.summit-pin')).toBeVisible();
   await expect(page.locator('.section-result')).toBeVisible();
-  await expect(page.locator('.result-continue-note')).toContainText('automatically');
+  await expect(page.locator('.result-continue-note')).toContainText('continue when ready');
   expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('alptap:session:v1:alps:mixed')!).round)).toBe(round);
   if(round===0){await expect(page.getByTestId('map')).toHaveAttribute('data-settled','true');await page.screenshot({path:`output/playwright/${testInfo.project.name}-reveal.png`});await page.reload();await expect(page.locator('.result-stats')).toBeVisible();}
   await expect(page.getByRole('button',{name:'Next summit',exact:true})).toHaveCount(0);
+  await page.getByRole('button',{name:round<2?'Next round':'See results',exact:true}).click();
   if(round<2)await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('alptap:session:v1:alps:mixed')!).round)).toBe(round+1);
  }
  await expect(page.getByRole('heading',{name:'Your Alpine discovery'})).toBeVisible();
@@ -36,6 +37,17 @@ test('one click reveals, locks the guess, restores progress, and saves summary',
  await expect(page.locator('.recap-card .score-breakdown')).toHaveCount(3);
  const scores=await page.evaluate(()=>JSON.parse(localStorage.getItem('alptap:session:v1:alps:mixed')!).results.map((r:{score:number})=>r.score));
  for(let i=0;i<3;i++)await expect(page.locator('.result-card-grid li').nth(i).locator('.result-stats>div').nth(1).locator('strong')).toContainText(new Intl.NumberFormat('en').format(scores[i]));
+ await expect(page.locator('.summary-scrim')).toHaveClass(/scores-aside/);
+ await expect(page.locator('.guess-pin')).toBeVisible();
+ await expect(page.locator('.summit-pin')).toBeVisible();
+ await page.getByRole('button',{name:'Expand scores'}).click();
+ await page.getByRole('button',{name:'Move scores aside'}).click();
+ await expect(page.locator('.summary-scrim')).toHaveClass(/scores-aside/);
+ await page.locator('.recap-map-button').first().click();
+ await expect(page.locator('.guess-pin')).toBeVisible();
+ await expect(page.locator('.summit-pin')).toBeVisible();
+ await page.getByRole('button',{name:'Expand scores'}).click();
+ await expect(page.locator('.summary-scrim')).not.toHaveClass(/scores-aside/);
  await page.reload();
  await expect(page.getByRole('heading',{name:'Your Alpine discovery'})).toBeVisible();
  await page.screenshot({path:`output/playwright/${testInfo.project.name}-summary.png`});
@@ -44,13 +56,13 @@ test('one click reveals, locks the guess, restores progress, and saves summary',
 test('loads all three mixed regional challenges and switches all interface languages',async({page})=>{
  await page.goto('/');
  for(const region of ['alps','western-alps','eastern-alps']){
-   await page.locator('.filterbar>label:not(.mode-select) select').selectOption(region);
+   await page.locator('.mode-select select').selectOption(region==='alps'?'alpine-peaks':region);
    await expect(page.locator('.game-card')).toHaveAttribute('data-difficulty','easy');
    await expect(page.locator('.game-card')).toBeVisible();
    await expect.poll(()=>page.evaluate(()=>{const p=JSON.parse(localStorage.getItem('alptap:preferences')!);const s=JSON.parse(localStorage.getItem(`alptap:session:v1:${p.region}:${p.difficulty}`)||'null');return s?.challenge.peakIds.length;})).toBe(3);
  }
  for(const locale of ['de','fr','it','en']){await page.locator('.language-select select').selectOption(locale);await expect(page.locator('html')).toHaveAttribute('lang',locale);}
- await page.reload();await expect(page.locator('.filterbar>label:not(.mode-select) select')).toHaveValue('eastern-alps');await expect(page.locator('.filterbar>label:not(.mode-select) select')).toHaveCount(1);
+ await page.reload();await expect(page.locator('.mode-select select')).toHaveValue('eastern-alps');await expect(page.locator('.filterbar>label:not(.mode-select) select')).toHaveCount(0);
 });
 test('provides a retry state when the static selection catalogue fails',async({page})=>{
  await page.route('**/data/processed/api-index.json*',route=>route.abort());await page.goto('/');await expect(page.getByRole('button',{name:'Try again',exact:true})).toBeVisible();await expect(page.locator('.game-card')).toHaveCount(0);
@@ -74,8 +86,8 @@ test('section bonus survives refresh and the curve explains its value',async({pa
  const readResult=()=>page.evaluate(()=>JSON.parse(localStorage.getItem('alptap:session:v1:alps:mixed')!).results[0]);
  const result=await readResult();expect(result.areaBonus).toBeGreaterThan(0);expect(result.score).toBe(result.distanceScore+result.areaBonus);
  await page.reload();await expect(page.locator('.section-result')).toHaveClass(/matched/);expect((await readResult()).score).toBe(result.score);
- await page.getByRole('button',{name:'About AlpTap'}).click();await expect(page.locator('.curve-values')).toContainText('463');
- await page.getByRole('slider',{name:'How points work'}).fill('100');await expect(page.locator('.curve-values')).toContainText('265');
+ await page.getByRole('button',{name:'About AlpTap'}).click();await expect(page.locator('.curve-values')).toContainText('737');
+ await page.getByRole('slider',{name:'How points work'}).fill('100');await expect(page.locator('.curve-values')).toContainText('416');
 });
 test('a failed section fetch keeps the submitted guess and retries without losing the bonus',async({page})=>{
  await page.route('**/sections/SZ.*.json',route=>route.abort());await page.goto('/');

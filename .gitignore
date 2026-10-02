@@ -102,3 +102,12 @@ output/pages/
 
 # Disposable custom-domain/base-path verification captures
 output/pages-domain/
+
+# Map comparison and results-panel visual checks
+output/result-comparison/
+
+# Alpine 300 km scoring-curve visual checks
+output/alpine-scoring/
+
+# Final-round map inspection screenshots
+output/final-round/

@@ -8,6 +8,6 @@ export const DAILY_DIFFICULTIES = ['easy','medium','hard'] as const;
 
 // Forgive small pointer errors; reach 1% at the mode's far-distance reference.
 export const SCORING = {
-  alpine: { perfectRadiusKm: 1, farDistanceKm: 1000 },
-  world: { perfectRadiusKm: 10, farDistanceKm: Math.PI * 6371.0088 },
+  alpine: { perfectRadiusKm: 1, farDistanceKm: 300 },
+  world: { perfectRadiusKm: 10, farDistanceKm: 2000 },
 } as const;

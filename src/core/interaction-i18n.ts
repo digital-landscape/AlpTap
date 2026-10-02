@@ -14,9 +14,9 @@ export const interactionMessages: Record<Locale, typeof en> = {
   it:{instruction:'Esplora prima la mappa. Un solo tocco piazza la tua scelta e rivela la vetta.',place:'Tocca una volta per giocare',revealing:'Sulle tracce della tua scelta…',sectionError:'Impossibile caricare la sezione. La tua scelta è salvata; riprova per rivelare la vetta.',section:'SEZIONE SOIUSA',rightSection:'Sezione giusta',outsideSection:'Fuori dalla sezione della vetta',distancePoints:'Punti distanza',areaPoints:'Bonus sezione',howText:'Ogni giorno, trova una vetta facile, una media e una difficile, in questo ordine, usando le immagini satellitari. Esplora, poi clicca una volta: la scelta è definitiva e la vetta viene rivelata.',howScore:'Entro 1 km ottieni 1.000 punti distanza; poi diminuiscono gradualmente. Una scelta nella sezione SOIUSA della vetta guadagna anche il 15% dei punti rimanenti. La difficoltà riguarda il riconoscimento, non la scalata.',curveTitle:'Come funzionano i punti',curveDistance:'Solo distanza',curveSection:'Nella sezione giusta',curveHint:'Sposta il cursore per confrontare i punteggi. Il bonus vale solo entro i confini reali della sezione della vetta.'},
 };
 
-export const resultMessages: Record<Locale, { keepResult: string }> = {
-  en: { keepResult: 'Next view appears automatically after 6 seconds.' },
-  de: { keepResult: 'Nach 6 Sekunden geht es automatisch weiter.' },
-  fr: { keepResult: 'La suite apparaît automatiquement après 6 secondes.' },
-  it: { keepResult: 'Si prosegue automaticamente dopo 6 secondi.' },
+export const resultMessages: Record<Locale, { keepResult: string; nextRound: string; finish: string; mapView: string; scoresView: string }> = {
+ en: {keepResult:'Compare your guess with the summit, then continue when ready.',nextRound:'Next round',finish:'See results',mapView:'Move scores aside',scoresView:'Expand scores'},
+ de: {keepResult:'Vergleiche deinen Tipp mit dem Gipfel und gehe weiter, wenn du bereit bist.',nextRound:'Nächste Runde',finish:'Ergebnisse ansehen',mapView:'Punkte zur Seite',scoresView:'Punkte vergrößern'},
+ fr: {keepResult:'Comparez votre repère au sommet, puis continuez à votre rythme.',nextRound:'Manche suivante',finish:'Voir les résultats',mapView:'Déplacer les scores',scoresView:'Agrandir les scores'},
+ it: {keepResult:'Confronta la tua scelta con la vetta, poi prosegui quando vuoi.',nextRound:'Prossimo turno',finish:'Vedi risultati',mapView:'Sposta i punteggi',scoresView:'Espandi i punteggi'},
 };

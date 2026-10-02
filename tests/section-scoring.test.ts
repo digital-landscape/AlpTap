@@ -26,10 +26,10 @@ describe('SOIUSA section coverage',()=>{
 describe('distance + section score',()=>{
  it('preserves the maximum and awards 15% of missing points with a near-summit buffer',()=>{
   expect(scoreWithSection(0,true)).toEqual({score:1000,normalizedScore:1,distanceScore:1000,areaBonus:0});
-  expect(scoreWithSection(50,false).score).toBe(951);expect(scoreWithSection(50,true).score).toBe(959);
-  expect(scoreWithSection(100,true).score).toBe(886);
+  expect(scoreWithSection(50,false).score).toBe(737);expect(scoreWithSection(50,true).score).toBe(776);
+  expect(scoreWithSection(100,true).score).toBe(503);
   expect(scoreWithSection(10,true).score).toBeLessThan(1000);
-  expect(scoreWithSection(1000,true).score).toBe(158);
+  expect(scoreWithSection(300,true).score).toBe(158);
  });
  it('restores section bonuses and preserves old distance-only rounds',()=>{
   const storage={data:new Map<string,string>(),getItem(k:string){return this.data.get(k)??null;},setItem(k:string,v:string){this.data.set(k,v);}};

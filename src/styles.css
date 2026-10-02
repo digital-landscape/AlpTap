@@ -117,3 +117,10 @@
 .institution-footer--welcome a{width:auto;padding:3px 4px}
 .institution-footer--welcome img{height:32px}
 .institution-footer--welcome .institution-divider{height:26px}
+
+.summary-toggle{display:block;margin:0 0 14px auto;border:1px solid #bdcbb0;background:#edf0e0;border-radius:8px;padding:9px 12px;color:var(--ink);cursor:pointer}
+.recap-map-button{font:inherit;color:inherit;text-align:left;background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:4px}
+.recap-map-button[aria-pressed="true"]{color:#477230}
+.summary-scrim.scores-aside{inset:163px auto 55px 24px;width:min(350px,35vw);padding:0;background:none;backdrop-filter:none;align-items:flex-start}
+.scores-aside .summary-card{padding:18px;width:100%;text-align:left}.scores-aside .result-card-grid{grid-template-columns:1fr}.scores-aside .summary-score{margin:12px 0}.scores-aside .summary-score>strong{font-size:30px}
+@media(max-width:719px){.summary-scrim.scores-aside{inset:auto 14px 39px;width:auto;max-height:36svh}.scores-aside .summary-card{max-height:36svh}.scores-aside .result-card-grid{grid-template-columns:1fr}.summary-toggle{position:sticky;top:0;z-index:1}}
