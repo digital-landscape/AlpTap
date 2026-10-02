@@ -138,7 +138,7 @@ The initial Git snapshot includes the application, tests, documentation, and pre
 
 ## Worldwide peaks and Alpine valleys
 
-The mode selector keeps each daily game's progress separate. Worldwide Peaks includes **771 reviewed mountains and volcanoes (62 Easy, 172 Medium, 537 Hard; including 215 volcanoes)**, original GMBA Standard 300 regions, a forgiving worldwide distance curve, and region bonuses. Each worldwide round starts from a world overview.
+The mode selector keeps each daily game's progress separate. Worldwide Peaks includes **1,085 reviewed mountains and volcanoes (62 Easy, 174 Medium, 849 Hard)**, original GMBA Standard 300 regions, a forgiving worldwide distance curve, and region bonuses. Each worldwide round starts from a world overview.
 
 Alpine Valleys gameplay and its multi-source preparation pipeline are implemented, but **release remains disabled**: 19 candidates pass review (7 Easy, 6 Medium, 6 Hard) across France, Italy and Switzerland; Austria has no fully verified entry yet. The app shows this mode as unavailable rather than releasing partial country coverage. Details, source definitions, exclusions, licenses and deployment instructions are in [mode documentation](docs/MODES.md).
 
@@ -146,7 +146,7 @@ Run `npm run data:modes` to prepare catalogues, or add `-- --offline` to reuse c
 
 ### Full worldwide candidate retrieval
 
-Run `npm run data:world:discover` to query worldwide Wikidata mountains **and volcanoes**, including subclasses, without a title shortlist or result limit. A safe ≥20 total-sitelink prefilter is followed by exact Wikipedia-edition counts and unchanged GMBA Standard 300 polygon checks. This downloads candidates to `data/processed/world-discovery.json`; `world-discovery-status.json` records completion or failure. It does not label unreviewed candidates as reviewed or silently replace the playable catalogue. Raw API responses and rate-limit cooldowns are cached; `-- --offline` reuses complete cached responses. The playable catalogue is prepared from this complete discovery snapshot and the pinned decisions in `data/config/world-review.json`; it no longer uses the initial 107-entry shortlist.
+Run `npm run data:world:discover` (equivalent to `-- --prominence-min 1500`) for the global prominence candidate set, without any translation-count filter. This is one discovery route, not a universal prominence requirement: regional high points, landmarks and documented climbing objectives also qualify. Use `-- --region gmba:13064` for a complete geographic batch or `-- --next-regions 1` for the next unexpanded region in the count/ID-ordered queue. Each route counts actual Wikipedia articles after retrieval; one article in any language is sufficient. Raw responses and source comparisons remain cached and `--offline` reuses completed batches. Discovery never approves targets automatically: publication requires specialist evidence, original GMBA checks and explicit snapshot-pinned decisions.
 
 ## Git workflow
 
@@ -154,7 +154,7 @@ The repository uses `master` as its primary branch. Commit application code, tes
 
 The **Sun shadows** button beside **3D terrain** independently turns solar shading on or off. Its default follows daylight at the viewed map center: shadows are off when the sun is below the horizon, including nighttime visits. The automatic default is rechecked every minute and after map movement. Clicking the button overrides that default for the current page session, so night shading can still be enabled manually. The control is disabled in 2D, at zero terrain height or when elevation is unavailable.
 
-Worldwide discovery completed on **1 October 2026**: 1,165 unique candidates, including 362 volcanoes. Of these, 1,066 have at least 20 Wikipedia editions; 838 also pass coordinate and GMBA membership checks (62 Easy, 180 Medium, 596 Hard, before editorial overrides). The [full discovery export](data/processed/world-discovery.json) retains all candidates and failed checks. These are unreviewed candidates, not automatically activated game targets.
+The historical baseline discovery completed on **1 October 2026**: 1,165 unique candidates, including 362 volcanoes. Of these, 1,066 have at least 20 Wikipedia editions; 838 also pass coordinate and GMBA membership checks (62 Easy, 180 Medium, 596 Hard, before editorial overrides). The [full discovery export](data/processed/world-discovery.json) retains all candidates and failed checks. These are unreviewed candidates, not automatically activated game targets.
 
 ## Institutional logos
 
@@ -166,8 +166,11 @@ The welcome popup repeats the same linked logo pair and localized “Designed by
 
 ### Expanded worldwide game enabled
 
-Worldwide Peaks now uses `mode-13d7445c720f`: **771 targets including 215 volcanoes**. The catalogue review admits 771 of the 838 geographically eligible candidates and records 67 holds for ambiguous regional, island, pass, cultural-site or non-mountain identities. The original GMBA polygons are unchanged; scoring now uses the buffered worldwide curve described above. Volcano prompts are translated in all four interface languages. Older versioned assets remain available so saved games keep their original targets.
+Worldwide Peaks now uses `mode-37dabf082c4a`: **1,085 targets**, including **300 additions across 93 GMBA regions in the latest global batch**. Additions span Africa, Asia, Europe, North and South America, and Oceania. Represented GMBA regions increase **149 → 175**. The European Alps grow **119 → 139** under the same criteria as everywhere else, while their worldwide share decreases **15.4% → 12.8%** relative to the original 771-target catalogue. All 785 targets from the previous release are retained.
 
+Admission policy `world-admission-v3` removes Wikipedia language counts as an eligibility or difficulty predictor. New targets require a Wikidata identity, an article in any language, an individually verified summit point and cited specialist/authoritative significance evidence. Difficulty is explicitly reviewed; existing tiers are preserved, new uncalibrated peaks default to a documented provisional Hard assessment, and Easy/Medium needs a recognition or geographic-anchor rationale. Margherita Peak has just two recorded editions and is Medium based on the park authority's high-point evidence. A 20-edition count no longer supplies an admission route.
+
+The [global batch report](docs/WORLD_GLOBAL_BATCH.md) lists all 300 additions and remaining gaps. The [coverage audit](docs/WORLD_COVERAGE.md) covers every original GMBA unit, including zero-target regions. The research snapshot has 8,092 identities, not 8,092 approved targets. Ambiguous names, duplicate physical summits and uncertain coordinates remain held; Antarctica lacks original GMBA scoring polygons and is not silently assigned invented boundaries. See [mode documentation](docs/MODES.md#global-language-independent-expansion) for the workflow.
 Rebuild with `npm run data:modes -- --mode world --offline`. Preparation requires a complete discovery snapshot whose SHA-256 matches `data/config/world-review.json`; changed or unreviewed input cannot silently enter the game. No new geographic downloads are needed for this release.
 
 Western Alps and Eastern Alps are also direct choices in the main game selector, including from Worldwide Peaks. They open the existing regional Alpine games with their separate saved progress.
@@ -184,6 +187,8 @@ Alpine reveals and recap cards use the neutral title “Summit revealed”. Dist
 
 ## Peak explorer
 
-Open `/explore/` (or `/training/`) to explore every Alpine or worldwide peak on a full-screen satellite map. Nearby peaks form numbered clusters: click a cluster to zoom in, then click a peak to open its information card. Individual markers are colored by difficulty; hovering shows the recorded name. The header links the daily game and explorer. Search recorded names, aliases or countries, filter by difficulty, and select a peak to see its satellite location, elevation when recorded, mountain region and source article. The explorer supports all four interface languages and never writes daily challenge progress. Selections have shareable URLs and browser Back/Forward support.
+Open `/explore/` (or `/training/`) to explore every Alpine or worldwide peak on a full-screen satellite map. Nearby peaks form numbered clusters: click a cluster to zoom in, then click a peak to open its information card. Individual markers are colored by difficulty; hovering shows the recorded name. The header links the daily game and explorer. Search recorded names, aliases, regions or countries, filter by difficulty, and select a peak to see its satellite location, elevation when recorded, mountain region and source article. The explorer supports all four interface languages and never writes daily challenge progress. Selections have shareable URLs and browser Back/Forward support.
 
 `npm run data:explore` generates compact browsing catalogues from the current versioned datasets; `npm run dev`, `npm run dev:web`, `npm run build` and `npm run build:pages` run it automatically. Generated files in `public/explore/` are ignored. Peak details retain unknown values rather than filling gaps. Build output includes `explore/index.html` and `training/index.html` so direct links and refresh work on static hosts, including the `/AlpTap/` GitHub Pages base path. Search and difficulty filters update the map markers. The optional peak list provides keyboard-accessible selection and renders 60 results at a time with a Show more button. Selecting a peak from the map or list focuses its location; closing the detail card leaves the map view in place.
+
+Typing **Patagonia** in the worldwide explorer now selects the full GMBA region, making its total visible independently of map clusters. Explorer and gameplay are generated from the same release, and source links preserve all recorded Wikipedia languages.

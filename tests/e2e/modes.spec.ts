@@ -115,8 +115,8 @@ test('serves the expanded catalogue and translates a volcano target',async({page
  }
 });
 
-test('restores a saved worldwide challenge from the previous dataset',async({page})=>{
- const manifest=JSON.parse(readFileSync('public/data/mode-c21e681de816/manifest.json','utf8')) as ModeManifest;
+for(const version of ['mode-c21e681de816','mode-13d7445c720f','mode-570154372ed8']) test(`restores a saved worldwide challenge from ${version}`,async({page})=>{
+ const manifest=JSON.parse(readFileSync(`public/data/${version}/manifest.json`,'utf8')) as ModeManifest;
  const challenge=generateModeChallenge({version:manifest.version,mode:'world-peaks',validated:true,targets:manifest.targets},viennaDate());
  await page.addInitScript(challenge=>{
   localStorage.setItem('alptap:mode',JSON.stringify('world-peaks'));

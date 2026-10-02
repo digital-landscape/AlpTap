@@ -54,7 +54,7 @@ export default function Explore() {
   history.pushState(null,'',url);
  };
  const clearSelection = () => {setSelectedId(null);const url=new URL(location.href);url.searchParams.delete('peak');history.replaceState(null,'',url);};
- const entries = useMemo(() => (catalogue?.peaks??[]).map(peak => ({peak,name:getPeakName(peak,locale),search:normalize([peak.name,...Object.values(peak.names),...peak.aliases,...peak.countries.flatMap(code=>[code,country(code)])].join(' '))})).sort((a,b) => a.name.localeCompare(b.name,locale)),[catalogue,locale,countryNames]);
+ const entries = useMemo(() => (catalogue?.peaks??[]).map(peak => ({peak,name:getPeakName(peak,locale),search:normalize([peak.name,...Object.values(peak.names),...peak.aliases,...peak.regions.map(id=>catalogue?.regions?.[id]??getAreaName(id,locale)),...peak.countries.flatMap(code=>[code,country(code)])].join(' '))})).sort((a,b) => a.name.localeCompare(b.name,locale)),[catalogue,locale,countryNames]);
  const filtered = useMemo(() => {const terms=normalize(query).trim().split(/\s+/);return entries.filter(({peak,search})=>(!difficulty||peak.difficulty===difficulty)&&terms.every(term=>search.includes(term)));},[entries,query,difficulty]);
  const mapPeaks = useMemo(()=>filtered.map(({peak,name})=>({id:peak.id,name,position:peak.position,difficulty:peak.difficulty})),[filtered]);
  const selected = catalogue?.peaks.find(peak=>peak.id===selectedId);

@@ -5,7 +5,7 @@
 | Mode | Easy | Medium | Hard | Status |
 | --- | ---: | ---: | ---: | --- |
 | Alpine Peaks | Existing catalogue | Existing catalogue | Existing catalogue | Preserved |
-| Worldwide Peaks | 62 | 172 | 537 | Enabled, `mode-13d7445c720f`, including 215 volcanoes |
+| Worldwide Peaks | 62 | 174 | 849 | Enabled, `mode-37dabf082c4a`, 1,085 targets |
 | Alpine Valleys | 7 | 6 | 6 | Withheld: verified candidates cover CH, FR and IT, but not AT |
 
 The selector exposes Alpine Peaks (including its regional choices) and Worldwide Peaks. Alpine Valleys is hidden pending suitable source data; a previously selected valley mode falls back to Alpine Peaks without deleting saved sessions. No Swiss-only or three-country fallback is allowed. Valley gameplay is implemented and exercised with explicitly synthetic test fixtures; those fixtures are never production data.
@@ -27,7 +27,7 @@ A valley's scoring area is its source's named geographic area, not necessarily t
 
 ## Recognition review
 
-`data/config/world-candidates.json` preserves the historical shortlist. Current releases use all candidates from the completed worldwide discovery export and explicit per-identity decisions in `data/config/world-review.json`. The review pins the source SHA-256 and records inclusion or a reason for holding each candidate. The default `world-recognition-v1` rules use Wikipedia language-edition counts: Easy ≥60, Medium 35–59, Hard 20–34; below 20 is excluded. This is a recognition proxy, not proof of fame or climbing difficulty. Documented overrides disambiguate Gasherbrum I's name and classify Annapurna I as Easy: splitting the famous massif and summit into separate articles undercounts the individual summit's coverage. Overrides cannot bypass the minimum 20 editions or geometry checks. The prepared report lists inclusion/exclusion decisions; each admitted record carries count, review rationale and any override.
+`data/config/world-candidates.json` preserves the historical shortlist. Current releases use all candidates from the completed worldwide discovery export and explicit per-identity decisions in `data/config/world-review.json`. The review pins the source SHA-256 and records inclusion or a reason for holding each candidate. The historical `world-recognition-v1` rules used Wikipedia language-edition counts: Easy ≥60, Medium 35–59, Hard 20–34; below 20 was excluded. Policy v2 initially kept those tier thresholds. Current `world-admission-v3` and `world-recognition-v3` remove translation counts from both new admissions and new tier assignments, as described in the global expansion section. Historical tiers are preserved rather than automatically recalculated. Documented overrides disambiguate Gasherbrum I's name and classify Annapurna I as Easy: splitting the famous massif and summit into separate articles undercounts the individual summit's coverage. Overrides cannot bypass admission evidence or geometry checks. The prepared report lists inclusion/exclusion decisions; each admitted record carries count, review rationale and any override.
 
 `data/config/valley-candidates.json` contains source keys, exact Wikipedia titles, reviewed tiers and individual recognition reasons. Valley tiers do not use summit elevation or prominence. Each mode requires at least six targets per tier; valleys also require FR, AT, IT and CH. Failed release checks remove that mode from the API index, while retaining older static assets for existing sessions.
 
@@ -63,9 +63,9 @@ Deploy all new static version directories **before** replacing `data/processed/m
 
 The final build passes, with 51 unit/API tests and 15 Python geographic-data tests. Across the full browser run and targeted reruns after the dateline correction, all 38 applicable desktop/mobile cases passed; two device-specific cases were skipped on the other device. Tests cover legacy Alpine progress/practice, all interface languages, mode switching/resume, geometry failure/retry, difficulty progression, polygon reveals and catalogue gating. Valley browser fixtures are synthetic and remain separate from production data. An offline world rebuild reproduced `mode-c21e681de816` exactly.
 
-## Complete candidate discovery
+## Historical baseline discovery — 1 October 2026
 
-`npm run data:world:discover` queries both `P31/P279* Q8502` (mountains) and `P31/P279* Q8072` (volcanoes). Queries have no result `LIMIT` or geographic bounding box. The ≥20 total Wikimedia-sitelink prefilter cannot exclude a candidate with ≥20 Wikipedia editions; exact Wikipedia counts are applied after batched `wbgetentities` retrieval. Discovery membership is retained so volcanoes can be distinguished and deduplicated.
+The original `npm run data:world:discover` implementation queried both `P31/P279* Q8502` (mountains) and `P31/P279* Q8072` (volcanoes). Queries have no result `LIMIT` or geographic bounding box. The ≥20 total Wikimedia-sitelink prefilter cannot exclude a candidate with ≥20 Wikipedia editions; exact Wikipedia counts are applied after batched `wbgetentities` retrieval. Discovery membership is retained so volcanoes can be distinguished and deduplicated.
 
 The export `data/processed/world-discovery.json` includes every returned candidate, original names and Wikipedia links, coordinates when unambiguous, proposed difficulty, original GMBA IDs, and failed checks. `reviewed: false` is intentional: query membership does not establish that every entity is a suitable individual mountain/volcano target. GMBA polygons and scoring boundaries remain unchanged. Review and publication remain separate; the initial 107-entry game is not described as the complete catalogue.
 
@@ -79,7 +79,7 @@ The 3 MB `data/processed/world-discovery.json` contains every candidate, includi
 
 ## Expanded catalogue activation — 1 October 2026
 
-The active worldwide catalogue is `mode-13d7445c720f`, with 771 targets: 62 Easy, 172 Medium and 537 Hard, including 215 volcanoes. Of the 838 candidates passing geographic/recognition checks, 67 are held after catalogue-level review of recorded names, classes and Wikipedia identities: regional/multi-summit identities, island reference points, passes, cultural sites, thermal fields and other unsuitable point targets. Every discovery identity has a recorded decision, including the candidates that already failed automated checks.
+The 1 October baseline catalogue was `mode-13d7445c720f`, with 771 targets: 62 Easy, 172 Medium and 537 Hard, including 215 volcanoes. Of the 838 candidates passing geographic/recognition checks, 67 are held after catalogue-level review of recorded names, classes and Wikipedia identities: regional/multi-summit identities, island reference points, passes, cultural sites, thermal fields and other unsuitable point targets. Every discovery identity has a recorded decision, including the candidates that already failed automated checks.
 
 This review uses the retrieved records; it is not a field survey or independent verification of every summit coordinate. Recognition remains the versioned Wikipedia-edition proxy. The publisher checks the discovery SHA-256, complete status, unique decisions, recognition floor and original GMBA membership again before writing static assets and updating the mode index. A changed snapshot requires renewed review. Recorded English Wikipedia article titles replace ambiguous/malformed English labels (for example Cofre de Perote); localized recorded names remain available. The explicit Annapurna I tier override is retained.
 
@@ -88,3 +88,76 @@ Volcanoes remain point targets within Worldwide Peaks, using the same 250 km exp
 Earlier static versions are retained. Existing mode sessions continue to restore their pinned dataset; fresh challenges use the expanded catalogue. Deploy these static assets before the updated API index, following the existing deployment order.
 
 Release validation: production build and typecheck pass; 54 unit/API tests and 19 data tests pass. Sixteen desktop/mobile mode checks pass, including the expanded catalogue, all four volcano prompt translations, progression, independent progress and restoration from the previous dataset. An offline rebuild reproduced `mode-13d7445c720f`.
+
+## First regional policy — 2 October 2026 (superseded by v3)
+
+`world-admission-v2` separates admission from difficulty. The international-recognition route retains the 20-Wikipedia-edition minimum. The regional-significance route requires at least one recorded Wikipedia article in any language, an individually identified summit, unambiguous Earth coordinates, unique membership in an original valid GMBA Standard 300 polygon, and an explicit review decision. Evidence contains a significance category (`regional-high-point`, `climbing-objective`, or `landmark`), a concise rationale, named authoritative/specialist source URLs, and coordinate-verification notes tied to the exact published position. Sources are references, not republished guidebook text. Coordinate comparisons are desk checks, not independent field surveys. Conflicting summit coordinates and unresolved multi-summit identities remain held.
+
+The existing 771-target baseline is retained. Easy remains ≥60 editions, Medium 35–59, and Hard covers other admitted peaks; existing documented overrides remain. A new tier override requires an explicit reason. The daily selection algorithm, scoring and original regional polygons are unchanged. The public target schema remains version 2; admission policy, route and evidence live in provenance. Saved games continue to resolve their original versioned assets.
+
+### Repeatable expansion workflow
+
+```sh
+# Geographic discovery: fixed, cached 10-degree boxes, no sitelink floor or result LIMIT.
+npm run data:world:discover -- --region gmba:13064
+# After reviewing/publishing a batch, select the next unexpanded low-coverage unit(s).
+npm run data:world:discover -- --next-regions 1
+# Complete cached requests can be reused offline.
+npm run data:world:discover -- --region gmba:13064 --offline
+# After recording review decisions and pinning the new discovery SHA-256:
+npm run data:modes -- --mode world --offline
+npm run data:explore
+```
+
+The source query covers mountain and volcano subclasses and deduplicates IDs across classes and boxes. Boxes can also retrieve neighboring regions; exact GMBA membership is checked separately. A missing batch or metadata record prevents snapshot replacement. Geographic discovery preserves existing records and never admits new candidates automatically. `world-regional-discovery-status.json` records completion; raw responses, transient retrieval status and cooldowns are cached under `.cache/modes/discovery/`. Baseline-only discovery is refused once regional expansions exist, preventing accidental loss of additions.
+
+Every candidate must have exactly one include/hold decision in `data/config/world-review.json`. Keep unverified candidates on hold with a reason; never mark a batch reviewed merely because its query completed. Set `admissionPolicy`, pin the complete snapshot's SHA-256, and provide evidence before including a regional candidate. Any changed snapshot requires renewed review. The pinned `baselineVersion` makes before/after reporting reproducible across offline rebuilds.
+
+Publication generates [the complete coverage table](WORLD_COVERAGE.md) and `data/processed/world-coverage.json`: all 291 source units, invalid polygons, zero-target regions, tier counts, held reasons, unassigned candidates, baseline comparisons, and a review queue ordered by included count then stable ID, restricted to valid units with fewer than 20 targets. Geographic discovery completion does not imply that every candidate is reviewed or that every physical mountain was found.
+
+### Explorer count investigation
+
+The public explorer at `https://digital-landscape.at/AlpTap/explore/world-peaks.json` was checked on 2 October 2026: it served 771 targets and 16 in GMBA `13064`, matching the repository baseline. Between 49°S and 52°S, that baseline contained only Fitz Roy and Cerro Torre. The broader GMBA Patagonian Andes unit extends north to about 35.6°S and south to about 55.9°S, so its count differs from a southern Patagonia map view. Map clusters and difficulty/search filters also affect visible markers. The exact reason for the reported three-marker view cannot be established without its viewport/filter state; it was not a stale deployed catalogue.
+
+Region-name search now makes regional totals directly inspectable: select Worldwide Peaks and search `Patagonia`, with All difficulties selected. The explorer export records its source version and retains all Wikipedia editions, including local-language-only articles, so its source links and target IDs agree with the game catalogue.
+
+### First regional batch: 2 October 2026
+
+Release `mode-570154372ed8` contains **785 targets (62 Easy, 172 Medium, 551 Hard)**. The original 771 identities, names, positions, difficulties and GMBA assignments are retained. Patagonia increases **16 → 30**, while Alpine coverage stays at 119 and its worldwide share decreases **15.4% → 15.2%**. The number of represented regions remains 149; this batch deepens coverage rather than filling new regions.
+
+The 14 additions are Aguja Poincenot, Aguja Saint Exupery, Monte San Lorenzo, Cerro Castillo, Cerro Arenales, Lautaro, Melimoyu, Michinmahuida, Cerro Standhardt, Aguja Guillaumet, Aguja Mermoz, Cerro Pollone, Aguja Rafael Juárez and Cerro Solo (Los Glaciares). PATAclimb and Andeshandbook descriptions establish individual climbing objectives, landmarks or high points. Review records retain the source URLs, rationale, reference coordinates and measured coordinate differences. No points were relocated to qualify for a region. All additions have 1–19 Wikipedia editions and default to Hard.
+
+Cerro Piergiorgio and Cerro Domo Blanco remain held because the article and Wikidata summit reference points differ; Torre Egger and Yate have ambiguous Wikidata coordinates. Murallón and Mount Tarn have larger source-position discrepancies; Monte Sarmiento needs its east/west summit identity resolved. These gaps are not filled to meet a quota. Southern climbing destinations now have broader representation, but Patagonia is not claimed to be exhaustive.
+
+The next zero-target region by stable ID, Aldan Mountains (`gmba:11117`), was geographically searched as the first worldwide queue batch. Its two boxes returned 503 additional discovery identities, of which seven fall inside that original polygon; none yet has the complete significance and coordinate evidence required for admission. The combined snapshot contains 6,943 identities with explicit include/hold decisions. Neighboring-region results remain available for later review. Continue the ordered queue with `--next-regions`, and revisit held regions when stronger evidence becomes available.
+
+Validation: production build and typecheck pass; 58 unit/API tests, 29 Python data tests and 10 targeted desktop/mobile browser checks pass. Browser checks cover regional counts, difficulty filters, a Spanish-only source link, the active catalogue and saved sessions from both `mode-c21e681de816` and `mode-13d7445c720f`. Offline geographic replay preserved the reviewed snapshot hash, and a second offline publication reproduced `mode-570154372ed8`. All 298 original scoring/display geometry assets match the previous release byte for byte. These assets are prepared locally; production deployment is a separate step.
+
+## Global language-independent expansion
+
+The regional strategy now applies worldwide. `world-admission-v3` retains one Wikipedia article in any language as a usable information-link requirement, but **does not use translation count to decide inclusion or difficulty**. `legacy-reviewed` is restricted to identities in the pinned previous release; it cannot admit a new identity. All new targets need regional-significance evidence. Regional high points, climbing objectives and landmarks remain valid alongside a new `topographic-prominence` category (a sourced value of at least 1,500 m). Prominence is an additional route, not a replacement universal threshold; Mount Bogong qualifies as a regional high point below it.
+
+`world-recognition-v3` preserves all prior reviewed tiers and requires an explicit `difficultyReview` for every new target. A new Easy or Medium assessment must cite recognition or a clear geographic anchor; numbers of articles, languages or countries never set its tier. Hard is provisional where broader recognition has not been established, and can be revisited using recognition evidence or player success rates. Difficulty is about locating a summit, not technical climbing grade or physical prominence. This phase does not claim that the inherited tiers have been globally recalibrated. Daily selection remains unchanged.
+
+The global Wikidata P2660 search returned 1,541 unique candidates without a sitelink or language-count floor. Metadata enrichment merged 1,149 new identities into the existing snapshot. The complete research snapshot now has 8,092 identities. The default discovery command runs this global search at 1,500 m; geographic discovery and the underrepresented-region queue remain available for areas or landmarks absent from prominence data.
+
+```bash
+npm run data:world:discover -- --prominence-min 1500
+npm run data:world:discover -- --prominence-min 1500 --offline
+python scripts/review_world_inventory.py --source .cache/modes/review/global/world-ultras.kmz
+# Inspect suggestions, then record explicit include/hold decisions, evidence and difficulty reviews.
+npm run data:modes -- --mode world --offline
+npm run data:explore
+```
+
+The source comparison uses the [Peaklist world inventory](http://www.peaklist.org/ultras.html), compiled by Aaron Maizlish, Jonathan de Ferranti and regional contributors, and its linked [2007 KMZ](http://peaklist.org/misc/ultrasgoogle052007.KMZ). Record names, alternative names, prominence and coordinates are checked against individual Wikidata identities and original GMBA membership. The source archive SHA-256 and exact source point are stored in each reviewed evidence record. Some original source IDs are reused or blank, so record ordinal plus archive hash identifies the reference. The comparison tool produces suggestions only: proximity is never automatic approval. The 300 m comparison window limits this batch's desk review; it is not a claim of survey accuracy or a tolerance that can repair conflicting identities.
+
+Source mismatches are explicitly held: for example, Telescope Peak is labelled White Mountain Peak in the old inventory; range references such as Dena, Nun-Kun and Lefka Ori cannot be admitted as individual summits. Batian would duplicate the published Mount Kenya identity, whose coarse legacy point needs a separate coordinate review. The previously reviewed point is preserved for this expansion. Original sources are historical and not a complete, current inventory; no source text is reproduced and factual references retain attribution.
+
+The reviewed batch adds **300 targets across 93 GMBA regions**, making **1,085 targets: 62 Easy, 174 Medium and 849 Hard**. Margherita Peak and Mount Bogong receive sourced Medium assessments; the remaining 298 are provisionally Hard. All 785 previously reviewed targets and their names, points, regions and tiers are unchanged. The represented-region count grows **149 → 175**. Relative to the original baseline, Alpine share falls **15.4% → 12.8%**, even though the Alps gain 20 qualifying targets themselves. This is a global expansion, not a Patagonia-only quota.
+
+See [the complete global batch](WORLD_GLOBAL_BATCH.md) for names, domains and remaining gaps, and [the coverage audit](WORLD_COVERAGE.md) for all 291 source units. `data/config/world-global-batch.json` records the explicit batch identities and source-match holds; `world-review.json` retains each full decision and evidence. Geographic-search completion is separate from global-prominence-search completion; a worldwide prominence query does not mean every GMBA region received an exhaustive geographic search. Antarctica remains unassigned because the preserved source has no Antarctic scoring units. Raw downloads and suggestions are ignored; reviewed evidence, reports and versioned assets are tracked.
+
+Current global release: `mode-37dabf082c4a`. Original assets, including `mode-570154372ed8`, remain available for saved sessions.
+
+Global release validation: production build/typecheck, 58 unit/API tests, 37 Python data tests and 14 targeted desktop/mobile browser checks pass. Checks include all six inhabited world domains gaining targets, exact game/explorer identity parity, held range/duplicate identities, a Medium target with two article editions, and restoration from all three previous worldwide releases. Two offline publications reproduced `mode-37dabf082c4a`; previous geometry files remain byte-identical. The release is prepared locally and has not been deployed.

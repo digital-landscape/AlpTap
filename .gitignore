@@ -127,5 +127,11 @@ output/reveal-wording/
 # Explorer catalogues are generated from the versioned source data before dev/build.
 public/explore/
 
+# Temporary public-source evidence downloads; reviewed decisions and coverage stay tracked.
+.cache/modes/review/
+# Global inventory downloads and generated match suggestions are disposable; explicit approvals remain in data/config/.
+output/world-inventory/
+output/world-coverage/
+
 # Local map-first explorer review captures
 output/explore-map/

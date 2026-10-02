@@ -5,6 +5,8 @@ import shapefile
 from pyproj import CRS,Transformer
 from shapely.geometry import shape,mapping,Point
 from shapely.ops import transform
+from world_policy import POLICY,validate_admission,reviewed_difficulty
+from world_coverage import coverage_audit,coverage_markdown,batch_markdown
 ROOT=Path(__file__).resolve().parents[1]
 CACHE=ROOT/'.cache/modes'
 CONFIG=ROOT/'data/config'
@@ -91,16 +93,21 @@ def publish(mode,targets,regions,geometries,attribution,report):
 
 def world(offline):
     source=unpack('gmba',GMBA_URL,offline);ranges=[];excluded=[]
-    for row,g in read_shapes(next(source.glob('*.shp'))):
+    shapes=list(read_shapes(next(source.glob('*.shp'))))
+    for row,g in shapes:
         if not valid_geometry(g):excluded.append({'region':row['GMBA_V2_ID'],'reason':'invalid polygon'});continue
         # Keep the official 300 selection, including named island/highland units.
         ranges.append((row,g))
     discovery_path=OUT/'world-discovery.json'
     discovery=json.loads(discovery_path.read_text())
     review=json.loads((CONFIG/'world-review.json').read_text())
+    if review.get('admissionPolicy')!=POLICY:raise ValueError('Unsupported worldwide admission policy')
+    preserved=json.loads((PUBLIC/review['preserveVersion']/'manifest.json').read_text())
+    previous={t['id']:t for t in preserved['targets']}
     if not discovery.get('complete') or review['discoverySha256']!=hashlib.sha256(discovery_path.read_bytes()).hexdigest():
         raise ValueError('Worldwide discovery must be complete and match its reviewed snapshot')
     candidates=discovery['candidates'];decisions={r['id']:r for r in review['decisions']}
+    if any(type(d.get('include')) is not bool for d in decisions.values()):raise ValueError('Review decisions must explicitly include or hold candidates')
     if len(decisions)!=len(review['decisions']) or len({c['id'] for c in candidates})!=len(candidates) or set(decisions)!={c['id'] for c in candidates}:
         raise ValueError('Every unique candidate needs exactly one review decision')
     targets=[];used={}
@@ -109,29 +116,43 @@ def world(offline):
         if not decision['include']:
             excluded.append({'id':qid,'name':c['name'],'reason':decision['reason'],'editions':c['wikipediaEditions']});continue
         links=c['wikipedia'];position=c['position'];count=len(links)
-        if c['checks'] or count<20 or count!=c['wikipediaEditions'] or not position:
-            raise ValueError('Review cannot bypass geographic or recognition checks: '+qid)
+        route=validate_admission(c,decision,previous)
         matches=[(r,g) for r,g in ranges if g.covers(Point(position['lon'],position['lat']))]
         if len(matches)!=1:raise ValueError('Reviewed GMBA assignment no longer resolves: '+qid)
         row,g=matches[0];region_id='gmba:'+str(row['GMBA_V2_ID']);used[region_id]=(row,g)
         if [r['id'] for r in c['gmbaRegions']]!=[region_id]:raise ValueError('GMBA source assignment changed: '+qid)
-        tier='easy' if count>=60 else 'medium' if count>=35 else 'hard'
+        tier,assessment=reviewed_difficulty(decision,previous.get(c['id']))
         override=review.get('overrides',{}).get(qid,{})
         # Prefer recorded article titles over malformed or ambiguous English labels.
         title=urllib.parse.unquote(links['en'].split('/wiki/',1)[1]).replace('_',' ') if 'en' in links else c['name']
-        name=override.get('name',title);tier=override.get('tier',tier)
-        if tier not in ['easy','medium','hard']:raise ValueError('Invalid tier override')
+        name=override.get('name',title)
+        if 'tier' in override and override['tier']!=tier:raise ValueError('Tier override conflicts with the reviewed difficulty')
+        if tier not in ['easy','medium','hard'] or (override and not override.get('reason','').strip()):raise ValueError('Invalid or unexplained tier/name override')
         names={k:v for k,v in c['names'].items() if k in ['en','de','fr','it']};names['en']=name
         targets.append({'id':c['id'],'kind':'summit','name':name,'names':names,'position':position,'difficulty':tier,'countries':[],
             'wikipedia':links,'regionIds':[region_id],'provenance':{'source':'Wikidata worldwide mountain and volcano discovery',
             'url':c['provenance']['url'],'license':'CC0','reviewed':True,'reviewDate':review['reviewDate'],'reviewMethod':review['method'],
             'discoverySha256':review['discoverySha256'],'featureType':'volcano' if 'volcano' in c['discoveredAs'] else 'mountain',
-            'wikipediaEditions':count,'recognitionRule':'world-recognition-v1','reviewReason':decision['reason'],'override':override}})
+            'wikipediaEditions':count,'recognitionRule':'world-recognition-v3','difficultyReview':assessment,'admissionPolicy':POLICY,'admissionRoute':route,
+            'evidence':decision.get('evidence',{}),'reviewReason':decision['reason'],'override':override}})
     regions=[];geometries={}
     for id_,(row,g) in used.items():
         file='regions/'+id_.split(':')[1];regions.append({'id':id_,'name':row['MapName'],'geometryRef':file+'.json','displayGeometryRef':file+'-display.json'})
         geometries[file+'.json']=feature(id_,row['MapName'],g);geometries[file+'-display.json']=feature(id_,row['MapName'],g.simplify(.015,preserve_topology=True))
-    publish('world-peaks',targets,regions,geometries,[{'name':'Wikidata','url':'https://www.wikidata.org/wiki/Wikidata:Licensing','license':'CC0'},{'name':'GMBA Mountain Inventory v2.0, Standard 300 selection','url':'https://doi.org/10.48601/earthenv-t9k2-1407','license':'CC BY 4.0'},{'name':'Snethlage et al. (2022), A hierarchical inventory of the world’s mountains','url':'https://doi.org/10.1038/s41597-022-01256-y','license':'CC BY 4.0'}],{'excluded':excluded,'discoverySha256':review['discoverySha256'],'discovered':len(candidates),'volcanoes':sum(t['provenance']['featureType']=='volcano' for t in targets),'sources':[{'url':GMBA_URL,'sha256':hashlib.sha256((CACHE/'gmba.zip').read_bytes()).hexdigest()}]})
+    baseline=json.loads((PUBLIC/review['baselineVersion']/'manifest.json').read_text())['targets']
+    current={t['id']:t for t in targets}
+    if not set(previous)<=set(current):raise ValueError('Expansion must retain the previous reviewed release')
+    for id_,old in previous.items():
+        if any(old[field]!=current[id_][field] for field in ['name','position','regionIds','difficulty']):
+            raise ValueError('Expansion changed a preserved target: '+id_)
+    audit=coverage_audit(shapes,candidates,decisions,targets,baseline,discovery.get('expandedRegions',[]),list(previous.values()))
+    audit['previousVersion']=review['preserveVersion']
+    audit['completedProminenceSearches']=discovery.get('completedProminenceSearches',[])
+    audit['baselineVersion']=review['baselineVersion'];audit['discoverySha256']=review['discoverySha256']
+    write(OUT/'world-coverage.json',audit)
+    (ROOT/'docs/WORLD_COVERAGE.md').write_text(coverage_markdown(audit))
+    (ROOT/'docs/WORLD_GLOBAL_BATCH.md').write_text(batch_markdown(audit,targets,list(previous.values())))
+    publish('world-peaks',targets,regions,geometries,[{'name':'Wikidata','url':'https://www.wikidata.org/wiki/Wikidata:Licensing','license':'CC0'},{'name':'Peaklist.org — Aaron Maizlish, Jonathan de Ferranti and regional contributors; worldwide summit inventory','url':'http://www.peaklist.org/ultras.html','license':'Referenced factual inventory; original source rights retained'},{'name':'GMBA Mountain Inventory v2.0, Standard 300 selection','url':'https://doi.org/10.48601/earthenv-t9k2-1407','license':'CC BY 4.0'},{'name':'Snethlage et al. (2022), A hierarchical inventory of the world’s mountains','url':'https://doi.org/10.1038/s41597-022-01256-y','license':'CC BY 4.0'}],{'excluded':excluded,'admissionPolicy':POLICY,'coverage':{'before':audit['before'],'after':audit['after']},'discoverySha256':review['discoverySha256'],'discovered':len(candidates),'volcanoes':sum(t['provenance']['featureType']=='volcano' for t in targets),'sources':[{'url':GMBA_URL,'sha256':hashlib.sha256((CACHE/'gmba.zip').read_bytes()).hexdigest()}]})
 
 
 def valleys(offline):

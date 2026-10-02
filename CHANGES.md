@@ -1,3 +1,19 @@
+## 2026-10-02 — Global expansion without translation-count bias
+
+- Added 300 more targets across 93 GMBA regions: 1,085 total, covering 175 regions instead of 149. Additions span all six inhabited continents; Alpine share falls to 12.8% of worldwide targets.
+- Removed language-count admission and automatic tier thresholds for new targets. Preserved existing reviewed targets/tiers; new Easy/Medium assignments require sourced recognition or a geographic anchor.
+- Added worldwide prominence discovery and specialist inventory comparison alongside regional high-point, landmark and climbing-objective routes. Proximity alone never approves an identity.
+- Recorded 46 source-match holds, duplicate summit checks, raw-source hashes, complete before/after domain counts and explicit difficulty assessments. Margherita Peak is Medium with only two article editions.
+- Preserved scoring polygons, daily selection, previous assets and game/explorer parity. Antarctic candidates remain held without original GMBA scoring polygons.
+
+## 2026-10-02 — Regional worldwide coverage expansion
+
+- Added 14 evidence-backed Patagonian targets: Patagonia 16 → 30; worldwide 771 → 785 (62 Easy, 172 Medium, 551 Hard). Retained every previous reviewed target and original scoring polygon.
+- Added versioned regional-significance admission, specialist source and coordinate evidence, resumable geographic retrieval without a sitelink floor, and explicit approval gates.
+- Added coverage and exclusion audits for all 291 GMBA units, including zero-target regions, and a stable worldwide review queue. Completed Patagonia and Aldan discovery batches; unverified candidates remain held.
+- Made the explorer searchable by region, preserved Wikipedia source links in every language, and generated game/explorer catalogues from the same release.
+- Kept daily selection and saved-game assets compatible; added admission, retrieval, catalogue parity and browser regression checks.
+
 ## 2026-10-01 — More forgiving distance scoring
 
 - Added full-score click buffers: 1 km Alpine, 10 km worldwide.
