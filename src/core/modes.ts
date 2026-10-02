@@ -1,7 +1,7 @@
 import type { Difficulty, Locale, Position } from './types';
 import type { SectionFeature } from './geography';
 import { sectionCovers } from './geography';
-import { distanceKm, validPosition } from './scoring';
+import { distanceKm, validPosition, scoreDistance } from './scoring';
 import { shuffle } from './challenge';
 import { dateOrdinal, nextViennaRollover } from './date';
 
@@ -82,7 +82,7 @@ export function evaluateModeGuess(mode:NewMode,target:Target,guess:Position,geom
   if(mode==='alpine-valleys'&&(geometry.length!==1||geometry[0].properties.id!==target.id))throw new Error('Incorrect valley geometry');
   const inside=geometry.some(g=>sectionCovers(g,guess));
   const distance=mode==='world-peaks'?distanceKm(guess,target.position):polygonDistance(guess,geometry[0]);
-  const base=Math.exp(-distance/(mode==='world-peaks'?250:50));
+  const base=scoreDistance(distance,mode==='world-peaks'?'world':'alpine').normalizedScore;
   const normalized=base+(mode==='world-peaks'&&inside ? .15*(1-base) : 0);
   const score=Math.round(1000*normalized),distanceScore=Math.round(1000*base);
   return {guess,distanceKm:distance,score,distanceScore,areaBonus:score-distanceScore,inside,scoringRule:scoringRuleFor(mode)};

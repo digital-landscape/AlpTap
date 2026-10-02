@@ -1,3 +1,9 @@
+## 2026-10-01 — More forgiving distance scoring
+
+- Added full-score click buffers: 1 km Alpine, 10 km worldwide.
+- Replaced rapid exponential decay with a smooth, gentler curve reaching 10 distance points at 1,000 km Alpine or the antipode worldwide.
+- Kept section/region bonuses and updated the scoring chart, translated help, and restoration documentation.
+
 ## 2026-10-01 — Preserve original branding and defer Valleys
 
 - Removed Valleys from the selector while retaining preparation work and saved data.
@@ -135,3 +141,26 @@
 ## Welcome institutional credit — 2026-10-01
 
 - Added the animated ÖAW / IGF pair and localized “Designed by” credit beneath the welcome popup's practice button, reusing the existing language-aware links.
+
+## Static daily selection
+- Daily challenges now use lazy-loaded static catalogues and the existing Vienna-date deck algorithms by default, including regional and worldwide modes and curated Alpine selections.
+- Saved progress and optional VITE_API_URL service support remain compatible. Local development no longer requires the API.
+
+## Behind AlpTap — 2026-10-01
+
+- Added shared English, German, French and Italian project credits to every game mode’s About/help dialog.
+- Credited Mathieu Gravey for conception and development, Victor Bordier for idea discussions, and ChatGPT for coding assistance; introduced Digital Landscape, IGF and ÖAW with the group website and learning motivation.
+
+## ÖAW corporate logo — 2026-10-02
+
+- Replaced both ÖAW animation assets with the supplied 2025 English blue SVG, preserving all artwork.
+- Retained the existing cropped framing and interface sizes; the whole logo fades in once over 1.2 seconds, with an immediate static logo for reduced motion.
+
+## Group-level About credits — 2026-10-02
+
+- Removed individual creator names from all four translations of the shared About credits; attribution stays with Digital Landscape, IGF and ÖAW.
+
+## GitHub Pages — 2026-10-02
+
+- Added automatic static deployment from `master` to Digital Landscape’s AlpTap Pages site.
+- Added a frontend-only Pages build and made institutional assets and the legacy redirect work under `/AlpTap/`.

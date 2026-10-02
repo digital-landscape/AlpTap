@@ -1,4 +1,4 @@
-import { GAME } from './config';
+import { GAME, SCORING } from './config';
 import type { Position, Result } from './types';
 export function validPosition(p: unknown): p is Position {
   if (!p || typeof p !== 'object') return false;
@@ -11,9 +11,12 @@ export function distanceKm(a: Position, b: Position): number {
   const h = Math.sin((b.lat - a.lat) * rad / 2) ** 2 + Math.cos(a.lat * rad) * Math.cos(b.lat * rad) * Math.sin((b.lon - a.lon) * rad / 2) ** 2;
   return 6371.0088 * 2 * Math.atan2(Math.sqrt(Math.min(1, h)), Math.sqrt(Math.max(0, 1 - h)));
 }
-export function scoreDistance(distance: number) {
+export function scoreDistance(distance: number, profile: keyof typeof SCORING = 'alpine') {
   if (!Number.isFinite(distance) || distance < 0) throw new Error('Invalid distance');
-  const normalizedScore = Math.exp(-distance / GAME.scoreScaleKm);
+  const { perfectRadiusKm, farDistanceKm } = SCORING[profile];
+  const fraction = Math.max(0, distance - perfectRadiusKm) / (farDistanceKm - perfectRadiusKm);
+  // Power 1.5 gives a smooth, flat departure from the full-score buffer.
+  const normalizedScore = Math.exp(-Math.log(100) * fraction ** 1.5);
   return { normalizedScore, score: Math.round(GAME.maxRoundScore * normalizedScore) };
 }
 export function scoreWithSection(distance: number, correctSection: boolean) {

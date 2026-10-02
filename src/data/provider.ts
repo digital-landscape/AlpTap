@@ -1,3 +1,4 @@
+import { generateChallenge } from '../core/challenge';
 import { peakBucket } from '../core/peak-links';
 import { validChallenge, validPeak, readJSON, saveJSON, type StorageLike } from '../core/persistence';
 import { viennaDate } from '../core/date';
@@ -7,6 +8,13 @@ export function createChallengeProvider(storage: StorageLike, apiUrl = import.me
   return { async load(region, difficulty, signal) {
     const key = `alptap:challenge:${region}:${difficulty}`;
     try {
+      if (!apiUrl) {
+        const [{ default: index }, { default: curated }] = await Promise.all([import('../../data/processed/api-index.json'), import('../../data/config/curated.json')]);
+        signal?.throwIfAborted();
+        const value = generateChallenge(index.peaks as import('../core/types').PeakIndex[], { date: viennaDate(), region, difficulty, datasetVersion: index.version }, curated);
+        saveJSON(storage, key, value);
+        return value;
+      }
       const response = await fetch(`${apiUrl}/v1/challenge?region=${region}&difficulty=${difficulty}`, { signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(12000)]) : AbortSignal.timeout(12000) });
       if (!response.ok) throw new Error(`Challenge API: ${response.status}`);
       const value: unknown = await response.json();

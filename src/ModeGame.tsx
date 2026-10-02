@@ -1,3 +1,4 @@
+import {ProjectCredits} from './ui/ProjectCredits';
 import {Brand} from './ui/Brand';
 import {lazy,Suspense,useEffect,useRef,useState,type ReactNode} from 'react';
 import {messages} from './core/i18n';
@@ -64,6 +65,6 @@ export function ModeGame({mode,modeControl,onLocale}:{mode:NewMode;modeControl:R
   </section>}
   {session?.complete&&!loading&&!error&&<div className="summary-scrim"><section className="summary-card"><p className="eyebrow">{m.complete} · {m[mode]}</p><h1 ref={heading} tabIndex={-1}>{m.summary}</h1><div className="summary-score"><strong>{number(session.results.reduce((s,r)=>s+r.score,0))}<small> / {number(3000)}</small></strong></div><ol className="result-card-grid">{session.targets.map((target,i)=><li className="recap-card" key={target.id}><span className="recap-difficulty">{t[target.difficulty]}</span><h2>{name(target)}</h2><div className="result-stats"><strong>{number(session.results[i].score)}<small> {t.scoreLabel}</small></strong></div><p>{number(session.results[i].distanceKm,1)} km · {target.kind==='valley'?m.boundaryDistance:t.distance}</p></li>)}</ol><p>{t.tomorrowSub}</p>{date!==today&&<button className="primary" onClick={()=>{setSession(null);setRetry(r=>r+1);}}>{t.newToday}</button>}</section></div>}
   <footer className="app-footer"><span>ALPTAP · {m[mode]}</span><span>{storageOk?t.saved:t.storageError}</span></footer>
-  <dialog className="about-dialog" ref={help} onClose={()=>setHelpOpen(false)}><button className="dialog-close" aria-label={t.close} onClick={()=>help.current?.close()}>×</button><h2>{m[mode]}</h2><p>{mode==='world-peaks'?m.worldHelp:m.valleyHelp}</p>{mode==='alpine-valleys'&&<p>{m.valleyDefinition}</p>}<h3>{m.credits}</h3>{manifest?.attribution.map(a=><p key={a.url}><a href={a.url} target="_blank" rel="noreferrer">{a.name}</a> · {a.license}</p>)}</dialog>
+  <dialog className="about-dialog" ref={help} onClose={()=>setHelpOpen(false)}><button className="dialog-close" aria-label={t.close} onClick={()=>help.current?.close()}>×</button><h2>{m[mode]}</h2><p>{mode==='world-peaks'?m.worldHelp:m.valleyHelp}</p>{mode==='alpine-valleys'&&<p>{m.valleyDefinition}</p>}<ProjectCredits locale={locale}/><h3>{m.credits}</h3>{manifest?.attribution.map(a=><p key={a.url}><a href={a.url} target="_blank" rel="noreferrer">{a.name}</a> · {a.license}</p>)}</dialog>
  </main>;
 }

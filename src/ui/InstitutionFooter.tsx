@@ -13,11 +13,11 @@ export function InstitutionFooter({locale, placement = 'chrome'}: {locale: Local
   return <footer className={`institution-footer${placement === 'welcome' ? ' institution-footer--welcome' : ''}`}>
     <span className="institution-credit">{{de: 'Gestaltet von', en: 'Designed by', fr: 'Conçu par', it: 'Progettato da'}[locale]}</span>
     <a href={german ? 'https://www.oeaw.ac.at' : 'https://www.oeaw.ac.at/en/'} target="_blank" rel="noopener noreferrer" aria-label={`${text.academy} (${text.opens})`} title={`${text.academy} · ${text.opens}`}>
-      <img src="/logos/oeaw-logo-animated-cropped.svg" alt={text.academy}/>
+      <img src={`${import.meta.env.BASE_URL}logos/oeaw-logo-animated-cropped.svg`} alt={text.academy}/>
     </a>
     <span className="institution-divider" aria-hidden="true"/>
     <a href={german ? 'https://www.oeaw.ac.at/igf/home' : 'https://www.oeaw.ac.at/en/igf/home'} target="_blank" rel="noopener noreferrer" aria-label={`${text.institute} (${text.opens})`} title={`${text.institute} · ${text.opens}`}>
-      <img src="/logos/igf-animated-cropped.svg" alt={text.institute}/>
+      <img src={`${import.meta.env.BASE_URL}logos/igf-animated-cropped.svg`} alt={text.institute}/>
     </a>
   </footer>;
 }

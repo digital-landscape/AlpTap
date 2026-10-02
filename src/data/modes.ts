@@ -1,5 +1,5 @@
 import {readJSON, saveJSON, type StorageLike} from '../core/persistence';
-import {validV2, validTarget, evaluateModeGuess, type ModeManifest, type ModeSession, type NewMode, type ChallengeV2, type Target} from '../core/modes';
+import {generateModeChallenge, type ModeIndex, validV2, validTarget, evaluateModeGuess, type ModeManifest, type ModeSession, type NewMode, type ChallengeV2, type Target} from '../core/modes';
 import {validPosition} from '../core/scoring';
 import {viennaDate} from '../core/date';
 import type {SectionFeature} from '../core/geography';
@@ -8,7 +8,17 @@ export const modeSessionKey=(mode:NewMode)=>`alptap:session:v2:${mode}`;
 async function json(url:string,signal?:AbortSignal){const r=await fetch(url,{signal:signal?AbortSignal.any([signal,AbortSignal.timeout(20000)]):AbortSignal.timeout(20000)});if(!r.ok)throw new Error(`HTTP ${r.status}`);return r.json();}
 export async function modeChallenge(mode:NewMode,storage:StorageLike,signal?:AbortSignal):Promise<ChallengeV2>{
  const key=`alptap:challenge:v2:${mode}`;
- try{const c=await json(`${api}/v2/challenge?mode=${mode}`,signal);if(!validV2(c)||c.mode!==mode||c.date!==viennaDate())throw new Error('Invalid challenge');saveJSON(storage,key,c);return c;}
+ try{
+ let c:unknown;
+ if(api)c=await json(`${api}/v2/challenge?mode=${mode}`,signal);
+ else {
+  const {default:indexes}=await import('../../data/processed/mode-index.json');
+  signal?.throwIfAborted();
+  const index=indexes.find(index=>index.mode===mode);
+  if(!index)throw new Error('Catalogue unavailable');
+  c=generateModeChallenge(index as ModeIndex,viennaDate());
+ }
+ if(!validV2(c)||c.mode!==mode||c.date!==viennaDate())throw new Error('Invalid challenge');saveJSON(storage,key,c);return c;}
  catch(e){if(signal?.aborted)throw e;const cached=readJSON(storage,key);if(validV2(cached)&&cached.mode===mode&&cached.date===viennaDate())return cached;throw e;}
 }
 export function dataUrl(version:string,path:string){if(!/^mode-[a-f0-9]{12}$/.test(version)||!/^([a-zA-Z0-9_-]+\/)*[a-zA-Z0-9_.-]+\.json$/.test(path)||path.includes('..'))throw new Error('Invalid data reference');return `${import.meta.env.BASE_URL}data/${version}/${path}`;}

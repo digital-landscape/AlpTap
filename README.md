@@ -2,7 +2,15 @@
 
 Daily mountain geography games with satellite imagery: Alpine Peaks, Worldwide Peaks, and a data-gated Alpine Valleys mode.
 
-The prototype includes a static React/TypeScript frontend, a separately deployable Node daily-selection API, MapLibre terrain, English/German/French/Italian interfaces, one-click guesses, animated reveals, SOIUSA section bonuses, local progress, and a prepared **Wikidata-primary database of 18,777 Alpine peaks**.
+The prototype includes a static React/TypeScript frontend, browser-generated daily selections and an optional Node daily-selection API, MapLibre terrain, English/German/French/Italian interfaces, one-click guesses, animated reveals, SOIUSA section bonuses, local progress, and a prepared **Wikidata-primary database of 18,777 Alpine peaks**.
+
+## Behind AlpTap
+
+AlpTap is a project from the [Digital Landscape](https://digital-landscape.at/) group at **IGF**, the Institute for Interdisciplinary Mountain Research of the **Austrian Academy of Sciences (ÖAW)**.
+
+The motivation is simple: challenge ourselves to learn new peaks, one daily discovery at a time. Thanks also to **ChatGPT** for coding assistance. Yes, this was vibe coded — the vibes were high, just like the mountains.
+
+These group-level credits are available in the About/help dialog in all game modes and all four interface languages.
 
 ## Run locally
 
@@ -13,7 +21,7 @@ npm ci
 npm run dev
 ```
 
-Open **http://127.0.0.1:5173** on this computer, or **http://<this-computer-network-IP>:5173** from another device on the network. The frontend listens on all network interfaces; restart `npm run dev` after changing this setting. The development command starts both Vite and the API on port 8787; Vite proxies `/v1` and `/v2`. The prepared dataset is included, so no geographic download or Python setup is required to play.
+Open **http://127.0.0.1:5173** on this computer, or **http://<this-computer-network-IP>:5173** from another device on the network. The frontend listens on all network interfaces; restart `npm run dev` after changing this setting. The development command starts Vite only; no API is required. The prepared dataset is included, so no geographic download or Python setup is required to play.
 
 ```sh
 npm test                 # pure logic, persistence, provider, and live HTTP API tests
@@ -25,22 +33,29 @@ npm run build           # static dist/ and standalone dist-api/server.mjs
 
 Browser tests use real imagery for visual checks and therefore need network access. Browser captures go to ignored `output/playwright/`.
 
-## Two independent deployments
+## Static deployment
 
-1. Set `VITE_API_URL=https://api.example.org` when building the frontend. Upload `dist/` to any static host with HTTPS and gzip/Brotli enabled.
-2. Deploy `dist-api/server.mjs`, `data/processed/api-index.json`, and `data/config/curated.json` to a Node host. Run from their common root:
+Run `npm run build` and upload **all of `dist/`** to any static HTTPS host. Leave `VITE_API_URL` empty. `npm run preview` serves the production build locally without an API. No scheduled job or daily deployment is required.
 
-```sh
-HOST=0.0.0.0 PORT=8787 CORS_ORIGINS=https://play.example.org node dist-api/server.mjs
-```
+The browser loads the bundled selection catalogues on demand and uses today's date in `Europe/Vienna` with the existing deterministic deck algorithms. Everyone using the same dataset gets the same daily Easy → Medium → Hard selection, with no consecutive-day repeats within a tier. Alpine regional selections and curated overrides are preserved. Progress remains stored locally and existing in-progress games use their pinned versioned data.
 
-Terminate HTTPS at your hosting provider or reverse proxy. `DATA_INDEX` and `CURATED_FILE` can point to absolute paths. `/health` reports the loaded dataset version. CORS is an explicit allowlist, not authentication. No cookies or account database are used.
+Deploy catalogue updates at Vienna midnight to keep selections consistent within a day. Upload the complete build together, keep old versioned data directories and JavaScript assets available for existing sessions and open tabs, and never overwrite a dataset version with changed content. Serve `index.html` with revalidation and hashed JavaScript/versioned data with long-lived caching.
 
-The API accepts `GET /v1/challenge?region=alps&difficulty=mixed`. It determines today in `Europe/Vienna`, returns only ordered IDs and challenge metadata, and never accepts a client-supplied date. The static frontend downloads the matching versioned peak shards and performs reveal/scoring locally. **Coordinates are inspectable in public data; this prototype does not prevent cheating.**
+The device clock determines the date. Future selections and coordinates are inspectable in public assets; this casual game does not prevent cheating. Static hosting still uses external satellite and terrain tile services.
 
-Deploy new versioned data assets **before** updating the API index. Keep previous version directories for in-progress challenges. Switch an API's dataset only at Vienna midnight to keep the same challenge for all players on a given day. Existing sessions persist their peak records, IDs, guesses, and results. Do not overwrite an existing dataset version with changed content.
+### GitHub Pages
 
-For a production preview locally, run the built API with `npm run start:api` and build with `VITE_API_URL=http://127.0.0.1:8787 npm run build`, then `npm run preview`. Alternatively use the normal development command.
+Repository: https://github.com/digital-landscape/AlpTap
+
+Live site: https://digital-landscape.github.io/AlpTap/
+
+Pushes to `master` run `.github/workflows/pages.yml`: install dependencies, run unit tests, build the static frontend with `npm run build:pages`, and publish `dist/` through GitHub Actions. The `/AlpTap/` base path applies to application assets, catalogues and institutional logos. Pages uses the **GitHub Actions** publishing source. Leave `VITE_API_URL` empty; no backend or daily rebuild is needed. You can also redeploy manually from the workflow’s Actions page.
+
+To verify locally, run `npm run build:pages` and `npm run preview`, then open `http://127.0.0.1:4173/AlpTap/`.
+
+### Optional legacy API
+
+Set `VITE_API_URL=https://api.example.org` at build time to retain server-selected challenges. Deploy `dist-api/server.mjs`, `data/processed/api-index.json`, `data/processed/mode-index.json`, and `data/config/curated.json` to a Node host and run with `HOST=0.0.0.0 PORT=8787 CORS_ORIGINS=https://play.example.org npm run start:api`. The API determines the Vienna date independently of the client. `npm run dev:api` starts it locally; Vite retains `/v1` and `/v2` proxies for compatibility.
 
 ## Data preparation
 
@@ -85,7 +100,7 @@ Explore the map, then click/tap once to submit. There is no confirmation step an
 
 The question names the SOIUSA section before the guess; the reveal also outlines its boundary. A point inside that section (including its boundary, excluding hole interiors) earns an area bonus. The dataset contains sections, not finer groups; the UI does not invent finer subdivisions. Section files are fetched individually, keeping the browser independent of the full polygon dataset. If a section cannot load, the submitted guess is retained and a retry is offered before final scoring.
 
-Distance-only score is `1000 × exp(-distanceKm / 50)`. Correct-section score is `1000 × [0.15 + 0.85 × exp(-distanceKm / 50)]`: 15% of the remaining points are awarded, capped naturally at 1,000 with no flat perfect-score zone. The reveal separates distance points and bonus. About contains an interactive comparison curve. Confirmed legacy rounds keep their original distance-only score after refresh; new rounds record `section-v2` scoring. The current primary catalogue uses Wikidata identities. Older OSM dataset versions remain available for saved challenges.
+Distance scoring forgives small click errors: full 1,000 points within 1 km in Alpine games and 10 km worldwide. Beyond the buffer, `1000 × exp(-ln(100) × ((distanceKm - bufferKm) / (farDistanceKm - bufferKm))^1.5)` decreases smoothly. The far-distance reference is 1,000 km in the Alps and half Earth's circumference (about 20,015 km) worldwide, where distance points reach 10. Correct section/region guesses still earn 15% of remaining points. Valley distances are measured to the boundary. About includes the updated Alpine comparison curve. Saved guesses are recalculated with the current curve when restored; totals may increase after this update. The current primary catalogue uses Wikidata identities. Older OSM dataset versions remain available for saved challenges.
 
 Results remain visible for six seconds before advancing automatically, without a Next summit button. The final three result cards appear side by side on desktop and stacked on mobile. The final recap retains every submitted round with distance, points, elevation, SOIUSA section, and section bonus; it survives refresh.
 
@@ -101,7 +116,7 @@ No runtime translation, external lookup or repeated name-generation step is need
 
 
 ### Mixed daily challenge
-Every new daily game draws **one Easy, one Medium, and one Hard summit**, in that order. The API defaults to mixed; explicit single-tier requests remain compatible. Old single-tier progress stays stored separately.
+Every new daily game draws **one Easy, one Medium, and one Hard summit**, in that order. The daily game defaults to mixed; explicit single-tier requests remain compatible. Old single-tier progress stays stored separately.
 
 The 18,777 peaks are ranked into **205 Easy, 3,262 Medium, 15,310 Hard**. See [the complete ranking](data/processed/difficulty-ranking.csv) and [classification rules](data/config/difficulty.json). Rebuild with `npm run data:peaks -- --offline`.
 
@@ -121,11 +136,11 @@ The initial Git snapshot includes the application, tests, documentation, and pre
 
 ## Worldwide peaks and Alpine valleys
 
-The mode selector keeps each daily game's progress separate. Worldwide Peaks includes **771 reviewed mountains and volcanoes (62 Easy, 172 Medium, 537 Hard; including 215 volcanoes)**, original GMBA Standard 300 regions, a 250 km scoring scale, and region bonuses. Each worldwide round starts from a world overview.
+The mode selector keeps each daily game's progress separate. Worldwide Peaks includes **771 reviewed mountains and volcanoes (62 Easy, 172 Medium, 537 Hard; including 215 volcanoes)**, original GMBA Standard 300 regions, a forgiving worldwide distance curve, and region bonuses. Each worldwide round starts from a world overview.
 
 Alpine Valleys gameplay and its multi-source preparation pipeline are implemented, but **release remains disabled**: 19 candidates pass review (7 Easy, 6 Medium, 6 Hard) across France, Italy and Switzerland; Austria has no fully verified entry yet. The app shows this mode as unavailable rather than releasing partial country coverage. Details, source definitions, exclusions, licenses and deployment instructions are in [mode documentation](docs/MODES.md).
 
-Run `npm run data:modes` to prepare catalogues, or add `-- --offline` to reuse cached source snapshots. Deploy `public/data/mode-*` static assets before enabling `data/processed/mode-index.json` on the API host. `/v2/challenge` adds mode-aware target IDs; `/v1/challenge` and existing Alpine progress remain compatible. English, German, French and Italian instructions, the free Mont Blanc practice, and bold current difficulty are preserved.
+Run `npm run data:modes` to prepare catalogues, or add `-- --offline` to reuse cached source snapshots. Rebuild and deploy the complete static site after updating `public/data/mode-*` assets and `data/processed/mode-index.json`. `/v2/challenge` adds mode-aware target IDs; `/v1/challenge` and existing Alpine progress remain compatible. English, German, French and Italian instructions, the free Mont Blanc practice, and bold current difficulty are preserved.
 
 ### Full worldwide candidate retrieval
 
@@ -141,7 +156,7 @@ Worldwide discovery completed on **1 October 2026**: 1,165 unique candidates, in
 
 ## Institutional logos
 
-The ÖAW / IGF signatures share existing interface space in every mode: centered in the desktop header and in a small white badge at the left of the existing mobile footer. A localized “Designed by” caption identifies the credit. No additional row reduces the map height. ÖAW remains left of IGF, using the supplied cropped SVGs with equal visible image heights (32 px desktop, 18 px mobile) and original animations and aspect ratios. Links open in a new tab: German selects the German ÖAW and IGF pages; English, French and Italian select their English pages. Assets are in `public/logos/`; the shared component is `src/ui/InstitutionFooter.tsx`. The earlier `/logos-prototype.html` URL redirects to the finished game.
+The ÖAW / IGF signatures share existing interface space in every mode: centered in the desktop header and in a small white badge at the left of the existing mobile footer. A localized “Designed by” caption identifies the credit. No additional row reduces the map height. ÖAW remains left of IGF, using the supplied cropped SVGs with equal visible image heights (32 px desktop, 18 px mobile) and preserved artwork aspect ratios. ÖAW uses the supplied 2025 English corporate-design logo in its original blue, cropped to `14 13.85 142.1 57.35`, with a single 1.2-second fade-in of the complete logo; reduced-motion users see it immediately. IGF retains its existing animation. Links open in a new tab: German selects the German ÖAW and IGF pages; English, French and Italian select their English pages. Assets are in `public/logos/`; the shared component is `src/ui/InstitutionFooter.tsx`. The earlier `/logos-prototype.html` URL redirects to the finished game.
 
 Institutional logo links use their natural widths with equal spacing on either side of the divider. The desktop credit centers over the complete logo pair.
 
@@ -149,7 +164,7 @@ The welcome popup repeats the same linked logo pair and localized “Designed by
 
 ### Expanded worldwide game enabled
 
-Worldwide Peaks now uses `mode-13d7445c720f`: **771 targets including 215 volcanoes**. The catalogue review admits 771 of the 838 geographically eligible candidates and records 67 holds for ambiguous regional, island, pass, cultural-site or non-mountain identities. The 250 km scoring scale and original GMBA polygons are unchanged. Volcano prompts are translated in all four interface languages. Older versioned assets remain available so saved games keep their original targets.
+Worldwide Peaks now uses `mode-13d7445c720f`: **771 targets including 215 volcanoes**. The catalogue review admits 771 of the 838 geographically eligible candidates and records 67 holds for ambiguous regional, island, pass, cultural-site or non-mountain identities. The original GMBA polygons are unchanged; scoring now uses the buffered worldwide curve described above. Volcano prompts are translated in all four interface languages. Older versioned assets remain available so saved games keep their original targets.
 
 Rebuild with `npm run data:modes -- --mode world --offline`. Preparation requires a complete discovery snapshot whose SHA-256 matches `data/config/world-review.json`; changed or unreviewed input cannot silently enter the game. No new geographic downloads are needed for this release.
 

@@ -84,3 +84,18 @@ output/welcome-logos/
 
 # Local grouped game, brand and region-selector verification captures
 output/region-selector/
+
+# Disposable scoring-curve review captures
+output/scoring/
+
+# Static deployment verification captures
+output/static-daily/
+
+# Disposable About-dialog group-credit review captures
+output/project-credits/
+
+# Disposable corporate-logo fade review captures
+output/oeaw-fade/
+
+# Local GitHub Pages deployment checks
+output/pages/

@@ -52,8 +52,8 @@ test('loads all three mixed regional challenges and switches all interface langu
  for(const locale of ['de','fr','it','en']){await page.locator('.language-select select').selectOption(locale);await expect(page.locator('html')).toHaveAttribute('lang',locale);}
  await page.reload();await expect(page.locator('.filterbar>label:not(.mode-select) select')).toHaveValue('eastern-alps');await expect(page.locator('.filterbar>label:not(.mode-select) select')).toHaveCount(1);
 });
-test('provides an API retry state without creating a local challenge',async({page})=>{
- await page.route('**/v1/challenge?**',route=>route.abort());await page.goto('/');await expect(page.getByRole('button',{name:'Try again',exact:true})).toBeVisible();await expect(page.locator('.game-card')).toHaveCount(0);
+test('provides a retry state when the static selection catalogue fails',async({page})=>{
+ await page.route('**/data/processed/api-index.json*',route=>route.abort());await page.goto('/');await expect(page.getByRole('button',{name:'Try again',exact:true})).toBeVisible();await expect(page.locator('.game-card')).toHaveCount(0);
 });
 test('falls back to 2D when elevation tiles fail',async({page})=>{
  await page.route('**/terrarium/**',route=>route.abort());await page.goto('/');await expect(page.locator('.game-card')).toBeVisible();await expect(page.locator('.terrain-notice')).toBeVisible();await expect(page.locator('.terrain-toggle:not(.shadow-toggle)')).toBeDisabled();

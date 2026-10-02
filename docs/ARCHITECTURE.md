@@ -6,7 +6,7 @@
 - `src/data`: replaceable challenge-provider contract and versioned static dataset loader. No global browser point-in-polygon joins. Exact geometry for the current peak’s sections is loaded individually to test the single submitted guess and draw the post-guess outline.
 - `src/map`: MapLibre rendering, markers, satellite/DEM configuration, camera and reveal animation. Game logic never depends on elevation tiles.
 - `src/App.tsx`: round state, presentation, preferences, summary, and accessibility. A map click immediately submits and locks the guess; results are immutable through the interface.
-- `server`: a small Node HTTP service. It loads an immutable index at startup, validates all pools, enforces query/CORS rules, and returns daily IDs.
+- `server`: an optional legacy Node HTTP service. It loads an immutable index at startup, validates all pools, enforces query/CORS rules, and returns daily IDs.
 - `scripts`: pinned Python preprocessing and TypeScript diagnostics.
 
 ## Deterministic daily deck
@@ -21,9 +21,9 @@ Scoring uses a haversine great-circle distance on a sphere with mean Earth radiu
 
 Preferences override browser-language defaults. Region defaults to All Alps and daily mode to mixed (Easy, Medium, Hard). Former single-tier sessions remain separately stored. Per-region/difficulty session keys store the complete challenge, selected peak snapshots, submitted marker, scored results, round index, and completion state. Scores are recomputed when restoring valid saved results. Invalid/corrupt state is discarded safely; quota/private-mode failures show a visible notice.
 
-An unfinished game with confirmed progress may continue after Vienna midnight. A fresh challenge uses the server's date. A completed prior-day game refreshes on next load, or offers the new day's challenge if the page remained open. Successful API responses are cached; only today's cached list is used when the API fails. A machine with a wrong clock may have misleading fallback eligibility, but online challenge dates come from the server.
+An unfinished game with confirmed progress may continue after Vienna midnight. A fresh challenge uses the browser clock formatted in Europe/Vienna. A completed prior-day game refreshes on next load, or offers the new day's challenge if the page remained open. Challenges are generated from lazy-loaded static selection catalogues by default; daily selections are cached locally. A nonempty `VITE_API_URL` opts into the legacy server provider. Device clock changes affect static challenge dates.
 
-The API has no anti-cheat guarantee: all peak coordinates are public static assets and results are local. It does not identify users or track guesses. Network requests at play time are the daily API, static assets, satellite/DEM tiles, and typography from Google Fonts. No analytics or location permission requests are implemented.
+The API has no anti-cheat guarantee: all peak coordinates are public static assets and results are local. It does not identify users or track guesses. Network requests at play time are static assets (plus the daily API only when configured), satellite/DEM tiles, and typography from Google Fonts. No analytics or location permission requests are implemented.
 
 ## Extension points
 

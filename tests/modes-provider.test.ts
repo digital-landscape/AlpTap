@@ -6,13 +6,15 @@ const targets:Target[]=['easy','medium','hard'].flatMap((tier,i)=>Array.from({le
 const challenge=()=>generateModeChallenge({version:'mode-123456abcdef',mode:'alpine-valleys',validated:true,targets},viennaDate());
 const manifest:ModeManifest={schemaVersion:2,version:'mode-123456abcdef',mode:'alpine-valleys',targets,regions:[],bounds:[0,0,2,2],attribution:[]};
 const storage=()=>{const data=new Map<string,string>();return {getItem:(k:string)=>data.get(k)??null,setItem:(k:string,v:string)=>{data.set(k,v);}};};
-afterEach(()=>vi.unstubAllGlobals());
-it('namespaces daily caches and refuses a cross-mode response',async()=>{
- const cache=storage();vi.stubGlobal('fetch',vi.fn().mockResolvedValue(new Response(JSON.stringify(challenge()))));
- await modeChallenge('alpine-valleys',cache);
- vi.stubGlobal('fetch',vi.fn().mockRejectedValue(new Error('offline')));
- expect((await modeChallenge('alpine-valleys',cache)).mode).toBe('alpine-valleys');
- await expect(modeChallenge('world-peaks',cache)).rejects.toThrow();
+afterEach(()=>{vi.unstubAllGlobals();vi.useRealTimers();});
+it('generates worldwide challenges from static data without API requests',async()=>{
+ const fetch=vi.fn().mockRejectedValue(new Error('No API'));vi.stubGlobal('fetch',fetch);vi.useFakeTimers();
+ vi.setSystemTime(new Date('2026-10-01T21:59:59Z'));
+ const first=await modeChallenge('world-peaks',storage());
+ expect(first.date).toBe('2026-10-01');expect(await modeChallenge('world-peaks',storage())).toEqual(first);
+ vi.setSystemTime(new Date('2026-10-01T22:00:00Z'));
+ const next=await modeChallenge('world-peaks',storage());
+ expect(next.date).toBe('2026-10-02');expect(next.targetIds.every(id=>!first.targetIds.includes(id))).toBe(true);expect(fetch).not.toHaveBeenCalled();
 });
 it('recalculates restored scores from pinned geometry and keeps submitted guesses on failure',async()=>{
  const cache=storage(),c=challenge(),target=targets.find(t=>t.id===c.targetIds[0])!;
