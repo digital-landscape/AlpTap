@@ -15,7 +15,7 @@ import {loadSections} from './sections';
 import {modeManifest,modeSessionKey,targetGeometry} from './modes';
 import type {Challenge,GameSession,Manifest} from '../core/types';
 
-interface SetupBase {scoring?:ScoringProfile;storageKey:string;legacyKey?:string;polygon?:Ring;bounds?:[number,number,number,number]}
+interface SetupBase {shareRoute?:GameRoute;scoring?:ScoringProfile;storageKey:string;legacyKey?:string;polygon?:Ring;bounds?:[number,number,number,number]}
 export interface AlpineSetup extends SetupBase {kind:'alpine-peaks';session:GameSession;manifest:Manifest}
 export interface WorldSetup extends SetupBase {kind:'world-peaks';session:ModeSession;manifest:ModeManifest}
 export type PlaySetup=AlpineSetup|WorldSetup;
@@ -53,7 +53,7 @@ export async function preparePlay(route:GameRoute,catalog:Catalog,date:string,st
   const identity=custom?`${catalog.id}|${encodePolygon(route.polygon!)}`:'';
   const picks=selection?customPicks(selection.pool,identity,date):null;
   const id=`custom-v1|${identity}|${date}`;
-  const common={scoring:selection?.scoring,polygon:route.polygon,bounds:route.polygon?polygonBounds(route.polygon):undefined};
+  const common={shareRoute:custom?{...route,catalog:catalog.id}:undefined,scoring:selection?.scoring,polygon:route.polygon,bounds:route.polygon?polygonBounds(route.polygon):undefined};
   if(mode==='alpine-peaks'){
     const challenge:Challenge=picks?{id,date,timezone:'Europe/Vienna',region:'alps',difficulty:'mixed',datasetVersion:catalog.alpine.version,algorithmVersion:'custom-v1',roundCount:3,peakIds:picks.map(p=>p.id),roundDifficulties:picks.map(p=>p.difficulty),nextRollover:nextViennaRollover(date)}:
       generateChallenge(catalog.alpine.peaks,{date,region:route.region,difficulty:'mixed',datasetVersion:catalog.alpine.version},catalog.curated);

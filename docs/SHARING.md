@@ -1,20 +1,26 @@
-# Results sharing and exact replays
+# Results sharing and daily invitations
 
 The completed Alpine (including Western/Eastern Alps) and Worldwide recaps offer **Share results** and **Copy results** in English, German, French and Italian. Native sharing opens the device share sheet; unsupported or failed sharing falls back to copying. Cancelling the sheet does nothing. If clipboard access fails, a selectable text box remains available.
 
-Example (the final line is a complete replay URL in the actual message):
+Example:
 
 ```text
 AlpTap · Alps
 1000🏔️ 950🧗 760🥾
 Final score: 2710 / 3000
-Play these peaks 👇
-https://digital-landscape.at/AlpTap/?play=…
+Play today’s game 👇
+https://digital-landscape.at/AlpTap/?mode=alpine-peaks
 ```
 
 Scores remain on the game's existing 0–1000 scale per round. The badges describe the score, not the peak's difficulty: 🚶 walker below 700, 🥾 hiker from 700, 🧗 climber from 900, 🏔️ summit at 1000. The message excludes summit names and guess positions.
 
-## Replay contract
+## Daily result links
+
+Standard result links contain only `mode=alpine-peaks` or `mode=world-peaks`, plus `region=western-alps` or `region=eastern-alps` when selected. They omit the original date, target IDs, algorithm, and catalogue version. Opening a link uses the current catalogue and the current Europe/Vienna day, so it gives a new daily selection on the following day. Both native sharing and clipboard copying use the same link and localized “Play today’s game” invitation.
+
+Custom results retain their polygon and catalogue route so the same area and scoring apply; these also select the current day. Existing `?play=` URLs remain supported as exact replays for compatibility.
+
+## Legacy replay contract
 
 `?play=` contains a versioned, validated base64url JSON tuple. It pins the dataset version, original algorithm identifier, ordered target IDs, and (for Alpine games) region and difficulty. The original date is retained as context, but it is never used to select replacement peaks. Curated selections and previous datasets therefore replay exactly. The token does not include guesses, scores, coordinates or target names; IDs remain inspectable, as with all public game data.
 
@@ -28,7 +34,7 @@ Keep old `public/data/alps-*` and `public/data/mode-*` assets in future deployme
 
 `public/social/alptap-preview-v1.jpg` is a tracked 1200 × 630 JPEG. The built HTML contains Open Graph image/type/dimensions/alt text and Twitter large-image-card tags. Crawlers can see these without executing JavaScript. The preview is a generic, spoiler-free mountain invitation, not a rendering of individual scores.
 
-`SITE_URL` must be the public deployment URL **including the base path**, for example `https://digital-landscape.at/AlpTap/`. GitHub Pages supplies `steps.pages.outputs.base_url` automatically. For another host, set `SITE_URL` at build time alongside Vite's `--base`. The fallback is the documented production URL. Native and copied replay URLs use the current browser origin and Vite base path so project-path and root-domain hosting both work.
+`SITE_URL` must be the public deployment URL **including the base path**, for example `https://digital-landscape.at/AlpTap/`. GitHub Pages supplies `steps.pages.outputs.base_url` automatically. For another host, set `SITE_URL` at build time alongside Vite's `--base`. The fallback is the documented production URL. Native and copied result URLs use the current browser origin and Vite base path so project-path and root-domain hosting both work.
 
 Root-only canonical and `og:url` tags are deliberately omitted: a static HTML file cannot emit the request's replay query, and substituting the homepage would discard the exact-game URL. The same preview tags are included in explorer/training HTML. Metadata follows the [Open Graph protocol](https://ogp.me/); native sharing uses the [Web Share API](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/share).
 

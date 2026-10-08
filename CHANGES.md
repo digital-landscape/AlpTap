@@ -1,3 +1,8 @@
+## 2026-10-08 — Short daily result links
+
+- Share and copy results with only the standard mode and Alpine region; opening the link on another day selects that day’s mountains from the current catalogue.
+- Use the localized “Play today’s game” invitation. Preserve custom-area routes and support for existing exact-replay links.
+
 ## 2026-10-02 — Credit Maptap inspiration
 
 - Add a linked “Inspired by maptap.gg” acknowledgement to the project motivation in all four interface languages and the README.
@@ -34,6 +39,12 @@
 - Add a 10 km GMBA region-bonus tolerance for worldwide games, including replays and custom areas.
 - Keep source polygons and target selection intact; explain the tolerance in all four help languages.
 - Recalculate restored guesses with the same tolerance and cover edge, hole, multipart, high-latitude and dateline cases.
+
+## 2026-10-02 — Share custom results
+
+- Enable result sharing and copying for Alpine and worldwide custom areas using their polygon and pinned catalogue links.
+- Use standard share and overlapping-pages copy icons, including the toolbar Copy link control.
+- Retain localized labels, native sharing, clipboard fallback, and existing exact replays for standard games.
 
 ## 2026-10-02 — Scale custom scores to the drawn surface
 

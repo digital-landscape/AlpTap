@@ -41,6 +41,8 @@ Custom scoring adapts to the polygon’s geographical surface area: smaller area
 
 The **Copy link** overlapping-pages icon copies the full address, including the mode, compact polygon when applicable, URL version, and immutable catalogue release. Both icons have localized tooltips and accessible labels; a checkmark confirms copying. If clipboard access is unavailable, select and copy the displayed link. The same link gives everyone the same ordered picks each Alpine day and changes at midnight in `Europe/Vienna`. It contains neither the date nor player answers. Standard entry links also work: `?mode=world-peaks` and `?mode=alpine-peaks&region=western-alps`.
 
+Completed custom games also offer **Share results** and **Copy results**, with standard share and copy icons. Their link preserves the polygon and catalogue, including custom scoring, and opens that area’s current daily game. Standard result links contain only the mode and, for Western/Eastern Alps, the region; they open the current daily selection when used, including on later days.
+
 Explicit links take priority over saved preferences. Progress is stored by catalogue and challenge identity. Matching legacy progress is imported; older/different games remain in storage. The URL-driven games always open today's selection and roll over at Alpine midnight, including after a suspended tab regains focus. Existing Explore and training links remain available.
 
 `npm run data:catalog` publishes a content-addressed release under `public/data/catalogs/`; dev/build commands run it automatically. **Commit new releases and `current.json`, and retain all older catalogue files and the versioned data they reference.** Never overwrite or prune a released catalogue. See [custom areas and sharing](docs/CUSTOM-AREAS.md) for the URL format, validation, and deployment contract.
@@ -213,7 +215,7 @@ Typing **Patagonia** in the worldwide explorer now selects the full GMBA region,
 
 ## Share results and replay with friends
 
-The final Alpine and Worldwide recaps include **Share results** and **Copy results**, with mountain score badges (🚶 walker, 🥾 hiker, 🧗 climber, 🏔️ summit). Shared links pin the exact ordered peaks, region/difficulty and dataset version, so recipients can play the same selection on another day. Replay progress is saved separately from daily progress. Keep historical versioned datasets deployed for old links to work.
+The final Alpine and Worldwide recaps include **Share results** and **Copy results**, with mountain score badges (🚶 walker, 🥾 hiker, 🧗 climber, 🏔️ summit). Shared result links open the current daily game in the selected mode and region, for example `?mode=alpine-peaks`. They contain no date, mountain IDs, replay token or dataset version, so opening the link tomorrow gives tomorrow’s mountains. The invitation says “Play today’s game” in the selected language. Previously shared `?play=` links still replay their original selection with separate saved progress; keep historical versioned datasets deployed for those old links to work.
 
 A 1200 × 630 illustrated mountain card accompanies crawler-readable Open Graph and large-image card metadata. GitHub Pages sets its absolute public image URL automatically. Other hosts should set `SITE_URL` to the public URL including the base path when building. See [sharing, replay format, artwork prompt and deployment checks](docs/SHARING.md).
 

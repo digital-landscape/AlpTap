@@ -1,4 +1,5 @@
 import { GAME } from './config';
+import { gameURL, type GameRoute } from './game-url';
 import { nextViennaRollover } from './date';
 import { validChallenge } from './persistence';
 import { validV2, scoringRuleFor, TIERS, type ChallengeV2 } from './modes';
@@ -55,6 +56,14 @@ export function challengeLink(challenge: ShareChallenge, pageUrl: string, basePa
   return url.href;
 }
 
+// Result invitations follow the current daily game; only custom areas need their full route.
+export function resultLink(challenge: ShareChallenge, pageUrl: string, basePath: string, route?: GameRoute): string {
+  const dailyRoute: GameRoute = route?.mode === 'custom' ? route : isMode(challenge)
+    ? { mode: 'world-peaks', region: 'alps' }
+    : { mode: 'alpine-peaks', region: challenge.region };
+  return gameURL(new URL(basePath, pageUrl).href, dailyRoute);
+}
+
 export const scoreEmoji = (score: number): string => score >= 1000 ? '🏔️' : score >= 900 ? '🧗' : score >= 700 ? '🥾' : '🚶';
 export const shareMessages = {
   en: { share: 'Share results', copy: 'Copy results', copied: 'Results copied!', failed: 'Select and copy your results below.', preview: 'Your share message', final: 'Final score', play: 'Play these peaks', shared: 'Shared challenge', hint: 'The same peaks, in the same order. Play at your own pace.', daily: 'Play today’s game', invalid: 'This challenge link is invalid or unsupported.', legend: '🚶 Walker <700 · 🥾 Hiker 700+ · 🧗 Climber 900+ · 🏔️ Summit 1000' },
@@ -63,7 +72,7 @@ export const shareMessages = {
   it: { share: 'Condividi i risultati', copy: 'Copia i risultati', copied: 'Risultati copiati!', failed: 'Seleziona e copia i risultati qui sotto.', preview: 'Il tuo messaggio', final: 'Punteggio finale', play: 'Gioca queste cime', shared: 'Sfida condivisa', hint: 'Le stesse cime, nello stesso ordine. Gioca al tuo ritmo.', daily: 'Gioca la sfida di oggi', invalid: 'Questo link non è valido o non è supportato.', legend: '🚶 Camminatore <700 · 🥾 Escursionista 700+ · 🧗 Alpinista 900+ · 🏔️ Vetta 1000' },
 } satisfies Record<Locale, Record<string, string>>;
 
-export function shareText(scores: readonly number[], label: string, locale: Locale, link: string): string {
+export function shareText(scores: readonly number[], label: string, locale: Locale, link: string, daily = false): string {
   const t = shareMessages[locale];
-  return `AlpTap · ${label}\n${scores.map(score => `${score}${scoreEmoji(score)}`).join(' ')}\n${t.final}: ${scores.reduce((sum, score) => sum + score, 0)} / ${scores.length * GAME.maxRoundScore}\n${t.play} 👇\n${link}`;
+  return `AlpTap · ${label}\n${scores.map(score => `${score}${scoreEmoji(score)}`).join(' ')}\n${t.final}: ${scores.reduce((sum, score) => sum + score, 0)} / ${scores.length * GAME.maxRoundScore}\n${daily ? t.daily : t.play} 👇\n${link}`;
 }

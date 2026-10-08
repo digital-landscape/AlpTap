@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { challengeLink, challengeToken, parseSharedGame, scoreEmoji, shareText } from '../src/core/sharing';
+import { challengeLink, challengeToken, parseSharedGame, resultLink, scoreEmoji, shareText } from '../src/core/sharing';
 import { generateChallenge } from '../src/core/challenge';
 import { generateModeChallenge, type ModeIndex } from '../src/core/modes';
 import { loadSession, saveJSON, sessionKey } from '../src/core/persistence';
@@ -16,6 +16,17 @@ const storage = () => { const data = new Map<string, string>(); return { getItem
 afterEach(() => vi.unstubAllGlobals());
 
 describe('exact shared challenges', () => {
+  it('shares only the daily mode and Alpine region, removing replay and release details', () => {
+    const page = 'https://example.org/AlpTap/?play=old&catalog=catalog-0000000000000000#map';
+    expect(resultLink(alpine(), page, '/AlpTap/')).toBe('https://example.org/AlpTap/?mode=alpine-peaks');
+    for (const region of ['western-alps', 'eastern-alps'] as const) {
+      expect(resultLink(alpine(region), page, '/AlpTap/')).toBe(`https://example.org/AlpTap/?mode=alpine-peaks&region=${region}`);
+    }
+    expect(resultLink(world(), page, '/')).toBe('https://example.org/?mode=world-peaks');
+    expect(resultLink(alpine(), page, '/AlpTap/', {mode:'alpine-peaks',region:'alps',catalog:'catalog-0000000000000000'})).not.toContain('catalog');
+    const text = shareText([1000,553,487], 'Toutes les Alpes', 'fr', resultLink(alpine(), page, '/AlpTap/'), true);
+    expect(text).toContain('Jouer le défi du jour 👇\nhttps://example.org/AlpTap/?mode=alpine-peaks');
+  });
   it('pins regional, single-tier, curated-order and worldwide selections without reselecting a date', () => {
     for (const challenge of [alpine(), alpine('western-alps'), alpine('eastern-alps', 'hard'), world()]) {
       const link = challengeLink(challenge, 'https://example.org/AlpTap/?other=1#old', '/AlpTap/');
@@ -35,6 +46,7 @@ describe('exact shared challenges', () => {
     expect(text).toBe('AlpTap · Alps\n1000🏔️ 950🧗 760🥾\nFinal score: 2710 / 3000\nPlay these peaks 👇\nhttps://example.org/?play=pinned');
     expect([0, 699, 700, 899, 900, 999, 1000].map(scoreEmoji)).toEqual(['🚶','🚶','🥾','🥾','🧗','🧗','🏔️']);
     for (const locale of ['en','de','fr','it'] as const) expect(shareText([0,0,0], 'Alps', locale, 'link')).toContain('0 / 3000');
+    expect(shareText([1000,950,760], 'Custom', 'en', 'https://example.org/?mode=custom', true)).toContain('Play today’s game 👇\nhttps://example.org/?mode=custom');
   });
   it('rejects malformed, oversized, unsupported and unsafe links explicitly', () => {
     expect(parseSharedGame('?utm_source=friend')).toBeNull();

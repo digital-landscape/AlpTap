@@ -26,7 +26,7 @@ The polygon encoding uses integer coordinates at 1e-5 degrees, alternating longi
 
 There is no date parameter. The browser's date in `Europe/Vienna` determines the daily challenge. The shell checks every ten seconds and on focus/visibility changes; all players with the same link and Alpine date obtain the same ordered IDs, regardless of interface language or local preferences. Device clocks must be correct. A shared link pins the catalogue across midnight and future deployments, but its selection changes daily. New links without a catalogue use the current release.
 
-Sharing never includes player guesses, results, or explicit answer IDs. This remains a casual client-side game: public data and deterministic selection can be inspected. No backend, account, or short-link service is required. Deployment base paths are preserved.
+Game links never include player guesses, results, or explicit answer IDs. Completed custom games offer Share results and Copy results: the message includes scores and a daily link containing the polygon and pinned catalogue. Both Alpine and worldwide custom areas retain their polygon-based scoring when opened. The link follows the same daily rollover rules as Copy link; it does not freeze the completed day. This remains a casual client-side game: public data and deterministic selection can be inspected. No backend, account, or short-link service is required. Deployment base paths are preserved.
 
 ## Release and persistence contracts
 

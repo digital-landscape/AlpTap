@@ -148,7 +148,7 @@ output/osm-audit/
 # Local map-first explorer review captures
 output/explore-map/
 
-# Disposable sharing/replay browser captures (published social artwork is tracked).
+# Disposable daily-result sharing and legacy replay checks (published social artwork is tracked).
 output/sharing/
 
 # Disposable water/coastline tile samples used when checking basemap rendering.
@@ -170,3 +170,6 @@ output/custom-scoring/
 
 # Disposable GMBA boundary-tolerance verification output
 output/gmba-buffer/
+
+# Disposable custom-result sharing and icon review captures
+output/custom-sharing/

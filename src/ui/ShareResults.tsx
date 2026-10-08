@@ -1,12 +1,13 @@
 import { useRef, useState } from 'react';
-import { challengeLink, shareMessages, shareText, type ShareChallenge } from '../core/sharing';
+import { resultLink, shareMessages, shareText, type ShareChallenge } from '../core/sharing';
 import type { Locale } from '../core/types';
+import { type GameRoute } from '../core/game-url';
 import { CopyIcon, ShareIcon } from './ShareIcons';
 
-export function ShareResults({ challenge, scores, label, locale }: { challenge: ShareChallenge; scores: number[]; label: string; locale: Locale }) {
+export function ShareResults({ challenge, scores, label, locale, route }: { challenge: ShareChallenge; scores: number[]; label: string; locale: Locale; route?: GameRoute }) {
   const t = shareMessages[locale];
-  const link = challengeLink(challenge, window.location.href, import.meta.env.BASE_URL);
-  const text = shareText(scores, label, locale, link);
+  const link = resultLink(challenge, window.location.href, import.meta.env.BASE_URL, route);
+  const text = shareText(scores, label, locale, link, true);
   const [status, setStatus] = useState<'copied' | 'failed' | null>(null);
   const [busy, setBusy] = useState(false);
   const fallback = useRef<HTMLTextAreaElement>(null);

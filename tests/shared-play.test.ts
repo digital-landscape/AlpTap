@@ -9,13 +9,28 @@ import {loadSections} from '../src/data/sections';
 import {targetGeometry} from '../src/data/modes';
 import {generateModeChallenge,evaluateModeGuess} from '../src/core/modes';
 import {encodePolygon,decodePolygon,type Ring} from '../src/core/custom';
-import type {GameRoute} from '../src/core/game-url';
+import {gameURL,readGameRoute,type GameRoute} from '../src/core/game-url';
 import {browserStorage,readJSON,saveJSON} from '../src/core/persistence';
+import {resultLink} from '../src/core/sharing';
 const current=JSON.parse(readFileSync('public/data/catalogs/current.json','utf8'));
 const catalog:Catalog=JSON.parse(readFileSync(`public/data/catalogs/${current.id}.json`,'utf8'));
 const storage=()=>{const data=new Map<string,string>();return {getItem:(k:string)=>data.get(k)??null,setItem:(k:string,v:string)=>{data.set(k,v);}};};
 function serve(){vi.stubGlobal('fetch',vi.fn(async(url:string)=>{try{return new Response(readFileSync('public/'+url.replace(/^\//,''),'utf8'));}catch{return new Response('',{status:404});}}));}
 afterEach(()=>vi.unstubAllGlobals());
+it('opens the next daily selection when a result link is used the following day',async()=>{
+  serve();
+  for(const route of [{mode:'alpine-peaks',region:'alps'},{mode:'alpine-peaks',region:'western-alps'},{mode:'alpine-peaks',region:'eastern-alps'},{mode:'world-peaks',region:'alps'}] as const){
+    const first=await preparePlay(route,catalog,'2026-10-08',storage());
+    const link=resultLink(first.session.challenge,'https://example.org/AlpTap/?play=old','/AlpTap/');
+    const sharedRoute=readGameRoute(new URL(link).search,{mode:'world-peaks',region:'eastern-alps'});
+    expect(sharedRoute.catalog).toBeUndefined();
+    const next=await preparePlay(sharedRoute,catalog,'2026-10-09',storage());
+    expect(next.session.challenge.date).toBe('2026-10-09');
+    expect(next.session.challenge.id).not.toBe(first.session.challenge.id);
+    const ids=(game:typeof first)=>game.kind==='alpine-peaks'?game.session.challenge.peakIds:game.session.challenge.targetIds;
+    expect(ids(next)).not.toEqual(ids(first));
+  }
+});
 it('keeps in-page progress if browser storage is unavailable while reporting the write failure',()=>{
   vi.stubGlobal('localStorage',{getItem:()=>{throw new Error('blocked');},setItem:()=>{throw new Error('blocked');}});
   expect(saveJSON(browserStorage,'test:blocked-progress',{round:1})).toBe(false);
@@ -67,6 +82,14 @@ it.each([
   serve();const route:GameRoute={mode:'custom',region:'alps',catalog:catalog.id,polygon:polygon.map(([x,y])=>[x,y])};
   const s=storage(),game=await preparePlay(route,catalog,'2026-10-02',s);
   expect(game.kind).toBe(mode);expect(game.scoring).toBeDefined();
+  const link=resultLink(game.session.challenge,'https://example.org/AlpTap/?play=stale#map','/AlpTap/',game.shareRoute);
+  expect(link).not.toContain('play=');expect(link).not.toContain('#');
+  expect(new URL(link).pathname).toBe('/AlpTap/');
+  const sharedRoute=readGameRoute(new URL(link).search,{mode:'world-peaks',region:'eastern-alps'});
+  expect(sharedRoute.catalog).toBe(catalog.id);expect(sharedRoute.mode).toBe('custom');
+  const shared=await preparePlay(sharedRoute,catalog,'2026-10-02',storage());
+  expect(shared.session.challenge).toEqual(game.session.challenge);
+  expect(shared.scoring).toEqual(game.scoring);
   const guess={lon:polygon[0][0],lat:polygon[0][1]};
   let live,standard;
   if(game.kind==='alpine-peaks'){
