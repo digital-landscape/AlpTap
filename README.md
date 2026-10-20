@@ -61,13 +61,13 @@ The device clock determines the date. Future selections and coordinates are insp
 
 Repository: https://github.com/digital-landscape/AlpTap
 
-Live site: https://digital-landscape.at/AlpTap/ (inherits the organization’s existing Pages domain).
+Live site: https://alptap.eu/.
 
-Pushes to `master` run `.github/workflows/pages.yml`: install dependencies, run unit tests, build the static frontend with `npm run build:pages`, and publish `dist/` through GitHub Actions. The workflow reads the base path from GitHub Pages and applies it to application assets, catalogues and institutional logos: `/AlpTap/` for the organization project URL, or `/` for a dedicated custom domain. Pages uses the **GitHub Actions** publishing source. Leave `VITE_API_URL` empty; no backend or daily rebuild is needed. You can also redeploy manually from the workflow’s Actions page.
+Pushes to `master` run `.github/workflows/pages.yml`: install dependencies, run unit tests, build the static frontend with `npm run build:pages`, and publish `dist/` through GitHub Actions. The build uses relative asset, catalogue and navigation URLs, so the same `dist/` works at `/` or `/AlpTap/` without rebuilding. Generated explorer and training pages include `<base href="../">` to resolve those URLs from the application root. The workflow reads the public URL from GitHub Pages for absolute social-preview image metadata. Pages uses the **GitHub Actions** publishing source. Leave `VITE_API_URL` empty; no backend or daily rebuild is needed. You can also redeploy manually from the workflow’s Actions page.
 
-To verify locally, run `npm run build:pages -- --base=/AlpTap/` and `npm run preview -- --base=/AlpTap/`, then open `http://127.0.0.1:4173/AlpTap/`.
+To verify locally, run `npm run build:pages` and `npm run preview`, then open `http://127.0.0.1:4173/`. A static server can also mount the same output under `/AlpTap/`; directory URLs must end with `/` (GitHub Pages redirects to that form).
 
-To add a dedicated domain later, configure it in **Settings → Pages → Custom domain**, point its DNS to GitHub Pages, and enable HTTPS after GitHub verifies the certificate. Redeploy through **Actions → Deploy GitHub Pages → Run workflow** after changing the domain so the build picks up the new base path. GitHub redirects the default Pages URL to the configured domain. Both addresses lead to the game. Every subsequent push to `master` automatically tests, builds and deploys updates to the configured address. Browser progress is stored per origin and does not transfer automatically when switching domains.
+To add a dedicated domain later, configure it in **Settings → Pages → Custom domain**, point its DNS to GitHub Pages, and enable HTTPS after GitHub verifies the certificate. Redeploy through **Actions → Deploy GitHub Pages → Run workflow** after changing the domain to update absolute social-preview metadata. Relative paths do not override GitHub’s hosting redirects or make an unconfigured address serve the site. GitHub redirects the default Pages URL to the configured domain. Both addresses lead to the game. Every subsequent push to `master` automatically tests, builds and deploys updates to the configured address. Browser progress is stored per origin and does not transfer automatically when switching domains.
 
 ### Optional legacy API
 

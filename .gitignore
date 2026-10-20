@@ -173,3 +173,6 @@ output/gmba-buffer/
 
 # Disposable custom-result sharing and icon review captures
 output/custom-sharing/
+
+# Disposable checks of one build mounted at root and a repository subpath
+output/relative-paths/
