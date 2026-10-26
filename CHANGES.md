@@ -1,3 +1,9 @@
+## 2026-10-26 — Search engine discoverability
+
+- Add `robots.txt` and a `sitemap.xml` listing the game and explorer, a descriptive page title and description, and a short static introduction that crawlers and no-JavaScript visitors see before the app replaces it.
+- Declare canonical URLs: query variants and shared links consolidate into the root page; `/training/` points to `/explore/`, which now has its own title and description. `og:url` stays omitted so link previews keep shared tokens.
+- Mark the `/logos-prototype.html` redirect `noindex`.
+
 ## 2026-10-08 — Short daily result links
 
 - Share and copy results with only the standard mode and Alpine region; opening the link on another day selects that day’s mountains from the current catalogue.
