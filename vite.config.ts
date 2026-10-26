@@ -4,11 +4,13 @@ import { socialMetadata } from './scripts/social-metadata.ts';
 
 export default defineConfig(({ mode }) => {
   let relativeBase = true;
+  const siteUrl = process.env.SITE_URL || loadEnv(mode, process.cwd(), 'SITE_URL').SITE_URL || 'https://alptap.eu/';
+  const exploreUrl = new URL('explore/', siteUrl.endsWith('/') ? siteUrl : `${siteUrl}/`).href;
   return {
     base: './',
     plugins: [
       react(),
-      socialMetadata(process.env.SITE_URL || loadEnv(mode, process.cwd(), 'SITE_URL').SITE_URL || 'https://alptap.eu/'),
+      socialMetadata(siteUrl),
       {
         name: 'explore-pages',
         enforce: 'post',
@@ -20,7 +22,13 @@ export default defineConfig(({ mode }) => {
           if (index?.type !== 'asset') return;
           // Nested entry pages share the root page's assets, data and navigation.
           const html = typeof index.source === 'string' ? index.source : new TextDecoder().decode(index.source);
-          const source = relativeBase ? html.replace('<head>', '<head><base href="../">') : html;
+          const base = relativeBase ? html.replace('<head>', '<head><base href="../">') : html;
+          // Explorer and training render the same explorer, so both declare the explorer as canonical.
+          const source = base
+            .replace(/<title>[^<]*<\/title>/, '<title>Explore · AlpTap</title>')
+            .replace(/(<meta name="description" content=")[^"]*/, '$1Explore every peak in the AlpTap catalogue on a satellite map: locations, elevations and recorded names across the Alps and the world.')
+            .replace(/(<link rel="canonical" href=")[^"]*/, `$1${exploreUrl}`)
+            .replace(/<main class="static-intro">[\s\S]*?<\/main>/, '<main class="static-intro"><h1>Explore · AlpTap</h1><p>Browse every peak in the AlpTap catalogue on a satellite map, with locations, elevations and recorded names across the Alps and the world.</p><p>The explorer needs JavaScript to run.</p></main>');
           for (const page of ['explore', 'training']) {
             this.emitFile({ type: 'asset', fileName: `${page}/index.html`, source });
           }

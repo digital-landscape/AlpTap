@@ -175,3 +175,4 @@
 .project-credit-logos img{display:block;width:100%;max-width:120px;height:48px;object-fit:contain}
 @media(min-width:720px){.terrain-exaggeration{top:354px}}
 @media(max-width:719px){.map-display-controls{top:312px}.terrain-notice{top:358px}}
+.static-intro{min-height:100svh;max-width:640px;margin:0 auto;padding:24px;display:grid;place-content:center;gap:14px;text-align:center;color:var(--paper);line-height:1.5}.static-intro h1{font-family:Manrope,sans-serif;font-size:34px}
