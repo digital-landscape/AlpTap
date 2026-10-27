@@ -110,7 +110,7 @@ Round count, score decay, and algorithm version are centralized in `src/core/con
 
 - Historical OSM dataset only: peaks and administrative country boundaries: [© OpenStreetMap contributors, ODbL](https://www.openstreetmap.org/copyright). Country geometries are cached from [polygons.openstreetmap.fr](https://polygons.openstreetmap.fr/).
 - Primary peak data and names: Wikidata, [CC0](https://www.wikidata.org/wiki/Wikidata:Licensing).
-- Satellite: [EOX Maps](https://maps.eox.at/), Sentinel-2 cloudless 2024, modified Copernicus Sentinel data; the WMTS metadata declares CC BY-NC-SA 4.0. The service is rate-limited; coordinate broader public use and terms with EOX as planned.
+- Satellite: EOxCloudless https://cloudless.eox.at by EOX IT Services GmbH (Contains modified Copernicus Sentinel data 2024). This exact credit, requested by EOX, is shown in the map attribution and in the About dialogs; the WMTS metadata declares CC BY-NC-SA 4.0. If the imagery year changes, update `cloudless.year` in `src/map/config.ts`. The service is rate-limited; coordinate broader public use and terms with EOX as planned.
 - Terrain: [Mapzen terrain tiles and contributor attribution](https://github.com/tilezen/joerd/blob/master/docs/attribution.md). Includes Copernicus EU-DEM, Austrian open elevation data, and USGS SRTM/GMTED; applicable source credits are linked in the map and About dialog.
 - Supplied SOIUSA boundaries: Capleymar / [Homoalpinus](https://www.homoalpinus.com/alpes/subdivisions/soiusa/). Source files do not specify a redistribution license; confirm rights before public release. Only the current summit’s section polygons are loaded on demand for the area bonus and reveal outline; the complete hierarchy geometry is not downloaded at startup.
 

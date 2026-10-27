@@ -1,9 +1,11 @@
 import type { RasterDEMSourceSpecification, RasterSourceSpecification, VectorSourceSpecification } from 'maplibre-gl';
 const env = import.meta.env;
+// Credit wording requested by EOX; year matches the default s2cloudless-2024 layer.
+export const cloudless = { url: 'https://cloudless.eox.at', year: 2024 };
 export const satellite: RasterSourceSpecification = {
   type: 'raster', tiles: [env.VITE_SATELLITE_URL ?? 'https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2024_3857/default/g/{z}/{y}/{x}.jpg'], tileSize: 256,
   maxzoom: Number(env.VITE_SATELLITE_MAX_ZOOM ?? 14),
-  attribution: env.VITE_SATELLITE_ATTRIBUTION ?? '© <a href="https://maps.eox.at/" target="_blank" rel="noopener">EOX</a> · Contains modified Copernicus Sentinel data 2024 · <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA</a>',
+  attribution: env.VITE_SATELLITE_ATTRIBUTION ?? `EOxCloudless <a href="${cloudless.url}" target="_blank" rel="noopener">${cloudless.url}</a> by EOX IT Services GmbH (Contains modified Copernicus Sentinel data ${cloudless.year}) · <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA</a>`,
 };
 export const terrainConfig = {
   enabled: env.VITE_TERRAIN_ENABLED !== 'false', exaggeration: Number(env.VITE_TERRAIN_EXAGGERATION ?? 1.5),

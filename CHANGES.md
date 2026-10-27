@@ -1,3 +1,7 @@
+## 2026-10-27 — EOxCloudless imagery credit
+
+- Credit satellite imagery as requested by EOX: “EOxCloudless https://cloudless.eox.at by EOX IT Services GmbH (Contains modified Copernicus Sentinel data 2024)”, in the map attribution and in the About dialogs of every game mode.
+
 ## 2026-10-26 — Search engine discoverability
 
 - Add `robots.txt` and a `sitemap.xml` listing the game and explorer, a descriptive page title and description, and a short static introduction that crawlers and no-JavaScript visitors see before the app replaces it.
